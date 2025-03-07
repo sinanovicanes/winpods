@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["apps/tray-app", "crates/bluetooth", "crates/device"]
+members = ["apps/tray-app", "crates/device"]
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["full"] }

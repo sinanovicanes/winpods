@@ -1,10 +1,9 @@
-use bluetooth::get_bluetooth_device;
-use device::models::Airpods;
+use device::managers::DeviceManager;
 
 #[tokio::main]
 async fn main() {
-    let device = get_bluetooth_device().await.unwrap();
-    let airpods = Airpods::try_from(device).unwrap();
+    let mut device_manager = DeviceManager::new();
+    let _ = device_manager.scan();
 
-    println!("Airpods: {:?}", airpods);
+    println!("{:?}", device_manager);
 }

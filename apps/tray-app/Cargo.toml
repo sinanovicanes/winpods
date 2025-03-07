@@ -7,5 +7,4 @@ edition = "2021"
 tokio.workspace = true
 tray-item.workspace = true
 windows.workspace = true
-bluetooth = { path = "../../crates/bluetooth" }
 device = { path = "../../crates/device" }
