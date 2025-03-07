@@ -1,0 +1,11 @@
+[package]
+name = "tray-app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio.workspace = true
+tray-item.workspace = true
+windows.workspace = true
+bluetooth = { path = "../../crates/bluetooth" }
+device = { path = "../../crates/device" }

@@ -1,0 +1,19 @@
+[workspace]
+resolver = "2"
+members = ["apps/tray-app", "crates/bluetooth", "crates/device"]
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["full"] }
+tray-item = "0.10.0"
+windows = { version = "0.60.0", features = [
+    "Devices_Bluetooth",
+    "Devices_Bluetooth_GenericAttributeProfile",
+    "Devices_Enumeration",
+    "Foundation",
+    "UI_Notifications",
+    "Storage_Streams",
+    "ApplicationModel_Background",
+    "Devices",
+    "Foundation_Collections",
+] }
+windows-collections = { version = "0.1.1" }
