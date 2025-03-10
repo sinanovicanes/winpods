@@ -1,11 +1,8 @@
 use std::collections::HashMap;
-
 use windows::{
     Devices::Bluetooth::Advertisement::BluetoothLEAdvertisementReceivedEventArgs,
     Foundation::DateTime, Storage::Streams::DataReader,
 };
-
-use crate::AirPods;
 
 #[derive(Debug, Clone)]
 pub struct AdvirtesementReceivedData {

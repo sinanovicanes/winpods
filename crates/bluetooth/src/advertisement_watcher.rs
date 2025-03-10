@@ -50,8 +50,6 @@ impl AdvirtesementWatcher {
                     callback(data.clone());
                 }
 
-                println!("{:?}", data);
-
                 Ok(())
             }))
             .unwrap();
