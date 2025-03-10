@@ -1,3 +1,3 @@
-pub mod managers;
-pub mod models;
-mod utils;
+mod airpods;
+
+pub use airpods::*;
