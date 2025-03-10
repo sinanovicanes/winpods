@@ -8,3 +8,4 @@ tokio.workspace = true
 tray-item.workspace = true
 windows.workspace = true
 device = { path = "../../crates/device" }
+bluetooth = { path = "../../crates/bluetooth" }

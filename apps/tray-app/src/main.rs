@@ -1,46 +1,21 @@
+use bluetooth::AdvirtesementWatcher;
 use tokio::signal;
-use windows::{
-    core::{Error, Ref},
-    Devices::Bluetooth::Advertisement::{
-        BluetoothLEAdvertisementReceivedEventArgs, BluetoothLEAdvertisementWatcher,
-        BluetoothLEScanningMode,
-    },
-    Foundation::TypedEventHandler,
-};
+use windows::core::Result;
 
 #[tokio::main]
-async fn main() -> windows::core::Result<()> {
-    let watcher = BluetoothLEAdvertisementWatcher::new()?;
-    watcher.SetScanningMode(BluetoothLEScanningMode::Active)?;
+async fn main() -> Result<()> {
+    let mut watcher = AdvirtesementWatcher::new();
 
-    watcher.Received(&TypedEventHandler::<
-        BluetoothLEAdvertisementWatcher,
-        BluetoothLEAdvertisementReceivedEventArgs,
-    >::new(|_watcher, args| {
-        println!("Received advertisement.");
-        let device = args.as_ref().ok_or(Error::empty())?;
-        let address = device.BluetoothAddress()?;
-        let manufacturer_data = device.Advertisement()?.ManufacturerData()?;
+    watcher.on_received(|data| {
+        println!("{:?}", data);
+    });
 
-        for data in manufacturer_data {
-            let company_id = data.CompanyId()?;
-            let data = data.Data()?;
+    watcher.start();
 
-            println!("Company ID: {}", company_id);
-            println!("Data: {:?}", data);
-        }
-
-        println!("Address: {}", address);
-        Ok(())
-    }))?;
-
-    watcher.Start()?;
-    println!("Scanning for Bluetooth LE advertisements...");
-
+    // Keep running until Ctrl+C is pressed
     signal::ctrl_c().await.expect("Failed to listen for Ctrl+C");
 
-    watcher.Stop()?;
+    watcher.stop();
 
-    println!("Stopped scanning.");
     Ok(())
 }
