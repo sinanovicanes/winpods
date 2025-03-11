@@ -1,5 +1,5 @@
 <template>
-  <img v-if="image" class="w-4/5" :src="image" :alt="model" />
+  <img v-if="image" v-bind="$attrs" :src="image" :alt="model" />
 </template>
 
 <script setup lang="ts">

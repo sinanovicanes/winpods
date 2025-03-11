@@ -24,7 +24,7 @@ listen<Device>("device-updated", event => {
         {{ device.model }}
       </h1>
       <div class="flex justify-center mb-6">
-        <AirPodsImage :model="device.model" />
+        <AirPodsImage class="w-4/5" :model="device.model" />
       </div>
 
       <div class="space-y-4">
