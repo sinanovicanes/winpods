@@ -17,37 +17,40 @@ pub fn init(app: &mut App) {
     // Get app_handle for the callback
     let app_handle = app.app_handle().clone();
 
-    watcher.on_received(move |args| {
-        let apple_data = args.manufacturer_data_map.get(&apple_cp::VENDOR_ID);
+    watcher.on_received(move |data| {
+        let Some(apple_data) = data.manufacturer_data_map.get(&apple_cp::VENDOR_ID) else {
+            return;
+        };
 
-        if let Some(apple_data) = apple_data {
-            let airpods = AirPods::from_bytes(apple_data);
+        let Some(airpods) = AirPods::from_bytes(apple_data) else {
+            return;
+        };
 
-            if let Some(airpods) = airpods {
-                let left_battery = Battery::new(
-                    airpods.get_left_battery().unwrap_or(0) * 10,
-                    airpods.is_left_charging(),
-                );
+        let device_name =
+            bluetooth::get_device_name_by_address(data.address).unwrap_or("Unknown".to_string());
 
-                let right_battery = Battery::new(
-                    airpods.get_right_battery().unwrap_or(0) * 10,
-                    airpods.is_right_charging(),
-                );
+        let left_battery = Battery::new(
+            airpods.get_left_battery().unwrap_or(0) * 10,
+            airpods.is_left_charging(),
+        );
 
-                let connected_device = ConnectedDevice::new(
-                    args.address.to_string(),
-                    airpods.get_model(),
-                    right_battery,
-                    left_battery,
-                );
+        let right_battery = Battery::new(
+            airpods.get_right_battery().unwrap_or(0) * 10,
+            airpods.is_right_charging(),
+        );
 
-                app_handle
-                    .emit(events::DEVICE_UPDATED, connected_device)
-                    .unwrap_or_else(|e| {
-                        tracing::error!("Failed to emit device connected event: {}", e);
-                    });
-            }
-        }
+        let connected_device = ConnectedDevice::new(
+            device_name,
+            airpods.get_model(),
+            left_battery,
+            right_battery,
+        );
+
+        app_handle
+            .emit(events::DEVICE_UPDATED, connected_device)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device connected event: {}", e);
+            });
     });
 
     watcher.start();

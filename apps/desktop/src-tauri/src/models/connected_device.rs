@@ -8,22 +8,22 @@ use super::Battery;
 pub struct ConnectedDevice {
     pub name: String,
     pub model: AirPodsModel,
-    pub battery_right: Battery,
     pub battery_left: Battery,
+    pub battery_right: Battery,
 }
 
 impl ConnectedDevice {
     pub fn new(
         name: String,
         model: AirPodsModel,
-        battery_right: Battery,
         battery_left: Battery,
+        battery_right: Battery,
     ) -> Self {
         Self {
             name,
             model,
-            battery_right,
             battery_left,
+            battery_right,
         }
     }
 }
