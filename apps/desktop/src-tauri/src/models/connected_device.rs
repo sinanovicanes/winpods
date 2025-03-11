@@ -8,22 +8,25 @@ use super::Battery;
 pub struct ConnectedDevice {
     pub name: String,
     pub model: AirPodsModel,
-    pub battery_left: Battery,
-    pub battery_right: Battery,
+    pub left_battery: Battery,
+    pub right_battery: Battery,
+    pub case_battery: Option<Battery>,
 }
 
 impl ConnectedDevice {
     pub fn new(
         name: String,
         model: AirPodsModel,
-        battery_left: Battery,
-        battery_right: Battery,
+        left_battery: Battery,
+        right_battery: Battery,
+        case_battery: Option<Battery>,
     ) -> Self {
         Self {
             name,
             model,
-            battery_left,
-            battery_right,
+            left_battery,
+            right_battery,
+            case_battery,
         }
     }
 }
@@ -33,8 +36,9 @@ impl Default for ConnectedDevice {
         Self {
             name: String::new(),
             model: AirPodsModel::Unknown,
-            battery_right: Battery::default(),
-            battery_left: Battery::default(),
+            right_battery: Battery::default(),
+            left_battery: Battery::default(),
+            case_battery: None,
         }
     }
 }

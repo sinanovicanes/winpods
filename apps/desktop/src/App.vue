@@ -14,7 +14,7 @@ const device = computed(() => connectedDeviceStore.device);
   >
     <div v-if="device" class="bg-white rounded-xl shadow-lg p-6 max-w-xs w-full">
       <h1 class="text-center text-xl font-semibold text-gray-800 mb-2">
-        {{ AirPodsModel[device.model] }}
+        {{ device.name || AirPodsModel[device.model] }}
       </h1>
       <div class="flex justify-center mb-6">
         <AirPodsImage class="w-4/5" :model="device.model" />
@@ -24,14 +24,21 @@ const device = computed(() => connectedDeviceStore.device);
         <div class="flex items-center justify-between">
           <span class="text-gray-700 font-medium">Left</span>
           <div class="flex items-center">
-            <Battery :battery="device.batteryLeft" />
+            <Battery :battery="device.leftBattery" />
           </div>
         </div>
 
         <div class="flex items-center justify-between">
           <span class="text-gray-700 font-medium">Right</span>
           <div class="flex items-center">
-            <Battery :battery="device.batteryRight" />
+            <Battery :battery="device.rightBattery" />
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Case</span>
+          <div class="flex items-center">
+            <Battery v-if="device.caseBattery" :battery="device.caseBattery" />
           </div>
         </div>
       </div>

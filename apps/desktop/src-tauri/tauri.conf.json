@@ -13,7 +13,7 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 300,
+        "height": 350,
         "width": 250,
         "resizable": false,
         "title": "Winpods",

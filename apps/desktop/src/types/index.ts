@@ -17,6 +17,7 @@ interface Battery {
 interface ConnectedDevice {
   name: string;
   model: AirPodsModel;
-  batteryRight: Battery;
-  batteryLeft: Battery;
+  rightBattery: Battery;
+  leftBattery: Battery;
+  caseBattery?: Battery;
 }

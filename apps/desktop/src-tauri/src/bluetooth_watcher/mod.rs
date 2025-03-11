@@ -39,11 +39,18 @@ pub fn init(app: &mut App) {
             airpods.is_right_charging(),
         );
 
+        let case_battery = if let Some(battery_level) = airpods.get_case_battery() {
+            Some(Battery::new(battery_level * 10, airpods.is_case_charging()))
+        } else {
+            None
+        };
+
         let connected_device = ConnectedDevice::new(
             device_name,
             airpods.get_model(),
             left_battery,
             right_battery,
+            case_battery,
         );
 
         app_handle

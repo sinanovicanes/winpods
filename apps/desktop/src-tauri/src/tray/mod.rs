@@ -102,14 +102,14 @@ impl ConnectedDevice {
         format!(
             "{}\nLeft: {}% {}\nRight: {}% {}",
             self.name,
-            self.battery_left.level,
-            if self.battery_left.charging {
+            self.left_battery.level,
+            if self.left_battery.charging {
                 "⚡"
             } else {
                 ""
             },
-            self.battery_right.level,
-            if self.battery_right.charging {
+            self.right_battery.level,
+            if self.right_battery.charging {
                 "⚡"
             } else {
                 ""

@@ -154,11 +154,6 @@ pub mod apple_cp {
             if val <= 10 { Some(val) } else { None }
         }
 
-        fn get_case_battery(&self) -> Option<u8> {
-            let val = self.battery_status[1] & 0x0F;
-            if val <= 10 { Some(val) } else { None }
-        }
-
         pub fn get_left_battery(&self) -> Option<u8> {
             if self.is_left_broadcasted() {
                 self.get_curr_battery()
@@ -175,8 +170,9 @@ pub mod apple_cp {
             }
         }
 
-        pub fn get_case_battery_value(&self) -> Option<u8> {
-            self.get_case_battery()
+        pub fn get_case_battery(&self) -> Option<u8> {
+            let val = self.battery_status[1] & 0x0F;
+            if val <= 10 { Some(val) } else { None }
         }
 
         pub fn is_left_charging(&self) -> bool {
@@ -280,7 +276,7 @@ pub mod apple_cp {
                 );
                 println!(
                     "Case battery: {:?}%",
-                    airpods.get_case_battery_value().map(|v| v * 10)
+                    airpods.get_case_battery().map(|v| v * 10)
                 );
                 println!("Left charging: {}", airpods.is_left_charging());
                 println!("Right charging: {}", airpods.is_right_charging());
