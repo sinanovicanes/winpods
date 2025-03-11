@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "desktop",
+  "productName": "winpods",
   "version": "0.1.0",
-  "identifier": "com.desktop.app",
+  "identifier": "com.winpods.app",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",

@@ -1,8 +1,26 @@
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButtonState, TrayIcon, TrayIconBuilder},
-    App, Manager,
+    App, Listener, Manager,
 };
+
+use crate::models::ConnectedDevice;
+
+fn init_tooltip_listener(app: &mut App, tray: &TrayIcon) {
+    let app_name = app
+        .config()
+        .product_name
+        .clone()
+        .unwrap_or("App".to_string());
+    let tray_handle = tray.clone();
+
+    app.listen("device-updated", move |event| {
+        if let Ok(device) = serde_json::from_str::<ConnectedDevice>(event.payload()) {
+            let tooltip = format!("{}\n{}", app_name, device.to_tooltip());
+            let _ = tray_handle.set_tooltip(Some(tooltip));
+        }
+    });
+}
 
 pub fn init(app: &mut App) -> TrayIcon {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>).unwrap();
@@ -74,5 +92,28 @@ pub fn init(app: &mut App) -> TrayIcon {
         .build(app)
         .unwrap();
 
+    init_tooltip_listener(app, &tray);
+
     tray
+}
+
+impl ConnectedDevice {
+    fn to_tooltip(&self) -> String {
+        format!(
+            "{}\nLeft: {}% {}\nRight: {}% {}",
+            self.name,
+            self.battery_left.level,
+            if self.battery_left.charging {
+                "⚡"
+            } else {
+                ""
+            },
+            self.battery_right.level,
+            if self.battery_right.charging {
+                "⚡"
+            } else {
+                ""
+            }
+        )
+    }
 }

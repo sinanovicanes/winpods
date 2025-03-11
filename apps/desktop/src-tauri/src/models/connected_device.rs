@@ -1,15 +1,15 @@
 use device::apple_cp::AirPodsModel;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::Battery;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConnectedDevice {
-    name: String,
-    model: AirPodsModel,
-    battery_right: Battery,
-    battery_left: Battery,
+    pub name: String,
+    pub model: AirPodsModel,
+    pub battery_right: Battery,
+    pub battery_left: Battery,
 }
 
 impl ConnectedDevice {
