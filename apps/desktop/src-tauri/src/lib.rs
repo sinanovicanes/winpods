@@ -60,15 +60,15 @@ pub fn run() {
             let window_clone = window.clone();
 
             // Hide the window when it loses focus
-            window.on_window_event(move |event| match event {
-                tauri::WindowEvent::Focused(focused) => {
-                    if !focused {
-                        tracing::info!("Hiding window");
-                        let _ = window_clone.hide();
-                    }
-                }
-                _ => {}
-            });
+            // window.on_window_event(move |event| match event {
+            //     tauri::WindowEvent::Focused(focused) => {
+            //         if !focused {
+            //             tracing::info!("Hiding window");
+            //             let _ = window_clone.hide();
+            //         }
+            //     }
+            //     _ => {}
+            // });
 
             // Set up watcher
             let mut watcher = AdvirtesementWatcher::new();

@@ -1,171 +1,71 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { ref } from "vue";
+import { AirPodsImage, Battery } from "./components";
+const device = ref<Device>();
 
-const greetMsg = ref("");
-const name = ref("");
-const device = ref();
-
-async function getDevice() {
-  device.value = await invoke("get_device");
+interface Device {
+  model: string;
+  left_battery: number;
+  right_battery: number;
 }
 
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { name: name.value });
-}
-
-onMounted(() => {
-  setInterval(() => {
-    getDevice();
-  }, 1000);
+listen<Device>("device-updated", event => {
+  device.value = event.payload;
 });
 </script>
 
 <template>
-  <main class="container">
-    <h1>Welcome to Tauri + Vue</h1>
+  <main
+    class="bg-gradient-to-b from-gray-50 to-gray-200 h-screen w-screen flex flex-col items-center justify-center p-4"
+  >
+    <div v-if="device" class="bg-white rounded-xl shadow-lg p-6 max-w-xs w-full">
+      <h1 class="text-center text-xl font-semibold text-gray-800 mb-2">
+        {{ device.model }}
+      </h1>
+      <div class="flex justify-center mb-6">
+        <AirPodsImage :model="device.model" />
+      </div>
 
-    <p>Your device is: {{ JSON.stringify(device) }}</p>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Left</span>
+          <div class="flex items-center">
+            <Battery :percentage="device.left_battery * 10" />
+          </div>
+        </div>
 
-    <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Right</span>
+          <div class="flex items-center">
+            <Battery :percentage="device.right_battery * 10" />
+          </div>
+        </div>
+      </div>
     </div>
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
 
-    <form class="row" @submit.prevent="greet">
-      <input id="greet-input" v-model="name" placeholder="Enter a name..." />
-      <button type="submit">Greet</button>
-    </form>
-    <p>{{ greetMsg }}</p>
+    <div
+      v-else
+      class="bg-white rounded-xl shadow-lg p-6 max-w-xs w-full flex flex-col items-center"
+    >
+      <div class="text-red-500 mb-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+      </div>
+      <p class="text-gray-700 font-medium">Disconnected</p>
+      <p class="text-gray-500 text-sm mt-1">Waiting for AirPods connection...</p>
+    </div>
   </main>
 </template>
-
-<style scoped>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #249b73);
-}
-</style>
-<style>
-:root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-.container {
-  margin: 0;
-  padding-top: 10vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
-h1 {
-  text-align: center;
-}
-
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
-}
-</style>
