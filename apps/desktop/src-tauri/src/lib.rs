@@ -63,14 +63,15 @@ pub fn run() {
                 let _ = window.set_focus();
             }
         }))
+        .plugin(tauri_plugin_pinia::init())
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![greet, get_device])
         .setup(|app| {
             tray::init(app);
 
             app.manage(state);
             Ok(())
         })
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_device])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
