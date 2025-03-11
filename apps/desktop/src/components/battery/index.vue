@@ -27,11 +27,11 @@
           fill="currentColor"
           class="battery-cap"
         />
-        <!-- Battery fill based on percentage -->
+        <!-- Battery fill based on battery.level -->
         <rect
           x="2"
           y="2"
-          :width="`${Math.min(18 * (percentage / 100), 18)}`"
+          :width="`${Math.min(18 * (battery.level / 100), 18)}`"
           height="8"
           rx="1"
           ry="1"
@@ -39,12 +39,14 @@
         />
 
         <!-- Lightning bolt for charging state -->
-        <g v-if="isCharging" transform="translate(7.5, 0)" class="lightning-bolt">
+        <g v-if="battery.charging" transform="translate(7.5, 0)" class="lightning-bolt">
           <path d="M4.5,0 L0,7 L3,7 L1.5,12 L6,5 L3,5 L4.5,0 Z" fill="white" />
         </g>
       </svg>
     </div>
-    <span class="text-sm font-medium" :class="textColorClass"> {{ percentage }}% </span>
+    <span class="text-sm font-medium" :class="textColorClass">
+      {{ battery.level }}%
+    </span>
   </div>
 </template>
 
@@ -52,19 +54,17 @@
 import { computed } from "vue";
 
 interface Props {
-  percentage: number;
+  battery: Battery;
   showWarning?: boolean;
-  isCharging?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  showWarning: true,
-  isCharging: false
+  showWarning: true
 });
 
 const batteryFillClass = computed(() => {
   // When charging, always use green color
-  if (props.isCharging) {
+  if (props.battery.charging) {
     return "fill-green-500";
   }
 
@@ -72,9 +72,9 @@ const batteryFillClass = computed(() => {
     return "fill-green-500";
   }
 
-  if (props.percentage <= 10) {
+  if (props.battery.level <= 10) {
     return "fill-red-500";
-  } else if (props.percentage <= 20) {
+  } else if (props.battery.level <= 20) {
     return "fill-orange-500";
   } else {
     return "fill-green-500";
@@ -83,7 +83,7 @@ const batteryFillClass = computed(() => {
 
 const textColorClass = computed(() => {
   // When charging, always use green text
-  if (props.isCharging) {
+  if (props.battery.charging) {
     return "text-green-500";
   }
 
@@ -91,9 +91,9 @@ const textColorClass = computed(() => {
     return "text-gray-700";
   }
 
-  if (props.percentage <= 10) {
+  if (props.battery.level <= 10) {
     return "text-red-500";
-  } else if (props.percentage <= 20) {
+  } else if (props.battery.level <= 20) {
     return "text-orange-500";
   } else {
     return "text-gray-700";

@@ -1,18 +1,11 @@
 <script setup lang="ts">
-import { listen } from "@tauri-apps/api/event";
-import { ref } from "vue";
+import { computed } from "vue";
 import { AirPodsImage, Battery } from "./components";
-const device = ref<Device>();
+import { useConnectedDevice } from "./stores/connected-device";
+import { AirPodsModel } from "./constants";
 
-interface Device {
-  model: string;
-  left_battery: number;
-  right_battery: number;
-}
-
-listen<Device>("device-updated", event => {
-  device.value = event.payload;
-});
+const connectedDeviceStore = useConnectedDevice();
+const device = computed(() => connectedDeviceStore.device);
 </script>
 
 <template>
@@ -21,7 +14,7 @@ listen<Device>("device-updated", event => {
   >
     <div v-if="device" class="bg-white rounded-xl shadow-lg p-6 max-w-xs w-full">
       <h1 class="text-center text-xl font-semibold text-gray-800 mb-2">
-        {{ device.model }}
+        {{ AirPodsModel[device.model] }}
       </h1>
       <div class="flex justify-center mb-6">
         <AirPodsImage class="w-4/5" :model="device.model" />
@@ -31,14 +24,14 @@ listen<Device>("device-updated", event => {
         <div class="flex items-center justify-between">
           <span class="text-gray-700 font-medium">Left</span>
           <div class="flex items-center">
-            <Battery :percentage="device.left_battery * 10" />
+            <Battery :battery="device.batteryLeft" />
           </div>
         </div>
 
         <div class="flex items-center justify-between">
           <span class="text-gray-700 font-medium">Right</span>
           <div class="flex items-center">
-            <Battery :percentage="device.right_battery * 10" />
+            <Battery :battery="device.batteryRight" />
           </div>
         </div>
       </div>

@@ -2,6 +2,8 @@
 
 // AppleCP = Apple Continuity Protocols
 pub mod apple_cp {
+    use serde::Serialize;
+
     #[repr(u8)]
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum PacketType {
@@ -245,7 +247,8 @@ pub mod apple_cp {
         Right,
     }
 
-    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    #[repr(u8)]
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
     pub enum AirPodsModel {
         AirPods1,
         AirPods2,

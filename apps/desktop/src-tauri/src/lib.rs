@@ -1,33 +1,15 @@
 use bluetooth::AdvirtesementWatcher;
 use device::apple_cp::AirPods;
-use serde::Serialize;
+use models::{Battery, ConnectedDevice};
 use std::sync::{Arc, Mutex};
 use tauri::{Emitter, Manager};
 
+mod models;
 mod tray;
-
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
-#[tauri::command]
-fn get_device(state: tauri::State<'_, Arc<Mutex<AppState>>>) -> Option<Device> {
-    let state = state.lock().unwrap();
-    state.device.clone()
-}
-
-#[derive(Debug, Clone, Serialize)]
-struct Device {
-    model: String,
-    left_battery: u8,
-    right_battery: u8,
-}
 
 #[derive(Default)]
 struct AppState {
-    device: Option<Device>,
+    device: Option<ConnectedDevice>,
 }
 
 // Store the watcher to keep it alive
@@ -52,12 +34,12 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, get_device])
+        .invoke_handler(tauri::generate_handler![])
         .setup(move |app| {
             tray::init(app);
 
-            let window = app.get_webview_window("main").unwrap();
-            let window_clone = window.clone();
+            // let window = app.get_webview_window("main").unwrap();
+            // let window_clone = window.clone();
 
             // Hide the window when it loses focus
             // window.on_window_event(move |event| match event {
@@ -87,17 +69,28 @@ pub fn run() {
                     let airpods = AirPods::from_bytes(apple_data);
 
                     if let Some(airpods) = airpods {
-                        let new_device = Device {
-                            model: airpods.get_model_as_string(),
-                            left_battery: airpods.get_left_battery().unwrap_or(0),
-                            right_battery: airpods.get_right_battery().unwrap_or(0),
-                        };
+                        let left_battery = Battery::new(
+                            airpods.get_left_battery().unwrap_or(0) * 10,
+                            airpods.is_left_charging(),
+                        );
+
+                        let right_battery = Battery::new(
+                            airpods.get_right_battery().unwrap_or(0) * 10,
+                            airpods.is_right_charging(),
+                        );
+
+                        let connected_device = ConnectedDevice::new(
+                            args.address.to_string(),
+                            airpods.get_model(),
+                            right_battery,
+                            left_battery,
+                        );
 
                         // Determine if this is a new connection or an update
                         let is_new_connection = state_guard.device.is_none();
 
                         // Update the state
-                        state_guard.device = Some(new_device.clone());
+                        state_guard.device = Some(connected_device.clone());
 
                         // Drop the mutex guard before emitting events to avoid deadlocks
                         drop(state_guard);
@@ -105,13 +98,13 @@ pub fn run() {
                         // Emit the appropriate event based on connection status
                         if is_new_connection {
                             app_handle
-                                .emit(EVENT_DEVICE_CONNECTED, new_device)
+                                .emit(EVENT_DEVICE_CONNECTED, connected_device)
                                 .unwrap_or_else(|e| {
                                     tracing::error!("Failed to emit device connected event: {}", e);
                                 });
                         } else {
                             app_handle
-                                .emit(EVENT_DEVICE_UPDATED, new_device)
+                                .emit(EVENT_DEVICE_UPDATED, connected_device)
                                 .unwrap_or_else(|e| {
                                     tracing::error!("Failed to emit device updated event: {}", e);
                                 });
