@@ -5,14 +5,14 @@ use windows::{
 };
 
 #[derive(Debug, Clone)]
-pub struct AdvirtesementReceivedData {
+pub struct AdvertisementReceivedData {
     pub rssi: i16,
     pub timestamp: DateTime,
     pub address: u64,
     pub manufacturer_data_map: HashMap<u16, Vec<u8>>,
 }
 
-impl TryFrom<BluetoothLEAdvertisementReceivedEventArgs> for AdvirtesementReceivedData {
+impl TryFrom<BluetoothLEAdvertisementReceivedEventArgs> for AdvertisementReceivedData {
     type Error = windows::core::Error;
 
     fn try_from(
@@ -37,7 +37,7 @@ impl TryFrom<BluetoothLEAdvertisementReceivedEventArgs> for AdvirtesementReceive
             manufacturer_data_map.insert(company_id, buffer);
         }
 
-        let data = AdvirtesementReceivedData {
+        let data = AdvertisementReceivedData {
             rssi,
             timestamp,
             address,

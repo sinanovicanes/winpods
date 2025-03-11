@@ -8,31 +8,31 @@ use windows::{
     Foundation::TypedEventHandler,
 };
 
-use crate::advertisement_received_data::AdvirtesementReceivedData;
+use crate::advertisement_received_data::AdvertisementReceivedData;
 
-enum AdvirtesementWatcherState {
+enum AdvertisementWatcherState {
     Stopped,
     Scanning,
 }
 
-pub struct AdvirtesementWatcher {
-    state: AdvirtesementWatcherState,
+pub struct AdvertisementWatcher {
+    state: AdvertisementWatcherState,
     watcher: BluetoothLEAdvertisementWatcher,
     received_token: Option<i64>,
-    on_received_callbacks: Arc<Mutex<Vec<Box<dyn Fn(AdvirtesementReceivedData) + Send + Sync>>>>,
+    on_received_callbacks: Arc<Mutex<Vec<Box<dyn Fn(AdvertisementReceivedData) + Send + Sync>>>>,
 }
 
-impl AdvirtesementWatcher {
+impl AdvertisementWatcher {
     pub fn new() -> Self {
         Self::default()
     }
 
     pub fn start(&mut self) {
-        if matches!(self.state, AdvirtesementWatcherState::Scanning) {
+        if matches!(self.state, AdvertisementWatcherState::Scanning) {
             return;
         }
 
-        self.state = AdvirtesementWatcherState::Scanning;
+        self.state = AdvertisementWatcherState::Scanning;
 
         let callbacks = Arc::clone(&self.on_received_callbacks);
 
@@ -43,7 +43,7 @@ impl AdvirtesementWatcher {
                 BluetoothLEAdvertisementReceivedEventArgs,
             >::new(move |_watcher, args| {
                 let args = args.as_ref().unwrap();
-                let data = AdvirtesementReceivedData::try_from(args.clone()).unwrap();
+                let data = AdvertisementReceivedData::try_from(args.clone()).unwrap();
 
                 let callbacks = callbacks.lock().unwrap();
                 for callback in callbacks.iter() {
@@ -62,7 +62,7 @@ impl AdvirtesementWatcher {
     }
 
     pub fn stop(&mut self) {
-        self.state = AdvirtesementWatcherState::Stopped;
+        self.state = AdvertisementWatcherState::Stopped;
         self.watcher.Stop().unwrap();
         self.watcher
             .SetScanningMode(BluetoothLEScanningMode::None)
@@ -79,16 +79,16 @@ impl AdvirtesementWatcher {
 
     pub fn on_received<F>(&self, f: F)
     where
-        F: Fn(AdvirtesementReceivedData) + Send + Sync + 'static,
+        F: Fn(AdvertisementReceivedData) + Send + Sync + 'static,
     {
         self.on_received_callbacks.lock().unwrap().push(Box::new(f));
     }
 }
 
-impl Default for AdvirtesementWatcher {
+impl Default for AdvertisementWatcher {
     fn default() -> Self {
         Self {
-            state: AdvirtesementWatcherState::Stopped,
+            state: AdvertisementWatcherState::Stopped,
             watcher: BluetoothLEAdvertisementWatcher::new().unwrap(),
             on_received_callbacks: Arc::new(Mutex::new(Vec::new())),
             received_token: None,
