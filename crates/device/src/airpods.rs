@@ -138,6 +138,10 @@ pub mod apple_cp {
             }
         }
 
+        pub fn get_model_as_string(&self) -> String {
+            format!("{:?}", self.get_model())
+        }
+
         fn get_curr_battery(&self) -> Option<u8> {
             let val = self.battery_status[0] & 0x0F;
             if val <= 10 { Some(val) } else { None }
