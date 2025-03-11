@@ -50,7 +50,6 @@ pub fn run() {
                     left_battery: airpods.get_left_battery().unwrap_or(0),
                     right_battery: airpods.get_right_battery().unwrap_or(0),
                 });
-                tracing::info!("Updated AirPods state: {:?}", state.device);
             }
         }
     });
@@ -68,6 +67,20 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![greet, get_device])
         .setup(|app| {
             tray::init(app);
+
+            let window = app.get_webview_window("main").unwrap();
+            let window_clone = window.clone();
+
+            // Hide the window when it loses focus
+            window.on_window_event(move |event| match event {
+                tauri::WindowEvent::Focused(focused) => {
+                    if !focused {
+                        tracing::info!("Hiding window");
+                        let _ = window_clone.hide();
+                    }
+                }
+                _ => {}
+            });
 
             app.manage(state);
             Ok(())

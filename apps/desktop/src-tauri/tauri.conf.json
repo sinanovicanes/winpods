@@ -12,9 +12,16 @@
   "app": {
     "windows": [
       {
-        "title": "desktop",
-        "width": 800,
-        "height": 600
+        "fullscreen": false,
+        "height": 400,
+        "width": 300,
+        "resizable": false,
+        "title": "Winpods",
+        "decorations": false,
+        "transparent": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true,
+        "visible": false
       }
     ],
     "security": {

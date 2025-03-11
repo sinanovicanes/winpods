@@ -1,7 +1,7 @@
 use tauri::{
     menu::{Menu, MenuItem},
-    tray::{TrayIcon, TrayIconBuilder},
-    App,
+    tray::{MouseButtonState, TrayIcon, TrayIconBuilder},
+    App, Manager,
 };
 
 pub fn init(app: &mut App) -> TrayIcon {
@@ -13,10 +13,12 @@ pub fn init(app: &mut App) -> TrayIcon {
         .clone()
         .unwrap_or("App".to_string());
 
+    // Clone app handle for use in the event closures
+    let app_handle = app.handle().clone();
+
     let tray: TrayIcon = TrayIconBuilder::new()
         .tooltip(app_name)
         .icon(app.default_window_icon().unwrap().clone())
-        // .show_menu_on_left_click(true)
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "quit" => {
@@ -25,6 +27,48 @@ pub fn init(app: &mut App) -> TrayIcon {
             }
             _ => {
                 tracing::warn!("Unknown menu item: {:?}", event.id);
+            }
+        })
+        .on_tray_icon_event(move |_tray_handler, event| {
+            match event {
+                tauri::tray::TrayIconEvent::Click {
+                    position,
+                    button,
+                    button_state,
+                    ..
+                } => {
+                    if !matches!(button, tauri::tray::MouseButton::Left) {
+                        return;
+                    }
+
+                    if !matches!(button_state, MouseButtonState::Down) {
+                        return;
+                    }
+
+                    if let Some(window) = app_handle.get_webview_window("main") {
+                        // Get the window's current size
+                        if let Ok(size) = window.inner_size() {
+                            // Position window above the tray icon
+                            let _ = window.set_position(tauri::Position::Physical(
+                                tauri::PhysicalPosition {
+                                    x: (position.x - (size.width as f64 / 2.0)) as i32,
+                                    y: (position.y - size.height as f64) as i32,
+                                },
+                            ));
+                        }
+
+                        // Toggle window visibility
+                        if let Ok(true) = window.is_visible() {
+                            let _ = window.hide();
+                            tracing::info!("Hiding window");
+                        } else {
+                            tracing::info!("Showing window");
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                        }
+                    }
+                }
+                _ => {}
             }
         })
         .build(app)
