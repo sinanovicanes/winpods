@@ -1,6 +1,6 @@
 use tauri::Manager;
 
-mod bluetooth_watcher;
+mod bluetooth;
 mod events;
 mod models;
 mod tray;
@@ -18,7 +18,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![])
         .setup(move |app| {
             tray::init(app);
-            bluetooth_watcher::init(app);
+            bluetooth::init(app);
 
             // let window = app.get_webview_window("main").unwrap();
             // let window_clone = window.clone();

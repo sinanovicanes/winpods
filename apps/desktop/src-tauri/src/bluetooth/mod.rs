@@ -7,16 +7,16 @@ use crate::{
     models::{Battery, ConnectedDevice},
 };
 
-struct BluetoothWatcher {
-    _watcher: AdvertisementWatcher,
+struct BluetoothState {
+    pub _watcher: AdvertisementWatcher,
 }
 
 pub fn init(app: &mut App) {
-    let mut watcher = AdvertisementWatcher::new();
+    let mut watcher =
+        AdvertisementWatcher::new().expect("Failed to initialize AdvertisementWatcher");
 
     // Get app_handle for the callback
     let app_handle = app.app_handle().clone();
-
     watcher.on_received(move |data| {
         let Some(apple_data) = data.manufacturer_data_map.get(&apple_cp::VENDOR_ID) else {
             return;
@@ -60,8 +60,10 @@ pub fn init(app: &mut App) {
             });
     });
 
-    watcher.start();
+    watcher
+        .start()
+        .expect("Failed to start AdvertisementWatcher");
 
     // Store the watcher in the app state to keep it alive
-    app.manage(BluetoothWatcher { _watcher: watcher });
+    app.manage(BluetoothState { _watcher: watcher });
 }

@@ -22,7 +22,6 @@ impl TryFrom<BluetoothLEAdvertisementReceivedEventArgs> for AdvertisementReceive
         let timestamp = args.Timestamp()?;
         let address = args.BluetoothAddress()?;
         let mut manufacturer_data_map = HashMap::new();
-
         let manufacturer_data_vector = args.Advertisement()?.ManufacturerData()?;
 
         for i in 0..manufacturer_data_vector.Size()? {

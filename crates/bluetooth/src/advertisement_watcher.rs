@@ -1,5 +1,4 @@
-use std::sync::{Arc, Mutex};
-
+use utils::EventDispatcher;
 use windows::{
     Devices::Bluetooth::Advertisement::{
         BluetoothLEAdvertisementFilter, BluetoothLEAdvertisementReceivedEventArgs,
@@ -10,88 +9,76 @@ use windows::{
 
 use crate::advertisement_received_data::AdvertisementReceivedData;
 
-enum AdvertisementWatcherState {
-    Stopped,
-    Scanning,
-}
+struct AdvertisementReceivedEvent(AdvertisementReceivedData);
 
 pub struct AdvertisementWatcher {
-    state: AdvertisementWatcherState,
     watcher: BluetoothLEAdvertisementWatcher,
-    received_token: Option<i64>,
-    on_received_callbacks: Arc<Mutex<Vec<Box<dyn Fn(AdvertisementReceivedData) + Send + Sync>>>>,
+    dispatcher: EventDispatcher,
 }
 
 impl AdvertisementWatcher {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new() -> windows::core::Result<Self> {
+        let watcher = Self {
+            watcher: BluetoothLEAdvertisementWatcher::new()?,
+            dispatcher: EventDispatcher::new(),
+        };
+
+        watcher.init()?;
+
+        Ok(watcher)
     }
 
-    pub fn start(&mut self) {
-        if matches!(self.state, AdvertisementWatcherState::Scanning) {
-            return;
-        }
+    fn init(&self) -> windows::core::Result<()> {
+        let dispatcher = self.dispatcher.clone();
+        let _ = self.watcher.Received(&TypedEventHandler::<
+            BluetoothLEAdvertisementWatcher,
+            BluetoothLEAdvertisementReceivedEventArgs,
+        >::new(move |_watcher, args| {
+            let Some(args) = args.as_ref() else {
+                return Ok(());
+            };
 
-        self.state = AdvertisementWatcherState::Scanning;
+            let Ok(data) = AdvertisementReceivedData::try_from(args.clone()) else {
+                return Ok(());
+            };
 
-        let callbacks = Arc::clone(&self.on_received_callbacks);
+            dispatcher.dispatch(AdvertisementReceivedEvent(data));
 
-        let received_token = self
-            .watcher
-            .Received(&TypedEventHandler::<
-                BluetoothLEAdvertisementWatcher,
-                BluetoothLEAdvertisementReceivedEventArgs,
-            >::new(move |_watcher, args| {
-                let args = args.as_ref().unwrap();
-                let data = AdvertisementReceivedData::try_from(args.clone()).unwrap();
+            Ok(())
+        }))?;
 
-                let callbacks = callbacks.lock().unwrap();
-                for callback in callbacks.iter() {
-                    callback(data.clone());
-                }
+        Ok(())
+    }
 
-                Ok(())
-            }))
-            .unwrap();
-
-        self.received_token = Some(received_token);
-        self.watcher.Start().unwrap();
+    pub fn start(&mut self) -> windows::core::Result<()> {
+        self.watcher.Start()?;
         self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::Active)
-            .unwrap();
+            .SetScanningMode(BluetoothLEScanningMode::Active)?;
+
+        Ok(())
     }
 
-    pub fn stop(&mut self) {
-        self.state = AdvertisementWatcherState::Stopped;
-        self.watcher.Stop().unwrap();
+    pub fn stop(&mut self) -> windows::core::Result<()> {
+        self.watcher.Stop()?;
         self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::None)
-            .unwrap();
-        if let Some(token) = self.received_token {
-            let _ = self.watcher.RemoveReceived(token);
-            self.received_token = None;
-        }
+            .SetScanningMode(BluetoothLEScanningMode::None)?;
+
+        Ok(())
     }
 
-    pub fn filter(&mut self, filter: &BluetoothLEAdvertisementFilter) {
-        self.watcher.SetAdvertisementFilter(filter).unwrap();
+    pub fn filter(&mut self, filter: &BluetoothLEAdvertisementFilter) -> windows::core::Result<()> {
+        self.watcher.SetAdvertisementFilter(filter)?;
+
+        Ok(())
     }
 
-    pub fn on_received<F>(&self, f: F)
-    where
-        F: Fn(AdvertisementReceivedData) + Send + Sync + 'static,
-    {
-        self.on_received_callbacks.lock().unwrap().push(Box::new(f));
-    }
-}
-
-impl Default for AdvertisementWatcher {
-    fn default() -> Self {
-        Self {
-            state: AdvertisementWatcherState::Stopped,
-            watcher: BluetoothLEAdvertisementWatcher::new().unwrap(),
-            on_received_callbacks: Arc::new(Mutex::new(Vec::new())),
-            received_token: None,
-        }
+    pub fn on_received(
+        &self,
+        callback: impl Fn(&AdvertisementReceivedData) + Send + Sync + 'static,
+    ) {
+        self.dispatcher
+            .add_listener::<AdvertisementReceivedEvent, _>(move |event| {
+                callback(&event.0);
+            });
     }
 }
