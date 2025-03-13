@@ -4,6 +4,7 @@ mod bluetooth;
 mod events;
 mod models;
 mod tray;
+mod utils;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
