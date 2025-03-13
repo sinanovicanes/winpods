@@ -12,11 +12,22 @@
   "app": {
     "windows": [
       {
+        "label": "main",
+        "title": "Winpods",
+        "width": 800,
+        "height": 600,
+        "resizable": false,
+        "maximizable": false,
+        "center": true,
+        "visible": false
+      },
+      {
+        "label": "widget",
+        "title": "Winpods",
         "fullscreen": false,
         "height": 350,
         "width": 250,
         "resizable": false,
-        "title": "Winpods",
         "decorations": false,
         "transparent": true,
         "skipTaskbar": true,
