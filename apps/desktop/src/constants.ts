@@ -9,3 +9,15 @@ export enum AirPodsModel {
   BeatsFitPro = "Beats Fit Pro",
   Unknown = "Unknown"
 }
+
+export enum Events {
+  DeviceUpdated = "device-updated",
+  SettingsUpdateAutoUpdate = "settings:update:auto_update",
+  SettingsUpdateNotifications = "settings:update:notifications",
+  SettingsUpdateLowBatteryNotification = "settings:update:low_battery_notification",
+  SettingsUpdateEarDetection = "settings:update:ear_detection",
+  SettingsSetAutoUpdate = "settings:set:auto_update",
+  SettingsSetNotifications = "settings:set:notifications",
+  SettingsSetLowBatteryNotification = "settings:set:low_battery_notification",
+  SettingsSetEarDetection = "settings:set:ear_detection"
+}

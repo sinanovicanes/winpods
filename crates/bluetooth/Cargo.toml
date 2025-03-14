@@ -7,3 +7,5 @@ edition = "2024"
 utils = { path = "../utils" }
 windows.workspace = true
 windows-collections.workspace = true
+serde.workspace = true
+serde_json.workspace = true

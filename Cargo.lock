@@ -326,6 +326,8 @@ dependencies = [
 name = "bluetooth"
 version = "0.1.0"
 dependencies = [
+ "serde",
+ "serde_json",
  "utils",
  "windows",
  "windows-collections",

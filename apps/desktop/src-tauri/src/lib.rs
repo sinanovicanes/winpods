@@ -1,6 +1,6 @@
 use tauri::{Manager, WindowEvent};
 
-mod bluetooth;
+mod device_manager;
 mod events;
 mod models;
 mod settings;
@@ -21,8 +21,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![])
         .setup(move |app| {
             settings::init(app);
+            device_manager::init(app);
             tray::init(app);
-            bluetooth::init(app);
 
             // let window = app.get_webview_window("main").unwrap();
             // let window_clone = window.clone();

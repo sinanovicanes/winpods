@@ -1,6 +1,5 @@
+use crate::device_manager::Device;
 use tauri::{tray::TrayIcon, Listener};
-
-use crate::models::ConnectedDevice;
 
 pub fn init_tooltip_listener(tray: &TrayIcon) {
     let app_handle = tray.app_handle();
@@ -8,30 +7,22 @@ pub fn init_tooltip_listener(tray: &TrayIcon) {
     let tray_handle = tray.clone();
 
     app_handle.listen("device-updated", move |event| {
-        if let Ok(device) = serde_json::from_str::<ConnectedDevice>(event.payload()) {
+        if let Ok(device) = serde_json::from_str::<Device>(event.payload()) {
             let tooltip = format!("{}\n{}", app_name, device.to_tooltip());
             let _ = tray_handle.set_tooltip(Some(tooltip));
         }
     });
 }
 
-impl ConnectedDevice {
+impl Device {
     fn to_tooltip(&self) -> String {
-        format!(
-            "{}\nLeft: {}% {}\nRight: {}% {}",
-            self.name,
-            self.left_battery.level,
-            if self.left_battery.charging {
-                "⚡"
-            } else {
-                ""
-            },
-            self.right_battery.level,
-            if self.right_battery.charging {
-                "⚡"
-            } else {
-                ""
-            }
-        )
+        if let Some(properties) = &self.properties {
+            format!(
+                "{}\nLeft: {}%\nRight: {}%",
+                self.name, properties.left_battery.level, properties.right_battery.level
+            )
+        } else {
+            "No device connected".to_string()
+        }
     }
 }

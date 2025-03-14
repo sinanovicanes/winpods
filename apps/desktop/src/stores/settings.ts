@@ -1,3 +1,4 @@
+import { Events } from "@/constants";
 import { emit, listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref, watch } from "vue";
@@ -8,30 +9,30 @@ export const useSettings = defineStore("settings", () => {
   const lowBatteryNotification = ref(true);
   const earDetection = ref(true);
 
-  listen<boolean>("settings:update:auto_update", event => {
+  listen<boolean>(Events.SettingsUpdateAutoUpdate, event => {
     autoUpdate.value = event.payload;
   });
 
-  listen<boolean>("settings:update:notifications", event => {
+  listen<boolean>(Events.SettingsUpdateNotifications, event => {
     notifications.value = event.payload;
   });
 
-  listen<boolean>("settings:update:low_battery_notification", event => {
+  listen<boolean>(Events.SettingsUpdateLowBatteryNotification, event => {
     lowBatteryNotification.value = event.payload;
   });
 
-  listen<boolean>("settings:update:ear_detection", event => {
+  listen<boolean>(Events.SettingsUpdateEarDetection, event => {
     earDetection.value = event.payload;
   });
 
   const createSynchronizer = (event: string) => (newValue: any) => emit(event, newValue);
-  watch(autoUpdate, createSynchronizer("settings:set:auto_update"));
-  watch(notifications, createSynchronizer("settings:set:notifications"));
+  watch(autoUpdate, createSynchronizer(Events.SettingsSetAutoUpdate));
+  watch(notifications, createSynchronizer(Events.SettingsSetNotifications));
   watch(
     lowBatteryNotification,
-    createSynchronizer("settings:set:low_battery_notification")
+    createSynchronizer(Events.SettingsSetLowBatteryNotification)
   );
-  watch(earDetection, createSynchronizer("settings:set:ear_detection"));
+  watch(earDetection, createSynchronizer(Events.SettingsSetEarDetection));
 
   return {
     autoUpdate,

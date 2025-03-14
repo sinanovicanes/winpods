@@ -1,11 +1,12 @@
+import { Events } from "@/constants";
 import { listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useConnectedDevice = defineStore("connected-device", () => {
-  const device = ref<ConnectedDevice | null>(null);
+  const device = ref<Device | null>(null);
 
-  listen<ConnectedDevice>("device-updated", event => {
+  listen<Device>(Events.DeviceUpdated, event => {
     device.value = event.payload;
   });
 

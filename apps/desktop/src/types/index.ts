@@ -14,10 +14,17 @@ interface Battery {
   charging: boolean;
 }
 
-interface ConnectedDevice {
-  name: string;
+interface DeviceProperties {
+  rssi: number;
+  address: number;
   model: AirPodsModel;
-  rightBattery: Battery;
   leftBattery: Battery;
+  rightBattery: Battery;
   caseBattery?: Battery;
+}
+
+interface Device {
+  address: number;
+  name: string;
+  properties?: DeviceProperties;
 }

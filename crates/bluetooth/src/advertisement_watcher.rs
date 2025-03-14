@@ -50,7 +50,7 @@ impl AdvertisementWatcher {
         Ok(())
     }
 
-    pub fn start(&mut self) -> windows::core::Result<()> {
+    pub fn start(&self) -> windows::core::Result<()> {
         self.watcher.Start()?;
         self.watcher
             .SetScanningMode(BluetoothLEScanningMode::Active)?;
@@ -58,7 +58,7 @@ impl AdvertisementWatcher {
         Ok(())
     }
 
-    pub fn stop(&mut self) -> windows::core::Result<()> {
+    pub fn stop(&self) -> windows::core::Result<()> {
         self.watcher.Stop()?;
         self.watcher
             .SetScanningMode(BluetoothLEScanningMode::None)?;
@@ -66,7 +66,7 @@ impl AdvertisementWatcher {
         Ok(())
     }
 
-    pub fn filter(&mut self, filter: &BluetoothLEAdvertisementFilter) -> windows::core::Result<()> {
+    pub fn filter(&self, filter: &BluetoothLEAdvertisementFilter) -> windows::core::Result<()> {
         self.watcher.SetAdvertisementFilter(filter)?;
 
         Ok(())
