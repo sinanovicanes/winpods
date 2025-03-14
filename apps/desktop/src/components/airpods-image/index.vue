@@ -3,7 +3,9 @@
 </template>
 
 <script setup lang="ts">
-import AirpodsPro2UsbC from "@/assets/airpods_pro_2.webp";
+import AirPods from "@/assets/airpods.webp";
+import AirPodsPro from "@/assets/airpods_pro_2.webp";
+import AirPodsMax from "@/assets/airpods_max.png";
 import { AirPodsModel } from "@/constants";
 import { computed } from "vue";
 
@@ -15,8 +17,16 @@ const props = defineProps<Props>();
 
 function getAirPodsImageFromModel(model: keyof typeof AirPodsModel): string {
   switch (model) {
+    case "AirPods1":
+    case "AirPods2":
+    case "AirPods3":
+      return AirPods;
+    case "AirPodsPro":
+    case "AirPodsPro2":
     case "AirPodsPro2UsbC":
-      return AirpodsPro2UsbC;
+      return AirPodsPro;
+    case "AirPodsMax":
+      return AirPodsMax;
     default:
       return "";
   }

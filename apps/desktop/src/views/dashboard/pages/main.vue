@@ -46,7 +46,7 @@ const autoDetection = ref(true);
         </div>
 
         <div class="w-[200px] flex justify-center items-center">
-          <AirPodsImage model="AirPodsPro2UsbC" />
+          <AirPodsImage :model="device.model" />
         </div>
       </main>
       <footer class="flex gap-4 justify-start mt-2">
