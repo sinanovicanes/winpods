@@ -17,7 +17,7 @@ pub fn play() -> bool {
     return false;
 }
 
-pub fn stop() -> bool {
+pub fn pause() -> bool {
     let session_manager: GlobalSystemMediaTransportControlsSessionManager =
         GlobalSystemMediaTransportControlsSessionManager::RequestAsync()
             .unwrap()
@@ -27,7 +27,7 @@ pub fn stop() -> bool {
     // Get the current active session
     if let Some(session) = session_manager.GetCurrentSession().ok() {
         // Stop media playback
-        session.TryStopAsync().unwrap();
+        session.TryPauseAsync().unwrap();
         return true;
     }
 

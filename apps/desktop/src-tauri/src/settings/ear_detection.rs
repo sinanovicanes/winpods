@@ -8,7 +8,7 @@ use super::SettingsState;
 
 #[derive(Debug, Clone, Default)]
 struct EarDetectionState {
-    pub stopped: bool,
+    pub paused: bool,
 }
 
 pub fn init(app: &mut App) {
@@ -35,24 +35,24 @@ pub fn init(app: &mut App) {
         let ear_detection_state = app_handle.state::<Mutex<EarDetectionState>>();
         let mut ear_detection_state = ear_detection_state.lock().unwrap();
 
-        if properties.left_in_ear || properties.right_in_ear {
-            if !ear_detection_state.stopped {
+        if properties.left_in_ear && properties.right_in_ear {
+            if !ear_detection_state.paused {
                 return;
             }
 
             if media::play() {
-                ear_detection_state.stopped = false;
+                ear_detection_state.paused = false;
             }
 
             return;
         }
 
-        if ear_detection_state.stopped {
+        if ear_detection_state.paused {
             return;
         }
 
-        if media::stop() {
-            ear_detection_state.stopped = true;
+        if media::pause() {
+            ear_detection_state.paused = true;
         }
     });
 
