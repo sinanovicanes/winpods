@@ -1,4 +1,4 @@
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 
 mod bluetooth;
 mod events;
@@ -37,6 +37,14 @@ pub fn run() {
             // });
 
             Ok(())
+        })
+        .on_window_event(|window, event| match event {
+            // Prevents window from closing
+            WindowEvent::CloseRequested { api, .. } => {
+                window.hide().unwrap();
+                api.prevent_close();
+            }
+            _ => {}
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
