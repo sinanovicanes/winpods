@@ -2,11 +2,12 @@
 import { AirPodsImage, Battery, Switch } from "@/components";
 import { AirPodsModel } from "@/constants";
 import { useConnectedDevice } from "@/stores/connected-device";
-import { computed, ref } from "vue";
+import { useSettings } from "@/stores/settings";
+import { computed } from "vue";
 
 const deviceStore = useConnectedDevice();
+const settings = useSettings();
 const device = computed(() => deviceStore.device);
-const autoDetection = ref(true);
 </script>
 
 <template>
@@ -58,7 +59,7 @@ const autoDetection = ref(true);
               ears
             </p>
           </div>
-          <Switch v-model="autoDetection" />
+          <Switch v-model="settings.earDetection" />
         </div>
       </footer>
     </section>

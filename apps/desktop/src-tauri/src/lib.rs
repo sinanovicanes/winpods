@@ -3,6 +3,7 @@ use tauri::{Manager, WindowEvent};
 mod bluetooth;
 mod events;
 mod models;
+mod settings;
 mod tray;
 mod utils;
 mod views;
@@ -19,6 +20,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![])
         .setup(move |app| {
+            settings::init(app);
             tray::init(app);
             bluetooth::init(app);
 

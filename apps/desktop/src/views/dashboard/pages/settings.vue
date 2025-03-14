@@ -1,3 +1,10 @@
+<script setup lang="ts">
+import { Switch } from "@/components";
+import { useSettings } from "@/stores/settings";
+
+const settings = useSettings();
+</script>
+
 <template>
   <div class="flex flex-col space-y-6 gap-4">
     <h1 class="text-3xl font-semibold text-gray-900">Settings</h1>
@@ -33,7 +40,7 @@
                 Keep the application up to date automatically
               </p>
             </div>
-            <Switch v-model="autoUpdate" />
+            <Switch v-model="settings.autoUpdate" />
           </div>
         </div>
       </div>
@@ -50,7 +57,7 @@
               <p class="text-sm font-medium text-gray-700">Enable Notifications</p>
               <p class="text-xs text-gray-500 mt-1">Receive alerts about system events</p>
             </div>
-            <Switch v-model="notifications" />
+            <Switch v-model="settings.notifications" />
           </div>
 
           <div class="flex items-center justify-between">
@@ -60,21 +67,10 @@
                 Sends notification when battery is low
               </p>
             </div>
-            <Switch v-model="soundAlerts" />
+            <Switch v-model="settings.lowBatteryNotification" />
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<script setup>
-import { Switch } from "@/components";
-import { ref } from "vue";
-
-const theme = ref("light");
-const autoUpdate = ref(true);
-const notifications = ref(true);
-const soundAlerts = ref(false);
-const analytics = ref(true);
-</script>

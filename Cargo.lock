@@ -749,6 +749,7 @@ dependencies = [
  "tauri-plugin-single-instance",
  "tracing",
  "tracing-subscriber",
+ "utils",
 ]
 
 [[package]]
