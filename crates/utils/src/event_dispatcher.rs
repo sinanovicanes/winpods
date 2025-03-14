@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 /// A type-erased event listener that can be stored in the dispatcher
+#[allow(dead_code)]
 trait EventListener: Send + Sync {
     fn as_any(&self) -> &dyn Any;
     fn call(&self, event: &dyn Any);

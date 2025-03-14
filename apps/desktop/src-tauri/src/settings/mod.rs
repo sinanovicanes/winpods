@@ -6,6 +6,7 @@ use utils::EventDispatcher;
 
 mod ear_detection;
 mod listeners;
+mod low_battery_notification;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SettingsState {
@@ -148,4 +149,5 @@ pub fn init(app: &mut App) {
 
     listeners::ui_listeners::init(app);
     ear_detection::init(app);
+    low_battery_notification::init(app);
 }
