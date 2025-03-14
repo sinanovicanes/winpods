@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members = ["apps/desktop/src-tauri", "crates/bluetooth", "crates/device", "crates/utils"]
+members = [
+    "apps/desktop/src-tauri",
+    "crates/bluetooth",
+    "crates/device",
+    "crates/media",
+    "crates/utils",
+]
 
 [workspace.dependencies]
 tokio = { version = "1.44.0", features = ["full"] }
@@ -21,5 +27,6 @@ windows = { version = "0.60.0", features = [
     "ApplicationModel_Background",
     "Devices",
     "Foundation_Collections",
+    "Media_Control",
 ] }
 windows-collections = { version = "0.1.1" }

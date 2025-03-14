@@ -21,6 +21,7 @@ tauri-build = { version = "2", features = [] }
 utils = { path = "../../../crates/utils" }
 bluetooth = { path = "../../../crates/bluetooth" }
 device = { path = "../../../crates/device" }
+media = { path = "../../../crates/media" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }

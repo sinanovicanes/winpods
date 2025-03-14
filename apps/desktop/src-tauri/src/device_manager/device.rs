@@ -15,6 +15,8 @@ pub struct DeviceProperties {
     pub left_battery: Battery,
     pub right_battery: Battery,
     pub case_battery: Option<Battery>,
+    pub left_in_ear: bool,
+    pub right_in_ear: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,6 +58,8 @@ impl Device {
             level: val * 10,
             charging: protocol.is_case_charging(),
         });
+        let left_in_ear = protocol.is_left_in_ear();
+        let right_in_ear = protocol.is_right_in_ear();
 
         self.update_properties(DeviceProperties {
             rssi: data.rssi,
@@ -64,6 +68,8 @@ impl Device {
             right_battery,
             left_battery,
             case_battery,
+            left_in_ear,
+            right_in_ear,
         })
     }
 }
