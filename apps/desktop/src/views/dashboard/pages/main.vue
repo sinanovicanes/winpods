@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AirPodsImage, Battery } from "@/components";
+import { AirPodsImage, Battery, Switch } from "@/components";
 import { AirPodsModel } from "@/constants";
 import { useConnectedDevice } from "@/stores/connected-device";
 import { computed, ref } from "vue";
@@ -58,23 +58,7 @@ const autoDetection = ref(true);
               ears
             </p>
           </div>
-          <div class="relative inline-block w-12 align-middle select-none">
-            <input type="checkbox" id="sound" v-model="autoDetection" class="sr-only" />
-            <label
-              for="sound"
-              :class="[
-                'block h-6 w-12 rounded-full transition-colors duration-200 ease-in-out cursor-pointer',
-                autoDetection ? 'bg-blue-500' : 'bg-gray-200'
-              ]"
-            >
-              <span
-                :class="[
-                  'block h-5 w-5 mt-0.5 ml-0.5 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out',
-                  autoDetection ? 'translate-x-6' : 'translate-x-0'
-                ]"
-              ></span>
-            </label>
-          </div>
+          <Switch v-model="autoDetection" />
         </div>
       </footer>
     </section>

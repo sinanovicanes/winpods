@@ -1,4 +1,5 @@
 import AirPodsImage from "./airpods-image/index.vue";
 import Battery from "./battery/index.vue";
+import Switch from "./switch/index.vue";
 
-export { AirPodsImage, Battery };
+export { AirPodsImage, Battery, Switch };
