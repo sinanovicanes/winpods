@@ -27,8 +27,6 @@ impl GlobalMediaController {
             GlobalSystemMediaTransportControlsSessionManager::RequestAsync()?.get()?;
         let sessions = session_manager.GetSessions()?;
 
-        println!("Size of sessions: {:?}", sessions.Size());
-
         for session in sessions.into_iter() {
             match session.TryPauseAsync() {
                 Ok(_) => self.paused_sessions.push(session),
