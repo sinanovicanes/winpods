@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 
+use media::GlobalMediaController;
 use tauri::{App, Listener, Manager};
 
 use crate::{device_manager::Device, events};
@@ -9,6 +10,7 @@ use super::SettingsState;
 #[derive(Debug, Clone, Default)]
 struct EarDetectionState {
     pub paused: bool,
+    media_controller: GlobalMediaController,
 }
 
 pub fn init(app: &mut App) {
@@ -34,14 +36,17 @@ pub fn init(app: &mut App) {
 
         let ear_detection_state = app_handle.state::<Mutex<EarDetectionState>>();
         let mut ear_detection_state = ear_detection_state.lock().unwrap();
+        let both_in_ear = properties.left_in_ear && properties.right_in_ear;
 
-        if properties.left_in_ear && properties.right_in_ear {
+        if both_in_ear {
             if !ear_detection_state.paused {
                 return;
             }
 
-            if media::play() {
-                ear_detection_state.paused = false;
+            tracing::info!("Both pods are in ear, resuming media");
+            match ear_detection_state.media_controller.resume() {
+                Ok(_) => ear_detection_state.paused = false,
+                Err(_) => tracing::error!("Failed to play media"),
             }
 
             return;
@@ -51,8 +56,10 @@ pub fn init(app: &mut App) {
             return;
         }
 
-        if media::pause() {
-            ear_detection_state.paused = true;
+        tracing::info!("One or both pods are out of ear, pausing media");
+        match ear_detection_state.media_controller.pause() {
+            Ok(_) => ear_detection_state.paused = true,
+            Err(_) => tracing::error!("Failed to pause media"),
         }
     });
 
