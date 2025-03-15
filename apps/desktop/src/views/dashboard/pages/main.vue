@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { AirPodsImage, Battery, Switch } from "@/components";
 import { AirPodsModel } from "@/constants";
-import { useConnectedDevice } from "@/stores/connected-device";
+import { useDeviceConnection } from "@/stores/device-connection";
 import { useSettings } from "@/stores/settings";
 import { computed } from "vue";
 
-const deviceStore = useConnectedDevice();
+const deviceStore = useDeviceConnection();
 const settings = useSettings();
 const device = computed(() => deviceStore.device);
+const availableDevices = computed(() => deviceStore.availableDevices);
 </script>
 
 <template>
   <div class="flex flex-col space-y-6 gap-4">
     <h1 class="text-3xl font-semibold text-gray-900">Dashboard</h1>
-
     <section
       v-if="device && device.properties"
       class="bg-white rounded-2xl shadow-md p-8 border border-gray-100 flex flex-col gap-2"
@@ -55,7 +55,7 @@ const device = computed(() => deviceStore.device);
           <AirPodsImage :model="device.properties.model" />
         </div>
       </main>
-      <footer class="flex gap-4 justify-start mt-2">
+      <footer class="flex flex-col gap-4 justify-start mt-2">
         <div class="flex items-center justify-between w-full">
           <div>
             <p class="text-sm font-medium text-gray-700">Automatic Ear Detection</p>
@@ -66,7 +66,33 @@ const device = computed(() => deviceStore.device);
           </div>
           <Switch v-model="settings.earDetection" />
         </div>
+        <button
+          class="text-sm font-medium cursor-pointer text-red-600 border border-red-200 rounded-lg px-4 py-2 hover:bg-red-50 hover:border-red-300 transition-colors duration-200 shadow-sm"
+          @click="deviceStore.disconnect()"
+        >
+          Disconnect
+        </button>
       </footer>
+    </section>
+    <section v-else-if="!!device">
+      <p class="text-gray-500">Connecting...</p>
+    </section>
+    <section v-else>
+      <p class="text-gray-500">Select device to connect</p>
+      <select
+        @change="deviceStore.connect(Number(($event.target as HTMLSelectElement).value))"
+        class="w-full h-10 px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-800 appearance-none outline-none border border-gray-300 bg-clip-padding shadow-sm cursor-pointer transition-all duration-200 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      >
+        <option value="" disabled selected>Select device</option>
+        <option
+          v-for="device in availableDevices"
+          :key="device.address"
+          :value="device.address"
+          class="py-2 px-4 text-gray-800 font-medium hover:bg-gray-50 focus:bg-blue-50"
+        >
+          {{ device.name }}
+        </option>
+      </select>
     </section>
   </div>
 </template>

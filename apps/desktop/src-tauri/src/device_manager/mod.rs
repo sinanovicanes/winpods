@@ -3,6 +3,7 @@ use bluetooth::{
 };
 use std::sync::Mutex;
 use tauri::{App, Emitter, Manager};
+use utils::EventDispatcher;
 
 use crate::events;
 
@@ -10,9 +11,12 @@ mod device;
 
 pub use device::Device;
 
-struct DeviceManagerState {
+struct DeviceUpdatedEvent(Option<Device>);
+
+pub struct DeviceManagerState {
     pub device: Option<Device>,
     _adv_watcher: AdvertisementWatcher,
+    dispatcher: EventDispatcher,
 }
 
 impl DeviceManagerState {
@@ -20,14 +24,36 @@ impl DeviceManagerState {
         self.device.is_some()
     }
 
+    pub fn connect(&mut self, device: Device) {
+        self.device = Some(device);
+        self.dispatcher
+            .dispatch(DeviceUpdatedEvent(self.device.clone()));
+    }
+
+    pub fn disconnect(&mut self) {
+        self.device = None;
+        self.dispatcher.dispatch(DeviceUpdatedEvent(None));
+    }
+
     pub fn on_advertisement_received(
         &mut self,
         data: &AdvertisementReceivedData,
         protocol: &AppleCP,
-    ) -> bool {
+    ) {
         let device = self.device.as_mut().unwrap();
+        let is_device_updated = device.on_advertisement_received(data, protocol);
 
-        device.on_advertisement_received(data, protocol)
+        if is_device_updated {
+            self.dispatcher
+                .dispatch(DeviceUpdatedEvent(self.device.clone()));
+        }
+    }
+
+    pub fn on_device_updated(&self, callback: impl Fn(&Option<Device>) + Send + Sync + 'static) {
+        self.dispatcher
+            .add_listener::<DeviceUpdatedEvent, _>(move |event| {
+                callback(&event.0);
+            });
     }
 }
 
@@ -56,19 +82,7 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        // TODO: Validate the received data using old data
-
-        let is_updated = device_manager.on_advertisement_received(&data, &protocol);
-
-        if !is_updated {
-            return;
-        }
-
-        app_handle
-            .emit(events::DEVICE_UPDATED, device_manager.device.as_ref())
-            .unwrap_or_else(|e| {
-                tracing::error!("Failed to emit device connected event: {}", e);
-            });
+        device_manager.on_advertisement_received(&data, &protocol);
     });
 
     let device = find_connected_device().map(|info| {
@@ -90,9 +104,21 @@ pub fn init(app: &mut App) {
         .start()
         .expect("Failed to start AdvertisementWatcher");
 
-    // Store the watcher in the app state to keep it alive
-    app.manage(Mutex::new(DeviceManagerState {
+    let state = DeviceManagerState {
         device,
         _adv_watcher: adv_watcher,
-    }));
+        dispatcher: EventDispatcher::new(),
+    };
+
+    let app_handle = app.app_handle().clone();
+    state.on_device_updated(move |device| {
+        app_handle
+            .emit(events::DEVICE_UPDATED, device)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device connected event: {}", e);
+            });
+    });
+
+    // Store the watcher in the app state to keep it alive
+    app.manage(Mutex::new(state));
 }

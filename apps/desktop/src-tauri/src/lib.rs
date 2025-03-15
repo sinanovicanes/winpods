@@ -1,5 +1,6 @@
 use tauri::{Manager, WindowEvent};
 
+mod commands;
 mod device_manager;
 mod events;
 mod models;
@@ -19,7 +20,11 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![
+            commands::get_bluetooth_device_list,
+            commands::connect,
+            commands::disconnect
+        ])
         .setup(move |app| {
             settings::init(app);
             device_manager::init(app);

@@ -44,8 +44,12 @@ pub fn init(app: &mut App) {
             app_handle.state::<Mutex<LowBatteryNotificationState>>();
         let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
 
-        let Ok(device) = serde_json::from_str::<Device>(event.payload()) else {
+        let Ok(device) = serde_json::from_str::<Option<Device>>(event.payload()) else {
             tracing::error!("Failed to parse device from event payload");
+            return;
+        };
+
+        let Some(device) = device else {
             return;
         };
 

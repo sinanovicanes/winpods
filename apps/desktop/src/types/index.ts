@@ -28,3 +28,5 @@ interface Device {
   name: string;
   properties?: DeviceProperties;
 }
+
+type DeviceToConnect = Omit<Device, "properties">;

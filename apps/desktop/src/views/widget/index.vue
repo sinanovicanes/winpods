@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { AirPodsImage, Battery } from "@/components";
-import { useConnectedDevice } from "@/stores/connected-device";
+import { useDeviceConnection } from "@/stores/device-connection";
 import { AirPodsModel } from "@/constants";
 
-const connectedDeviceStore = useConnectedDevice();
+const connectedDeviceStore = useDeviceConnection();
 const device = computed(() => connectedDeviceStore.device);
 </script>
 
