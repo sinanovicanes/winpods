@@ -3,6 +3,18 @@ description: "Install Tauri dependencies"
 runs:
   using: "composite"
   steps:
+    # Cache apt package manager cache
+    - name: Cache apt packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          /var/cache/apt/archives
+          /var/lib/apt/lists
+        key: ${{ runner.os }}-apt-cache-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-apt-cache-
+
+    # Install Tauri dependencies
     - name: Tauri dependencies
       shell: bash
       run: |
