@@ -52,21 +52,6 @@ jobs:
           cd apps/desktop
           bun install
 
-      # - name: CI Build
-      #   if: ${{ github.ref_type == 'branch' }}
-      #   run: |
-      #     bun run tauri build
-
-      # - name: CI upload Windows
-      #   if: ${{ github.ref_type == 'branch' && matrix.platform == 'windows-latest' }}
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: "Windows Installers"
-      #     path: |
-      #       src-tauri/release/bundle/msi/*.msi
-      #       src-tauri/release/bundle/nsis/*.exe
-
-      # TODO: https://tauri.app/v1/guides/building/linux#cross-compiling-tauri-applications-for-arm-based-devices
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
