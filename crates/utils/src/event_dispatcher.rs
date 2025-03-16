@@ -48,9 +48,11 @@ where
     }
 }
 
+type EventListenerMap = HashMap<TypeId, Vec<Arc<dyn EventListener>>>;
+
 /// Event dispatcher that allows registering listeners and dispatching events
 pub struct EventDispatcher {
-    listeners: Arc<Mutex<HashMap<TypeId, Vec<Arc<dyn EventListener>>>>>,
+    listeners: Arc<Mutex<EventListenerMap>>,
 }
 
 impl EventDispatcher {
@@ -71,10 +73,7 @@ impl EventDispatcher {
         let type_id = TypeId::of::<E>();
 
         let mut listeners = self.listeners.lock().unwrap();
-        listeners
-            .entry(type_id)
-            .or_insert_with(Vec::new)
-            .push(listener);
+        listeners.entry(type_id).or_default().push(listener);
     }
 
     /// Dispatch an event to all registered listeners for its type

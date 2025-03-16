@@ -15,8 +15,7 @@ pub fn on_menu_event(app: &AppHandle, _event: MenuEvent) {
         return;
     };
 
-    match view.show() {
-        Err(_) => tracing::error!("Failed to show main window"),
-        Ok(_) => (),
+    if view.show().is_err() {
+        tracing::error!("Failed to show main window")
     }
 }

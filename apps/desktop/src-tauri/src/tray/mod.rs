@@ -13,8 +13,8 @@ pub fn init(app: &mut App) -> TrayIcon {
         .tooltip(app_name)
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
-        .on_menu_event(|app, event| menu::on_menu_event(app, event))
-        .on_tray_icon_event(|tray, event| handlers::on_tray_icon_event(tray, event))
+        .on_menu_event(menu::on_menu_event)
+        .on_tray_icon_event(handlers::on_tray_icon_event)
         .build(app)
         .unwrap();
 

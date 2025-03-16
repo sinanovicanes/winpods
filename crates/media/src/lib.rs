@@ -28,9 +28,8 @@ impl GlobalMediaController {
         let sessions = session_manager.GetSessions()?;
 
         for session in sessions.into_iter() {
-            match session.TryPauseAsync() {
-                Ok(_) => self.paused_sessions.push(session),
-                Err(_) => (),
+            if session.TryPauseAsync().is_ok() {
+                self.paused_sessions.push(session)
             }
         }
 

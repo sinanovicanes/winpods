@@ -45,7 +45,7 @@ impl Device {
 
         self.properties = Some(properties);
 
-        return true;
+        true
     }
 
     pub fn on_advertisement_received(

@@ -83,7 +83,7 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        device_manager.on_advertisement_received(&data, &protocol);
+        device_manager.on_advertisement_received(data, &protocol);
     });
 
     let device = find_connected_device().map(|info| {
