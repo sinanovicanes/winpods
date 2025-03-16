@@ -10,12 +10,7 @@ pub fn connect(
 ) -> Result<(), &'static str> {
     tracing::info!("Connecting to device with address: {}", address);
 
-    let new_device = Device {
-        name,
-        address,
-        properties: None,
-    };
-
+    let new_device = Device::new(address, name);
     device_manager.lock().unwrap().connect(new_device);
 
     Ok(())

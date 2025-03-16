@@ -1,5 +1,5 @@
 use bluetooth::{
-    apple_cp::{AirPodsModel, AppleCP},
+    apple_cp::{ProximityPairingMessage, ProximityPairingModel},
     AdvertisementReceivedData,
 };
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,7 @@ use crate::models::Battery;
 pub struct DeviceProperties {
     pub rssi: i16,
     pub address: u64,
-    pub model: AirPodsModel,
+    pub model: ProximityPairingModel,
     pub left_battery: Battery,
     pub right_battery: Battery,
     pub case_battery: Option<Battery>,
@@ -28,6 +28,14 @@ pub struct Device {
 }
 
 impl Device {
+    pub fn new(address: u64, name: String) -> Self {
+        Self {
+            address,
+            name,
+            properties: None,
+        }
+    }
+
     fn update_properties(&mut self, properties: DeviceProperties) -> bool {
         if let Some(ref old_properties) = self.properties {
             if old_properties == &properties {
@@ -43,7 +51,7 @@ impl Device {
     pub fn on_advertisement_received(
         &mut self,
         data: &AdvertisementReceivedData,
-        protocol: &AppleCP,
+        protocol: &ProximityPairingMessage,
     ) -> bool {
         let model = protocol.get_model();
         let right_battery = Battery::new(

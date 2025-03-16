@@ -1,5 +1,6 @@
 use bluetooth::{
-    apple_cp::AppleCP, find_connected_device, AdvertisementReceivedData, AdvertisementWatcher,
+    apple_cp::{self, ProximityPairingMessage},
+    find_connected_device, AdvertisementReceivedData, AdvertisementWatcher,
 };
 use std::sync::Mutex;
 use tauri::{App, Emitter, Manager};
@@ -38,7 +39,7 @@ impl DeviceManagerState {
     pub fn on_advertisement_received(
         &mut self,
         data: &AdvertisementReceivedData,
-        protocol: &AppleCP,
+        protocol: &ProximityPairingMessage,
     ) {
         let device = self.device.as_mut().unwrap();
         let is_device_updated = device.on_advertisement_received(data, protocol);
@@ -72,13 +73,13 @@ pub fn init(app: &mut App) {
             return;
         }
 
-        let Some(apple_data) = data.manufacturer_data_map.get(&AppleCP::VENDOR_ID) else {
+        let Some(apple_data) = data.manufacturer_data_map.get(&apple_cp::VENDOR_ID) else {
             tracing::info!("No Apple data found in received advertisement");
             return;
         };
 
-        let Some(protocol) = AppleCP::from_bytes(apple_data) else {
-            tracing::info!("Received Apple data is not valid");
+        let Some(protocol) = apple_cp::proximity_pairing_message_from_bytes(apple_data) else {
+            tracing::info!("Received Apple data is not valid proximity pairing message");
             return;
         };
 
@@ -93,11 +94,7 @@ pub fn init(app: &mut App) {
 
         let address = info.BluetoothAddress().unwrap_or(0);
 
-        Device {
-            name,
-            address,
-            properties: None,
-        }
+        Device::new(address, name)
     });
 
     adv_watcher
