@@ -49,28 +49,26 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
+          cd apps/desktop
           bun install
 
-      - name: CI Build
-        if: ${{ github.ref_type == 'branch' }}
-        run: |
-          bun run tauri build
+      # - name: CI Build
+      #   if: ${{ github.ref_type == 'branch' }}
+      #   run: |
+      #     bun run tauri build
 
-      - name: CI upload Windows
-        if: ${{ github.ref_type == 'branch' && matrix.platform == 'windows-latest' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: "Windows Installers"
-          path: |
-            src-tauri/release/bundle/msi/*.msi
-            src-tauri/release/bundle/nsis/*.exe
+      # - name: CI upload Windows
+      #   if: ${{ github.ref_type == 'branch' && matrix.platform == 'windows-latest' }}
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: "Windows Installers"
+      #     path: |
+      #       src-tauri/release/bundle/msi/*.msi
+      #       src-tauri/release/bundle/nsis/*.exe
 
       # TODO: https://tauri.app/v1/guides/building/linux#cross-compiling-tauri-applications-for-arm-based-devices
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
-        if: ${{ github.ref_type == 'tag' }}
-        # if u get Error: Resource not accessible by integration
-        # go to repository Settings => Action => General => Workflow permissions => Switch to Read and Write permisions
         env:
           CI: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,3 +83,4 @@ jobs:
             See the assets to download this version and install.
           releaseDraft: true
           prerelease: false
+          projectPath: ./apps/desktop
