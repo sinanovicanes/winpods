@@ -6,38 +6,50 @@ on:
   pull_request:
 
 jobs:
-  lint_and_test:
-    name: Lint and Test
-    runs-on: ubuntu-latest
-    outputs:
-      rust_version: ${{ steps.rust.outputs.version }}
+  clippy:
+    name: Clippy Linting
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: ./.github/actions/setup-rust
 
       - name: Cache Cargo dependencies
         uses: actions/cache@v3
         with:
           path: |
-            ~/.cargo/registry
-            ~/.cargo/git
+            C:\Users\runneradmin\.cargo\registry
+            C:\Users\runneradmin\.cargo\git
             target
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: cargo-windows-${{ hashFiles('Cargo.lock') }}-clippy
           restore-keys: |
-            cargo-${{ runner.os }}-
+            cargo-windows-
 
-      - name: Setup Rust toolchain
-        id: rust
-        uses: ./.github/actions/setup-rust
-
-      - name: Setup Tauri dependencies
-        uses: ./.github/actions/setup-tauri
-
-      # - name: Run fmt
-      #   uses: ./.github/actions/ci/fmt
-
-      - name: Run clippy
+      - name: Run Clippy
         uses: ./.github/actions/ci/clippy
 
-      - name: Run tests
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: ./.github/actions/setup-rust
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\Users\runneradmin\.cargo\registry
+            C:\Users\runneradmin\.cargo\git
+            target
+          key: cargo-windows-${{ hashFiles('Cargo.lock') }}-test
+          restore-keys: |
+            cargo-windows-
+
+      - name: Run Tests
         uses: ./.github/actions/ci/test

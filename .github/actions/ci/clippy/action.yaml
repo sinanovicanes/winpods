@@ -1,5 +1,4 @@
 name: Clippy
-description: Runs Clippy linter on Rust code
 
 runs:
   using: composite
