@@ -1,0 +1,7 @@
+name: Test
+runs:
+  using: "composite"
+  steps:
+    - name: Run tests
+      shell: bash
+      run: cargo test

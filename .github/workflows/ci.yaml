@@ -1,0 +1,43 @@
+name: Rust CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint_and_test:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    outputs:
+      rust_version: ${{ steps.rust.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Cache Cargo dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Setup Rust toolchain
+        id: rust
+        uses: ./.github/actions/setup-rust
+
+      - name: Setup Tauri dependencies
+        uses: ./.github/actions/setup-tauri
+
+      - name: Run fmt
+        uses: ./.github/actions/ci/fmt
+
+      - name: Run clippy
+        uses: ./.github/actions/ci/clippy
+
+      - name: Run tests
+        uses: ./.github/actions/ci/test

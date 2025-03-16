@@ -1,0 +1,7 @@
+name: Fmt
+runs:
+  using: "composite"
+  steps:
+    - name: Check code formatting
+      shell: bash
+      run: cargo fmt --check
