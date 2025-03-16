@@ -35,6 +35,15 @@ const settings = useSettings();
 
           <div class="flex items-center justify-between">
             <div>
+              <p class="text-sm font-medium text-gray-700">Auto Start</p>
+              <p class="text-xs text-gray-500 mt-1">
+                Start the application automatically when you start your computer
+              </p>
+            </div>
+            <Switch v-model="settings.autoStart" />
+          </div>
+          <div class="flex items-center justify-between">
+            <div>
               <p class="text-sm font-medium text-gray-700">Auto Update</p>
               <p class="text-xs text-gray-500 mt-1">
                 Keep the application up to date automatically

@@ -5,11 +5,12 @@ use tauri::{
 
 pub fn on_tray_icon_event(tray: &TrayIcon, event: TrayIconEvent) {
     if let tauri::tray::TrayIconEvent::Click {
-            position,
-            button,
-            button_state,
-            ..
-        } = event {
+        position,
+        button,
+        button_state,
+        ..
+    } = event
+    {
         if !matches!(button, tauri::tray::MouseButton::Left) {
             return;
         }
