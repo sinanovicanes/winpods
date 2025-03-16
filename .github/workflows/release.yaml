@@ -8,6 +8,9 @@ on:
 env:
   APP_NAME: "winpods"
 
+permissions:
+  contents: write
+
 jobs:
   changelog:
     runs-on: ubuntu-latest
