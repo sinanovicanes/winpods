@@ -22,6 +22,22 @@ pub enum ProximityPairingModel {
     Unknown,
 }
 
+impl From<u16> for ProximityPairingModel {
+    fn from(value: u16) -> Self {
+        match value {
+            0x2002 => ProximityPairingModel::AirPods1,
+            0x200F => ProximityPairingModel::AirPods2,
+            0x2013 => ProximityPairingModel::AirPods3,
+            0x200E => ProximityPairingModel::AirPodsPro,
+            0x2014 => ProximityPairingModel::AirPodsPro2,
+            0x2024 => ProximityPairingModel::AirPodsPro2UsbC,
+            0x200A => ProximityPairingModel::AirPodsMax,
+            0x2012 => ProximityPairingModel::BeatsFitPro,
+            _ => ProximityPairingModel::Unknown,
+        }
+    }
+}
+
 #[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
 pub struct ProximityPairingMessage {
@@ -103,17 +119,7 @@ impl ProximityPairingMessage {
     }
 
     pub fn get_model_from_id(model_id: u16) -> ProximityPairingModel {
-        match model_id {
-            0x2002 => ProximityPairingModel::AirPods1,
-            0x200F => ProximityPairingModel::AirPods2,
-            0x2013 => ProximityPairingModel::AirPods3,
-            0x200E => ProximityPairingModel::AirPodsPro,
-            0x2014 => ProximityPairingModel::AirPodsPro2,
-            0x2024 => ProximityPairingModel::AirPodsPro2UsbC,
-            0x200A => ProximityPairingModel::AirPodsMax,
-            0x2012 => ProximityPairingModel::BeatsFitPro,
-            _ => ProximityPairingModel::Unknown,
-        }
+        ProximityPairingModel::from(model_id)
     }
 
     pub fn get_model_as_string(&self) -> String {
