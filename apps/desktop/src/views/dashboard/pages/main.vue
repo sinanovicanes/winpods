@@ -69,8 +69,9 @@ const availableDevices = computed(() => deviceStore.availableDevices);
         <WPButton variant="danger" @click="deviceStore.disconnect()">Disconnect</WPButton>
       </footer>
     </section>
-    <section v-else-if="!!device">
+    <section v-else-if="!!device" class="flex flex-col gap-2">
       <p class="text-gray-500">Connecting...</p>
+      <WPButton variant="danger" @click.stop="deviceStore.disconnect()">Cancel</WPButton>
     </section>
     <section v-else class="flex flex-col gap-2">
       <header class="flex justify-between items-end w-full">
