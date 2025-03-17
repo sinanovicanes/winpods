@@ -24,12 +24,8 @@ pub fn init(app: &mut App) {
             return;
         }
 
-        let Ok(device) = serde_json::from_str::<Option<Device>>(event.payload()) else {
+        let Ok(device) = serde_json::from_str::<Device>(event.payload()) else {
             tracing::error!("Failed to parse device from event payload");
-            return;
-        };
-
-        let Some(device) = device else {
             return;
         };
 
