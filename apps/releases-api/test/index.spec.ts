@@ -7,19 +7,37 @@ import worker from '../src/index';
 // `Request` to pass to `worker.fetch()`.
 const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 
-describe('Hello World worker', () => {
-	it('responds with Hello World! (unit style)', async () => {
-		const request = new IncomingRequest('http://example.com');
-		// Create an empty context to pass to `worker.fetch()`.
+describe('Releases Worker', () => {
+	it("responds with 400 if version isn't valid (unit style)", async () => {
+		const request = new IncomingRequest('http://example.com/1.0');
 		const ctx = createExecutionContext();
 		const response = await worker.fetch(request, env, ctx);
-		// Wait for all `Promise`s passed to `ctx.waitUntil()` to settle before running test assertions
+
 		await waitOnExecutionContext(ctx);
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+
+		expect(response.status).toBe(400);
+		expect(await response.text()).toMatchInlineSnapshot(`"Invalid version"`);
 	});
 
-	it('responds with Hello World! (integration style)', async () => {
+	it("responds with 405 if method isn't GET (unit style)", async () => {
+		const request = new IncomingRequest('http://example.com/1.0', { method: 'POST' });
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+
+		await waitOnExecutionContext(ctx);
+		expect(response.status).toBe(405);
+		expect(await response.text()).toMatchInlineSnapshot(`"Method not allowed"`);
+	});
+
+	it("responds with 400 if version isn't valid (integration style)", async () => {
 		const response = await SELF.fetch('https://example.com');
-		expect(await response.text()).toMatchInlineSnapshot(`"Hello World!"`);
+		expect(response.status).toBe(400);
+		expect(await response.text()).toMatchInlineSnapshot(`"Invalid version"`);
+	});
+
+	it("responds with 405 if method isn't GET (unit style)", async () => {
+		const response = await SELF.fetch('https://example.com', { method: 'POST' });
+		expect(response.status).toBe(405);
+		expect(await response.text()).toMatchInlineSnapshot(`"Method not allowed"`);
 	});
 });
