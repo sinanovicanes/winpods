@@ -17,11 +17,11 @@ interface ReleaseInfo {
 
 async function createLatestReleaseInfo(repo: string): Promise<ReleaseInfo> {
 	const latestRelease = await GithubAPI.getLatestRelease(repo);
-	const url = latestRelease.assets.find((asset: any) => asset.name.endsWith('x64_en-US.msi.zip'))?.browser_download_url;
-	const signatureUrl = latestRelease.assets.find((asset: any) => asset.name.endsWith('x64_en-US.msi.zip.sig'))?.browser_download_url;
+	const url = latestRelease.assets.find((asset) => asset.name.endsWith('x64_en-US.msi.zip'))?.browser_download_url;
+	const signatureUrl = latestRelease.assets.find((asset) => asset.name.endsWith('x64_en-US.msi.zip.sig'))?.browser_download_url;
 
 	if (!url || !signatureUrl) {
-		throw new Error('Failed to find download url');
+		throw new Error('Failed to find download url or signature url');
 	}
 
 	const signature = await fetch(signatureUrl).then((res) => res.text());
@@ -51,12 +51,15 @@ async function getLatestReleaseInfo(env: Env): Promise<ReleaseInfo> {
 	const cachedRelease = await kv.get(CACHE_KEY);
 
 	if (cachedRelease) {
+		console.log('Returning cached release');
 		return JSON.parse(cachedRelease);
 	}
 
 	const release = await createLatestReleaseInfo(env.GITHUB_REPO);
-
-	await kv.put(CACHE_KEY, JSON.stringify(release), { expirationTtl: CACHE_TTL });
+	console.log('Caching release');
+	await kv.put(CACHE_KEY, JSON.stringify(release), {
+		expirationTtl: CACHE_TTL,
+	});
 
 	return release;
 }
@@ -79,6 +82,7 @@ export default {
 			const release = await getLatestReleaseInfo(env);
 
 			if (release.version.replace('v', '') === version) {
+				console.log('No updates available for version: ' + version);
 				return new Response('No updates available', { status: 204 });
 			}
 
@@ -87,7 +91,8 @@ export default {
 					'Content-Type': 'application/json',
 				},
 			});
-		} catch {
+		} catch (e) {
+			console.error(e);
 			return new Response('Failed to fetch latest release', { status: 500 });
 		}
 	},

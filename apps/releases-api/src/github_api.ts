@@ -12,12 +12,16 @@ interface GithubResponse {
 
 export class GithubAPI {
 	static async getLatestRelease(repo: string): Promise<GithubResponse> {
-		console.log(`https://api.github.com/repos/${repo}/releases/latest`);
-		const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`);
+		const response = await fetch(`https://api.github.com/repos/${repo}/releases/latest`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': 'request',
+				'Content-Type': 'application/json',
+			},
+		});
 
 		if (!response.ok) {
-			console.log(response);
-			throw new Error('Failed to fetch latest release');
+			throw new Error(`[GITHUB_API]: Failed to fetch latest release: ${repo} ${response.status} ${response.statusText}`);
 		}
 
 		return await response.json();
