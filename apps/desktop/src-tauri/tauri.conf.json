@@ -56,10 +56,7 @@
       "active": true,
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY5ODBFMDUxRkUyNkVBNjAKUldSZzZpYitVZUNBYVJLNWQ4TnJXMXFkcDFYV2dBZndhS2tSVWtoWmI2ZzVVUWppeWpYeUxreEsK",
-      "endpoints": [
-        "http://[::1]:8787/releases/{{platform}}/{{channel}}/{{arch}}/{{version}}",
-        "https://releases.winpods.app/{{target}}/{{arch}}/{{current_version}}"
-      ]
+      "endpoints": ["https://releases.winpods.app/{{current_version}}"]
     }
   }
 }
