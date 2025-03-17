@@ -67,11 +67,6 @@ pub fn init(app: &mut App) {
             });
     });
 
-    state
-        .adv_watcher
-        .start()
-        .expect("Failed to start AdvertisementWatcher");
-
     let device = find_connected_device().map(|info| {
         let name = info
             .Name()
@@ -89,4 +84,13 @@ pub fn init(app: &mut App) {
 
     // Store the watcher in the app state to keep it alive
     app.manage(Mutex::new(state));
+
+    // Start the AdvertisementWatcher after storing it in the app state
+    let state = app.state::<Mutex<DeviceManagerState>>();
+    let state = state.lock().unwrap();
+
+    state
+        .adv_watcher
+        .start()
+        .expect("Failed to start AdvertisementWatcher");
 }
