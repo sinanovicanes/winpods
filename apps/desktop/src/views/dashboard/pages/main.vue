@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AirPodsImage, Battery, Switch } from "@/components";
+import { AirPodsImage, Battery, Switch, WPButton } from "@/components";
 import { AirPodsModel } from "@/constants";
 import { useDeviceConnection } from "@/stores/device-connection";
 import { useSettings } from "@/stores/settings";
@@ -66,19 +66,19 @@ const availableDevices = computed(() => deviceStore.availableDevices);
           </div>
           <Switch v-model="settings.earDetection" />
         </div>
-        <button
-          class="text-sm font-medium cursor-pointer text-red-600 border border-red-200 rounded-lg px-4 py-2 hover:bg-red-50 hover:border-red-300 transition-colors duration-200 shadow-sm"
-          @click="deviceStore.disconnect()"
-        >
-          Disconnect
-        </button>
+        <WPButton variant="danger" @click="deviceStore.disconnect()">Disconnect</WPButton>
       </footer>
     </section>
     <section v-else-if="!!device">
       <p class="text-gray-500">Connecting...</p>
     </section>
-    <section v-else>
-      <p class="text-gray-500">Select device to connect</p>
+    <section v-else class="flex flex-col gap-2">
+      <header class="flex justify-between items-end w-full">
+        <p class="text-gray-500">Select device to connect</p>
+        <WPButton variant="primary" @click.stop="deviceStore.refreshAvailableDevices()"
+          >Refresh</WPButton
+        >
+      </header>
       <select
         @change="deviceStore.connect(Number(($event.target as HTMLSelectElement).value))"
         class="w-full h-10 px-4 py-2 bg-white rounded-lg text-sm font-medium text-gray-800 appearance-none outline-none border border-gray-300 bg-clip-padding shadow-sm cursor-pointer transition-all duration-200 hover:border-gray-400 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"

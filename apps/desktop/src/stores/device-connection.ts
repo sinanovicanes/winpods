@@ -40,6 +40,10 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     }
   }
 
+  async function refreshAvailableDevices(): Promise<void> {
+    availableDevices.value = await getAvailableDevices();
+  }
+
   async function connect(address: number): Promise<void> {
     try {
       const device = availableDevices.value.find(d => d.address === address);
@@ -60,7 +64,8 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     device,
     availableDevices,
     connect,
-    disconnect
+    disconnect,
+    refreshAvailableDevices
   };
 });
 
