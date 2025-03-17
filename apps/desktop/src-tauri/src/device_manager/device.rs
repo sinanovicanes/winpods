@@ -37,8 +37,35 @@ impl Device {
     }
 
     fn update_properties(&mut self, properties: DeviceProperties) -> bool {
+        const RSSI_UPDATE_LIMIT: u16 = 50;
+        const BATTERY_UPDATE_LIMIT: u8 = 20;
+
         if let Some(ref old_properties) = self.properties {
             if old_properties == &properties {
+                return false;
+            }
+
+            let rssi_diff = old_properties.rssi.abs_diff(properties.rssi);
+
+            if rssi_diff > RSSI_UPDATE_LIMIT {
+                return false;
+            }
+
+            let battery_diff = old_properties
+                .left_battery
+                .level
+                .abs_diff(properties.left_battery.level);
+
+            if battery_diff > BATTERY_UPDATE_LIMIT {
+                return false;
+            }
+
+            let battery_diff = old_properties
+                .right_battery
+                .level
+                .abs_diff(properties.right_battery.level);
+
+            if battery_diff > BATTERY_UPDATE_LIMIT {
                 return false;
             }
         }
