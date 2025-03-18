@@ -3,6 +3,7 @@ use tauri::{
     App,
 };
 
+pub use handlers::Tooltip;
 mod handlers;
 mod menu;
 

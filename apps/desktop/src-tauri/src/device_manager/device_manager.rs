@@ -1,17 +1,21 @@
 use bluetooth::{
-    apple_cp::ProximityPairingMessage, AdvertisementReceivedData, AdvertisementWatcher,
+    apple_cp::{AppleDeviceModel, ProximityPairingMessage},
+    AdvertisementReceivedData, AdvertisementWatcher,
 };
 use device::Device;
 use utils::EventDispatcher;
 
-use super::selected_device::SelectedDevice;
+use crate::tray::Tooltip;
 
-struct DeviceConnectedEvent(SelectedDevice);
-struct DeviceUpdatedEvent(SelectedDevice);
+use super::DeviceProperties;
+
+struct DeviceConnectedEvent(Device);
+struct DevicePropertiesUpdatedEvent(DeviceProperties);
 struct DeviceDisconnectedEvent;
 
 pub struct DeviceManagerState {
-    pub device: Option<SelectedDevice>,
+    pub device: Option<Device>,
+    pub device_properties: Option<DeviceProperties>,
     pub adv_watcher: AdvertisementWatcher,
     dispatcher: EventDispatcher,
 }
@@ -23,6 +27,7 @@ impl DeviceManagerState {
 
         Self {
             device: None,
+            device_properties: None,
             adv_watcher,
             dispatcher: EventDispatcher::new(),
         }
@@ -33,10 +38,8 @@ impl DeviceManagerState {
     }
 
     pub fn connect(&mut self, device: Device) {
-        let selected_device = SelectedDevice::new(device);
-        self.device = Some(selected_device.clone());
-        self.dispatcher
-            .dispatch(DeviceConnectedEvent(selected_device));
+        self.device = Some(device.clone());
+        self.dispatcher.dispatch(DeviceConnectedEvent(device));
     }
 
     pub fn disconnect(&mut self) {
@@ -49,17 +52,34 @@ impl DeviceManagerState {
         data: &AdvertisementReceivedData,
         protocol: &ProximityPairingMessage,
     ) -> bool {
-        let device = self.device.as_mut().unwrap();
-        device.on_advertisement_received(data, protocol)
+        let Some(device) = &self.device else {
+            return false;
+        };
+
+        let new_properties = DeviceProperties::from_advertisement(data, protocol);
+
+        if device.get_device_model() != new_properties.model {
+            return false;
+        }
+
+        if let Some(properties) = &self.device_properties {
+            if !properties.is_within_update_limits(&new_properties) {
+                return false;
+            }
+        }
+
+        self.device_properties = Some(new_properties);
+        true
     }
 
     pub fn dispatch_device_updated(&self) {
-        if let Some(device) = &self.device {
-            self.dispatcher.dispatch(DeviceUpdatedEvent(device.clone()));
+        if let Some(properties) = &self.device_properties {
+            self.dispatcher
+                .dispatch(DevicePropertiesUpdatedEvent(properties.clone()));
         }
     }
 
-    pub fn on_device_connected(&self, callback: impl Fn(&SelectedDevice) + Send + Sync + 'static) {
+    pub fn on_device_connected(&self, callback: impl Fn(&Device) + Send + Sync + 'static) {
         self.dispatcher
             .add_listener::<DeviceConnectedEvent, _>(move |event| {
                 callback(&event.0);
@@ -73,10 +93,39 @@ impl DeviceManagerState {
             });
     }
 
-    pub fn on_device_updated(&self, callback: impl Fn(&SelectedDevice) + Send + Sync + 'static) {
+    pub fn on_device_updated(&self, callback: impl Fn(&DeviceProperties) + Send + Sync + 'static) {
         self.dispatcher
-            .add_listener::<DeviceUpdatedEvent, _>(move |event| {
+            .add_listener::<DevicePropertiesUpdatedEvent, _>(move |event| {
                 callback(&event.0);
             });
+    }
+}
+
+trait AppleDevice {
+    fn get_device_model(&self) -> AppleDeviceModel;
+}
+
+impl AppleDevice for Device {
+    fn get_device_model(&self) -> AppleDeviceModel {
+        match self.get_product_id() {
+            Ok(product_id) => AppleDeviceModel::from(product_id),
+            Err(_) => AppleDeviceModel::Unknown,
+        }
+    }
+}
+
+impl Tooltip for DeviceManagerState {
+    fn to_tooltip(&self) -> String {
+        let Some(device) = &self.device else {
+            return String::new();
+        };
+
+        let mut tooltip = format!("{}\n", device.get_name().unwrap_or("Connected".to_string()));
+
+        if let Some(properties) = &self.device_properties {
+            tooltip.push_str(&properties.to_tooltip());
+        }
+
+        tooltip
     }
 }

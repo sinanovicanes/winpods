@@ -8,10 +8,10 @@ use tauri::{App, Emitter, Manager};
 use crate::events;
 
 mod device_manager;
-mod selected_device;
+mod device_properties;
 
 pub use device_manager::DeviceManagerState;
-pub use selected_device::SelectedDevice;
+pub use device_properties::DeviceProperties;
 
 pub fn init(app: &mut App) {
     let mut state = DeviceManagerState::new();
@@ -53,7 +53,7 @@ pub fn init(app: &mut App) {
         let device_manager = device_manager_lock.read().unwrap();
 
         device_manager.dispatch_device_updated();
-        // tracing::info!("Selected device properties updated");
+        tracing::info!("Selected device properties updated");
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
@@ -79,7 +79,7 @@ pub fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
     state.on_device_updated(move |device| {
         app_handle
-            .emit(events::DEVICE_UPDATED, device)
+            .emit(events::DEVICE_PROPERTIES_UPDATED, device)
             .unwrap_or_else(|e| {
                 tracing::error!("Failed to emit device updated event: {}", e);
             });

@@ -1,9 +1,6 @@
 use std::sync::RwLock;
 
-use crate::{
-    device_manager::{DeviceManagerState, SelectedDevice},
-    events,
-};
+use crate::{device_manager::DeviceManagerState, events};
 use tauri::{tray::TrayIcon, Listener, Manager};
 
 pub fn init_tooltip_listener(tray: &TrayIcon) {
@@ -13,14 +10,11 @@ pub fn init_tooltip_listener(tray: &TrayIcon) {
     let tray_handle = tray.clone();
     let handle = app_handle.clone();
     let name = app_name.clone();
-    app_handle.listen(events::DEVICE_UPDATED, move |_| {
+    app_handle.listen(events::DEVICE_PROPERTIES_UPDATED, move |_| {
         let device_manager = handle.state::<RwLock<DeviceManagerState>>();
         let device_manager = device_manager.read().unwrap();
-        let Some(selected_device) = &device_manager.device else {
-            return;
-        };
 
-        let tooltip = format!("{}\n{}", name, selected_device.to_tooltip());
+        let tooltip = format!("{}\n{}", name, device_manager.to_tooltip());
         let _ = tray_handle.set_tooltip(Some(&tooltip));
     });
 
@@ -31,17 +25,6 @@ pub fn init_tooltip_listener(tray: &TrayIcon) {
     });
 }
 
-impl SelectedDevice {
-    fn to_tooltip(&self) -> String {
-        if let Some(properties) = &self.properties {
-            format!(
-                "{}\nLeft: {}%\nRight: {}%",
-                self.device.get_name().unwrap_or("Unknown".to_string()),
-                properties.left_battery.level,
-                properties.right_battery.level
-            )
-        } else {
-            "".to_string()
-        }
-    }
+pub trait Tooltip {
+    fn to_tooltip(&self) -> String;
 }
