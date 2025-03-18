@@ -1,17 +1,17 @@
 use bluetooth::{
     apple_cp::{self},
-    find_connected_device,
+    find_connected_device_with_vendor_id,
 };
-use std::sync::Mutex;
+use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
 
 use crate::events;
 
-mod device;
 mod device_manager;
+mod selected_device;
 
-pub use device::Device;
 pub use device_manager::DeviceManagerState;
+pub use selected_device::SelectedDevice;
 
 pub fn init(app: &mut App) {
     let mut state = DeviceManagerState::new();
@@ -19,29 +19,46 @@ pub fn init(app: &mut App) {
     // Get app_handle for the callback
     let app_handle = app.app_handle().clone();
     state.adv_watcher.on_received(move |data| {
-        let device_manager = app_handle.state::<Mutex<DeviceManagerState>>();
-        let mut device_manager = device_manager.lock().unwrap();
-
-        if !device_manager.is_connected() {
-            tracing::info!("Got advertisement but no device connected");
-            return;
-        }
-
         let Some(apple_data) = data.manufacturer_data_map.get(&apple_cp::VENDOR_ID) else {
-            tracing::info!("No Apple data found in received advertisement");
+            // tracing::info!("No Apple data found in received advertisement");
             return;
         };
 
         let Some(protocol) = apple_cp::proximity_pairing_message_from_bytes(apple_data) else {
-            tracing::info!("Received Apple data is not valid proximity pairing message");
+            // tracing::info!("Received Apple data is not valid proximity pairing message");
             return;
         };
 
-        device_manager.on_advertisement_received(data, &protocol);
+        let device_manager_lock: tauri::State<'_, RwLock<DeviceManagerState>> =
+            app_handle.state::<RwLock<DeviceManagerState>>();
+        let device_manager = device_manager_lock.read().unwrap();
+
+        if !device_manager.is_connected() {
+            // tracing::info!("Got advertisement but no device connected");
+            return;
+        }
+
+        // Drop the lock to switch to write mode
+        drop(device_manager);
+        let mut device_manager = device_manager_lock.write().unwrap();
+
+        let is_updated = device_manager.on_advertisement_received(data, &protocol);
+
+        if !is_updated {
+            return;
+        }
+
+        // Drop write lock to switch back to read mode
+        drop(device_manager);
+        let device_manager = device_manager_lock.read().unwrap();
+
+        device_manager.dispatch_device_updated();
+        // tracing::info!("Selected device properties updated");
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
     state.on_device_connected(move |device| {
+        tracing::info!("Device connected: {:?}", device);
         app_handle
             .emit(events::DEVICE_CONNECTED, device)
             .unwrap_or_else(|e| {
@@ -51,6 +68,7 @@ pub fn init(app: &mut App) {
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
     state.on_device_disconnected(move || {
+        tracing::info!("Device disconnected");
         app_handle
             .emit(events::DEVICE_DISCONNECTED, "")
             .unwrap_or_else(|e| {
@@ -67,27 +85,18 @@ pub fn init(app: &mut App) {
             });
     });
 
-    let device = find_connected_device().map(|info| {
-        let name = info
-            .Name()
-            .map(|name| name.to_string())
-            .unwrap_or("Unknown".to_string());
-
-        let address = info.BluetoothAddress().unwrap_or(0);
-
-        Device::new(address, name)
-    });
+    let device = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID);
 
     if let Some(device) = device {
         state.connect(device);
     }
 
     // Store the watcher in the app state to keep it alive
-    app.manage(Mutex::new(state));
+    app.manage(RwLock::new(state));
 
     // Start the AdvertisementWatcher after storing it in the app state
-    let state = app.state::<Mutex<DeviceManagerState>>();
-    let state = state.lock().unwrap();
+    let state = app.state::<RwLock<DeviceManagerState>>();
+    let state = state.read().unwrap();
 
     state
         .adv_watcher

@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 utils = { path = "../utils" }
+device = { path = "../device" }
 windows.workspace = true
 windows-collections.workspace = true
 serde.workspace = true

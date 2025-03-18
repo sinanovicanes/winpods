@@ -1,9 +1,9 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 
 use tauri::{App, AppHandle, Listener, Manager};
 use tauri_plugin_notification::NotificationExt;
 
-use crate::{device_manager::Device, events};
+use crate::{device_manager::DeviceManagerState, events};
 
 use super::SettingsState;
 
@@ -31,7 +31,7 @@ fn send_low_battery_notification(app_handle: &AppHandle) {
 
 pub fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
-    app.listen(events::DEVICE_UPDATED, move |event| {
+    app.listen(events::DEVICE_UPDATED, move |_| {
         let settings_state = app_handle.state::<Mutex<SettingsState>>();
         let settings_state = settings_state.lock().unwrap();
 
@@ -40,19 +40,20 @@ pub fn init(app: &mut App) {
             return;
         }
 
-        let low_battery_notification_state =
-            app_handle.state::<Mutex<LowBatteryNotificationState>>();
-        let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
-
-        let Ok(device) = serde_json::from_str::<Device>(event.payload()) else {
-            tracing::error!("Failed to parse device from event payload");
+        let device_manager_state = app_handle.state::<RwLock<DeviceManagerState>>();
+        let device_manager_state = device_manager_state.read().unwrap();
+        let Some(device) = &device_manager_state.device else {
             return;
         };
 
-        let Some(properties) = device.properties else {
+        let Some(properties) = &device.properties else {
             tracing::warn!("Device properties not found");
             return;
         };
+
+        let low_battery_notification_state =
+            app_handle.state::<Mutex<LowBatteryNotificationState>>();
+        let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
 
         if !properties.left_battery.charging && properties.left_battery.level <= BATTERY_TRESHOLD
             || !properties.right_battery.charging

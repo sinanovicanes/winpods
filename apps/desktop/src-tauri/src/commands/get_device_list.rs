@@ -8,13 +8,14 @@ pub struct ConnectedDevice {
 
 #[tauri::command]
 pub fn get_bluetooth_device_list() -> Vec<ConnectedDevice> {
-    let devices = bluetooth::get_connected_device_list().unwrap_or_default();
+    let devices = bluetooth::get_connected_device_list();
 
     devices
         .iter()
         .filter_map(|device| {
-            let name = device.Name().ok()?;
-            let address = device.BluetoothAddress().ok()?;
+            let name = device.get_name().ok()?;
+            let address = device.get_address().ok()?;
+
             Some(ConnectedDevice {
                 name: name.to_string(),
                 address,

@@ -1,9 +1,9 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 
 use media::GlobalMediaController;
 use tauri::{App, Listener, Manager};
 
-use crate::{device_manager::Device, events};
+use crate::{device_manager::DeviceManagerState, events};
 
 use super::SettingsState;
 
@@ -15,7 +15,7 @@ struct EarDetectionState {
 
 pub fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
-    app.listen(events::DEVICE_UPDATED, move |event| {
+    app.listen(events::DEVICE_UPDATED, move |_| {
         let settings_state = app_handle.state::<Mutex<SettingsState>>();
         let settings_state = settings_state.lock().unwrap();
 
@@ -24,12 +24,13 @@ pub fn init(app: &mut App) {
             return;
         }
 
-        let Ok(device) = serde_json::from_str::<Device>(event.payload()) else {
-            tracing::error!("Failed to parse device from event payload");
+        let device_manager_state = app_handle.state::<RwLock<DeviceManagerState>>();
+        let device_manager_state = device_manager_state.read().unwrap();
+        let Some(device) = &device_manager_state.device else {
             return;
         };
 
-        let Some(properties) = device.properties else {
+        let Some(properties) = &device.properties else {
             tracing::warn!("Device properties not found");
             return;
         };

@@ -1,3 +1,4 @@
+use device::DeviceConnectionState;
 use windows::Devices::{
     Bluetooth::{BluetoothConnectionStatus, BluetoothDevice},
     Enumeration::{DeviceInformation, DeviceInformationCollection},
@@ -12,33 +13,35 @@ pub fn get_connected_device_informations() -> windows::core::Result<DeviceInform
     Ok(devices)
 }
 
-pub fn get_connected_device_list() -> windows::core::Result<Vec<BluetoothDevice>> {
-    let devices = get_connected_device_informations()?;
-    let mut connected_devices = Vec::new();
+pub fn get_connected_device_list() -> Vec<device::Device> {
+    let Ok(aqsfilter) = BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
+        BluetoothConnectionStatus::Connected,
+    ) else {
+        return vec![];
+    };
 
-    for i in 0..devices.Size()? {
-        let device = devices.GetAt(i)?;
-        let bluetooth_device = BluetoothDevice::FromIdAsync(&device.Id()?)?.get()?;
-        connected_devices.push(bluetooth_device);
-    }
+    let Ok(devices) = DeviceInformation::FindAllAsyncAqsFilter(&aqsfilter) else {
+        return vec![];
+    };
 
-    Ok(connected_devices)
+    let Ok(devices) = devices.get() else {
+        return vec![];
+    };
+
+    let devices = devices.into_iter().filter_map(|device| {
+        let device = device::Device::try_from(device).ok()?;
+        Some(device)
+    });
+
+    devices.collect()
 }
 
-pub fn find_connected_device() -> Option<BluetoothDevice> {
-    let devices = get_connected_device_informations().ok()?;
-    let device = devices.GetAt(0).ok()?;
-    let bluetooth_device = BluetoothDevice::FromIdAsync(&device.Id().ok()?)
-        .ok()?
-        .get()
-        .ok()?;
+pub fn find_connected_device_with_vendor_id(vendor_id: u16) -> Option<device::Device> {
+    let devices = get_connected_device_list();
+    let device = devices.iter().find(|device| {
+        device.get_vendor_id() == Ok(vendor_id)
+            && device.get_connection_state() == DeviceConnectionState::Connected
+    })?;
 
-    Some(bluetooth_device)
-}
-
-pub fn get_device_name_by_address(address: u64) -> windows::core::Result<String> {
-    let device: BluetoothDevice = BluetoothDevice::FromBluetoothAddressAsync(address)?.get()?;
-    let device_name: String = device.DeviceInformation()?.Name()?.to_string();
-
-    Ok(device_name)
+    Some(device.clone())
 }
