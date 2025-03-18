@@ -11,7 +11,7 @@ pub fn connect(
 ) -> Result<(), &'static str> {
     tracing::info!("Connecting to device with address: {}", address);
 
-    let Ok(device) = Device::new(address) else {
+    let Ok(device) = Device::from_bluetooth_address(address) else {
         tracing::error!("Failed to create device with address: {}", address);
         return Err("Failed to create device");
     };

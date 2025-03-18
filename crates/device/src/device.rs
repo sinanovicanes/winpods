@@ -31,7 +31,7 @@ pub enum DeviceConnectionState {
 }
 
 impl Device {
-    pub fn new(address: u64) -> windows::core::Result<Self> {
+    pub fn from_bluetooth_address(address: u64) -> windows::core::Result<Self> {
         let device = BluetoothDevice::FromBluetoothAddressAsync(address)?.get()?;
         let dispatcher = EventDispatcher::new();
         let device = Self { device, dispatcher };
@@ -153,7 +153,6 @@ impl Device {
     ) {
         self.dispatcher
             .add_listener::<DeviceConnectionChangedEvent, _>(move |event| {
-                // Pass the state to the callback
                 callback(event.0);
             });
     }

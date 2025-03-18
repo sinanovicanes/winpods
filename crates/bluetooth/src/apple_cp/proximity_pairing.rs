@@ -87,7 +87,7 @@ impl ProximityPairingMessage {
     }
 
     pub fn get_model_from_id(model_id: u16) -> AppleDeviceModel {
-        AppleDeviceModel::from(model_id)
+        AppleDeviceModel::from_model_id(model_id)
     }
 
     pub fn get_model_as_string(&self) -> String {

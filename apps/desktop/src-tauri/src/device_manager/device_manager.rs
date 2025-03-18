@@ -108,7 +108,7 @@ trait AppleDevice {
 impl AppleDevice for Device {
     fn get_device_model(&self) -> AppleDeviceModel {
         match self.get_product_id() {
-            Ok(product_id) => AppleDeviceModel::from(product_id),
+            Ok(product_id) => AppleDeviceModel::from_model_id(product_id),
             Err(_) => AppleDeviceModel::Unknown,
         }
     }
