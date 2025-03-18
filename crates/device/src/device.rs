@@ -140,6 +140,13 @@ impl Device {
         }
     }
 
+    pub fn is_connected(&self) -> bool {
+        matches!(
+            self.get_connection_state(),
+            DeviceConnectionState::Connected
+        )
+    }
+
     pub fn on_connection_changed(
         &self,
         callback: impl Fn(DeviceConnectionState) + Send + Sync + 'static,

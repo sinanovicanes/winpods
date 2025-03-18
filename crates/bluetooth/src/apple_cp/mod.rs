@@ -1,6 +1,37 @@
 mod proximity_pairing;
 
 pub use proximity_pairing::*;
+use serde::{Deserialize, Serialize};
+
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum AppleDeviceModel {
+    AirPods1,
+    AirPods2,
+    AirPods3,
+    AirPodsPro,
+    AirPodsPro2,
+    AirPodsPro2UsbC,
+    AirPodsMax,
+    BeatsFitPro,
+    Unknown,
+}
+
+impl From<u16> for AppleDeviceModel {
+    fn from(value: u16) -> Self {
+        match value {
+            0x2002 => AppleDeviceModel::AirPods1,
+            0x200F => AppleDeviceModel::AirPods2,
+            0x2013 => AppleDeviceModel::AirPods3,
+            0x200E => AppleDeviceModel::AirPodsPro,
+            0x2014 => AppleDeviceModel::AirPodsPro2,
+            0x2024 => AppleDeviceModel::AirPodsPro2UsbC,
+            0x200A => AppleDeviceModel::AirPodsMax,
+            0x2012 => AppleDeviceModel::BeatsFitPro,
+            _ => AppleDeviceModel::Unknown,
+        }
+    }
+}
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

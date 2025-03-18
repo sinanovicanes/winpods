@@ -1,41 +1,9 @@
-use serde::{Deserialize, Serialize};
-
-use super::{Color, PacketType};
+use super::{AppleDeviceModel, Color, PacketType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ProximitySide {
     Left,
     Right,
-}
-
-#[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum ProximityPairingModel {
-    AirPods1,
-    AirPods2,
-    AirPods3,
-    AirPodsPro,
-    AirPodsPro2,
-    AirPodsPro2UsbC,
-    AirPodsMax,
-    BeatsFitPro,
-    Unknown,
-}
-
-impl From<u16> for ProximityPairingModel {
-    fn from(value: u16) -> Self {
-        match value {
-            0x2002 => ProximityPairingModel::AirPods1,
-            0x200F => ProximityPairingModel::AirPods2,
-            0x2013 => ProximityPairingModel::AirPods3,
-            0x200E => ProximityPairingModel::AirPodsPro,
-            0x2014 => ProximityPairingModel::AirPodsPro2,
-            0x2024 => ProximityPairingModel::AirPodsPro2UsbC,
-            0x200A => ProximityPairingModel::AirPodsMax,
-            0x2012 => ProximityPairingModel::BeatsFitPro,
-            _ => ProximityPairingModel::Unknown,
-        }
-    }
 }
 
 #[repr(C, packed)]
@@ -114,12 +82,12 @@ impl ProximityPairingMessage {
         self.get_broadcast_side() == ProximitySide::Right
     }
 
-    pub fn get_model(&self) -> ProximityPairingModel {
+    pub fn get_model(&self) -> AppleDeviceModel {
         Self::get_model_from_id(self.model_id)
     }
 
-    pub fn get_model_from_id(model_id: u16) -> ProximityPairingModel {
-        ProximityPairingModel::from(model_id)
+    pub fn get_model_from_id(model_id: u16) -> AppleDeviceModel {
+        AppleDeviceModel::from(model_id)
     }
 
     pub fn get_model_as_string(&self) -> String {
