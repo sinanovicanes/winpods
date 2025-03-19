@@ -78,8 +78,13 @@ impl Device {
             ));
     }
 
+    pub fn get_device_id(&self) -> windows::core::Result<String> {
+        let device_id = self.device.DeviceId()?;
+        Ok(device_id.to_string())
+    }
+
     pub fn get_name(&self) -> windows::core::Result<String> {
-        let name = self.device.Name()?;
+        let name = self.device.DeviceInformation()?.Name()?;
         Ok(name.to_string())
     }
 
@@ -200,6 +205,7 @@ impl TryFrom<DeviceInformation> for Device {
 impl Debug for Device {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Device")
+            .field("device_id", &self.get_device_id())
             .field("name", &self.get_name())
             .field("address", &self.get_address())
             .field("vendor_id", &self.get_vendor_id())
