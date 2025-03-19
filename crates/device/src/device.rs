@@ -63,20 +63,19 @@ impl Device {
         ));
 
         let dispatcher = self.dispatcher.clone();
-        let _ = self.device.ConnectionStatusChanged(&TypedEventHandler::<
-            BluetoothDevice,
-            IInspectable,
-        >::new(
-            move |device, _inspactable| {
-                let Some(device) = device.as_ref() else {
-                    return Ok(());
-                };
+        let _ = self
+            .device
+            .NameChanged(&TypedEventHandler::<BluetoothDevice, IInspectable>::new(
+                move |device, _inspactable| {
+                    let Some(device) = device.as_ref() else {
+                        return Ok(());
+                    };
 
-                let device_name = device.Name()?;
-                dispatcher.dispatch(DeviceNameChangedEvent(device_name.to_string()));
-                Ok(())
-            },
-        ));
+                    let device_name = device.Name()?;
+                    dispatcher.dispatch(DeviceNameChangedEvent(device_name.to_string()));
+                    Ok(())
+                },
+            ));
     }
 
     pub fn get_name(&self) -> windows::core::Result<String> {
