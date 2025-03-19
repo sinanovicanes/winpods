@@ -6,7 +6,8 @@ import { ref, watch } from "vue";
 
 export const useDeviceConnection = defineStore("device-connection", () => {
   const device = ref<Device | null>(null);
-  const availableDevices = ref<DeviceToConnect[]>([]);
+  const deviceProperties = ref<DeviceProperties | null>(null);
+  const availableDevices = ref<Device[]>([]);
 
   watch(device, async newDevice => {
     // Clear available devices when a device is connected
@@ -18,9 +19,20 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     }
   });
 
-  listen<Device>(Events.DeviceUpdated, event => {
-    device.value = event.payload;
+  listen<Device>(Events.DeviceConnected, event => (device.value = event.payload));
+  listen<Device>(Events.DeviceDisconnected, _ => (device.value = null));
+  listen<Pick<Device, "name">>(Events.DeviceNameUpdated, event => {
+    if (!device.value) return;
+    device.value = { ...device.value, name: event.payload.name };
   });
+  listen<Pick<Device, "connectionState">>(Events.DeviceConnectionUpdated, event => {
+    if (!device.value) return;
+    device.value = { ...device.value, connectionState: event.payload.connectionState };
+  });
+  listen<DeviceProperties>(
+    Events.DevicePropertiesUpdated,
+    event => (deviceProperties.value = event.payload)
+  );
 
   async function disconnect(): Promise<void> {
     try {
@@ -31,9 +43,9 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     }
   }
 
-  async function getAvailableDevices(): Promise<DeviceToConnect[]> {
+  async function getAvailableDevices(): Promise<Device[]> {
     try {
-      return await invoke<DeviceToConnect[]>("get_bluetooth_device_list");
+      return await invoke<Device[]>("get_bluetooth_device_list");
     } catch (e) {
       console.error(`Failed to get available devices: ${e}`);
       return [];
@@ -62,6 +74,7 @@ export const useDeviceConnection = defineStore("device-connection", () => {
 
   return {
     device,
+    deviceProperties,
     availableDevices,
     connect,
     disconnect,

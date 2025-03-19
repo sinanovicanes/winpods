@@ -11,7 +11,11 @@ export enum AirPodsModel {
 }
 
 export enum Events {
-  DeviceUpdated = "device-updated",
+  DeviceConnected = "device-connected",
+  DeviceDisconnected = "device-disconnected",
+  DevicePropertiesUpdated = "device-properties-updated",
+  DeviceNameUpdated = "device-name-updated",
+  DeviceConnectionUpdated = "device-connection-updated",
   SettingsUpdateAutoUpdate = "settings:update:auto_update",
   SettingsUpdateNotifications = "settings:update:notifications",
   SettingsUpdateLowBatteryNotification = "settings:update:low_battery_notification",

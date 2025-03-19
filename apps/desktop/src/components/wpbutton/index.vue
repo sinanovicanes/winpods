@@ -11,8 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 type ButtonVariant = keyof typeof variantStyles;
 type ButtonSize = keyof typeof sizeStyles;
 

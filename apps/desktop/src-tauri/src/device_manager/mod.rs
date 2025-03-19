@@ -53,7 +53,6 @@ pub fn init(app: &mut App) {
         let device_manager = device_manager_lock.read().unwrap();
 
         device_manager.dispatch_device_updated();
-        tracing::info!("Selected device properties updated");
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
@@ -76,8 +75,31 @@ pub fn init(app: &mut App) {
             });
     });
 
+    let app_handle: tauri::AppHandle = app.app_handle().clone();
+    state.on_device_name_changed(move |name| {
+        tracing::info!("Device name changed: {}", name);
+        app_handle
+            .emit(events::DEVICE_NAME_UPDATED, name)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device name updated event: {}", e);
+            });
+    });
+
+    let app_handle: tauri::AppHandle = app.app_handle().clone();
+    state.on_device_connection_changed(move |state| {
+        tracing::info!("Device connection state changed: {:?}", state);
+        app_handle
+            .emit(events::DEVICE_CONNECTION_STATE_UPDATED, state)
+            .unwrap_or_else(|e| {
+                tracing::error!(
+                    "Failed to emit device connection state updated event: {}",
+                    e
+                );
+            });
+    });
+
     let app_handle = app.app_handle().clone();
-    state.on_device_updated(move |device| {
+    state.on_device_properties_updated(move |device| {
         app_handle
             .emit(events::DEVICE_PROPERTIES_UPDATED, device)
             .unwrap_or_else(|e| {
@@ -85,9 +107,7 @@ pub fn init(app: &mut App) {
             });
     });
 
-    let device = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID);
-
-    if let Some(device) = device {
+    if let Some(device) = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID) {
         state.connect(device);
     }
 

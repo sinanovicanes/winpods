@@ -2,7 +2,7 @@ use bluetooth::{
     apple_cp::{AppleDeviceModel, ProximityPairingMessage},
     AdvertisementReceivedData, AdvertisementWatcher,
 };
-use device::Device;
+use device::{Device, DeviceConnectionState};
 use utils::EventDispatcher;
 
 use crate::tray::Tooltip;
@@ -12,6 +12,8 @@ use super::DeviceProperties;
 struct DeviceConnectedEvent(Device);
 struct DevicePropertiesUpdatedEvent(DeviceProperties);
 struct DeviceDisconnectedEvent;
+struct DeviceNameUpdatedEvent(String);
+struct DeviceConnectionUpdatedEvent(DeviceConnectionState);
 
 pub struct DeviceManagerState {
     pub device: Option<Device>,
@@ -38,6 +40,16 @@ impl DeviceManagerState {
     }
 
     pub fn connect(&mut self, device: Device) {
+        let dispatcher = self.dispatcher.clone();
+        device.on_name_changed(move |name| {
+            dispatcher.dispatch(DeviceNameUpdatedEvent(name));
+        });
+
+        let dispatcher = self.dispatcher.clone();
+        device.on_connection_changed(move |state| {
+            dispatcher.dispatch(DeviceConnectionUpdatedEvent(state));
+        });
+
         self.device = Some(device.clone());
         self.dispatcher.dispatch(DeviceConnectedEvent(device));
     }
@@ -93,7 +105,27 @@ impl DeviceManagerState {
             });
     }
 
-    pub fn on_device_updated(&self, callback: impl Fn(&DeviceProperties) + Send + Sync + 'static) {
+    pub fn on_device_connection_changed(
+        &self,
+        callback: impl Fn(&DeviceConnectionState) + Send + Sync + 'static,
+    ) {
+        self.dispatcher
+            .add_listener::<DeviceConnectionUpdatedEvent, _>(move |event| {
+                callback(&event.0);
+            });
+    }
+
+    pub fn on_device_name_changed(&self, callback: impl Fn(&String) + Send + Sync + 'static) {
+        self.dispatcher
+            .add_listener::<DeviceNameUpdatedEvent, _>(move |event| {
+                callback(&event.0);
+            });
+    }
+
+    pub fn on_device_properties_updated(
+        &self,
+        callback: impl Fn(&DeviceProperties) + Send + Sync + 'static,
+    ) {
         self.dispatcher
             .add_listener::<DevicePropertiesUpdatedEvent, _>(move |event| {
                 callback(&event.0);

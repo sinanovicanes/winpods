@@ -26,7 +26,5 @@ interface DeviceProperties {
 interface Device {
   address: number;
   name: string;
-  properties?: DeviceProperties;
+  connectionState: "connected" | "disconnected";
 }
-
-type DeviceToConnect = Omit<Device, "properties">;
