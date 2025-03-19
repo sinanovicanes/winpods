@@ -1,4 +1,4 @@
-name: Rust CI
+name: CI
 on:
   push:
     branches:
@@ -23,7 +23,7 @@ jobs:
             C:\Users\runneradmin\.cargo\registry
             C:\Users\runneradmin\.cargo\git
             target
-          key: cargo-windows-${{ hashFiles('Cargo.lock') }}-clippy
+          key: cargo-windows-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             cargo-windows-
 
@@ -47,7 +47,7 @@ jobs:
             C:\Users\runneradmin\.cargo\registry
             C:\Users\runneradmin\.cargo\git
             target
-          key: cargo-windows-${{ hashFiles('Cargo.lock') }}-test
+          key: cargo-windows-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             cargo-windows-
 
