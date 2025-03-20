@@ -7,49 +7,27 @@ on:
 
 jobs:
   clippy:
-    name: Clippy Linting
+    name: Clippy
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust
+      - name: Setup Rust
         uses: ./.github/actions/setup-rust
-
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            C:\Users\runneradmin\.cargo\registry
-            C:\Users\runneradmin\.cargo\git
-            target
-          key: cargo-windows-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            cargo-windows-
 
       - name: Run Clippy
         uses: ./.github/actions/ci/clippy
 
   test:
-    name: Run Tests
+    name: Test
     runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust
+      - name: Setup Rust
         uses: ./.github/actions/setup-rust
-
-      - name: Cache Cargo dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            C:\Users\runneradmin\.cargo\registry
-            C:\Users\runneradmin\.cargo\git
-            target
-          key: cargo-windows-${{ hashFiles('Cargo.lock') }}
-          restore-keys: |
-            cargo-windows-
 
       - name: Run Tests
         uses: ./.github/actions/ci/test

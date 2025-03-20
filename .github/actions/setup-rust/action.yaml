@@ -1,8 +1,8 @@
 name: "Setup Rust"
-description: "Install Rust"
 runs:
   using: "composite"
   steps:
-    - name: Setup rust-toolchain stable
-      id: rust-toolchain
-      uses: dtolnay/rust-toolchain@stable
+    - uses: dtolnay/rust-toolchain@stable
+      id: setup-rust
+
+    - uses: Swatinem/rust-cache@v2
