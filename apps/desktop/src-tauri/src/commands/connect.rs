@@ -1,6 +1,6 @@
 use std::sync::RwLock;
 
-use device::Device;
+use bluetooth::Device;
 
 use crate::device_manager::DeviceManagerState;
 

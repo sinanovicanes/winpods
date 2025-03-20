@@ -11,6 +11,8 @@ use windows::{
     core::{HSTRING, IInspectable, Interface},
 };
 
+use crate::{Error, Result};
+
 const PROPERTY_BLUETOOTH_VENDOR_ID: &str = "System.DeviceInterface.Bluetooth.VendorId";
 const PROPERTY_BLUETOOTH_PRODUCT_ID: &str = "System.DeviceInterface.Bluetooth.ProductId";
 const PROPERTY_AEP_CONTAINER_ID: &str = "System.Devices.Aep.ContainerId";
@@ -31,8 +33,11 @@ pub enum DeviceConnectionState {
 }
 
 impl Device {
-    pub fn from_bluetooth_address(address: u64) -> windows::core::Result<Self> {
-        let device = BluetoothDevice::FromBluetoothAddressAsync(address)?.get()?;
+    pub fn from_bluetooth_address(address: u64) -> Result<Self> {
+        let device = BluetoothDevice::FromBluetoothAddressAsync(address)
+            .map_err(|_| Error::DeviceNotFound)?
+            .get()
+            .map_err(|_| Error::DeviceNotFound)?;
         let dispatcher = EventDispatcher::new();
         let device = Self { device, dispatcher };
 
@@ -41,6 +46,21 @@ impl Device {
         Ok(device)
     }
 
+    pub fn from_device_id(device_id: impl Into<HSTRING>) -> Result<Self> {
+        let device = BluetoothDevice::FromIdAsync(&device_id.into())
+            .map_err(|_| Error::DeviceNotFound)?
+            .get()
+            .map_err(|_| Error::DeviceNotFound)?;
+        let dispatcher = EventDispatcher::new();
+        let device = Self { device, dispatcher };
+
+        device.init();
+
+        Ok(device)
+    }
+}
+
+impl Device {
     fn init(&self) {
         let dispatcher = self.dispatcher.clone();
         let _ = self.device.ConnectionStatusChanged(&TypedEventHandler::<
@@ -78,22 +98,52 @@ impl Device {
             ));
     }
 
-    pub fn get_device_id(&self) -> windows::core::Result<String> {
-        let device_id = self.device.DeviceId()?;
+    pub fn on_connection_changed(
+        &self,
+        callback: impl Fn(DeviceConnectionState) + Send + Sync + 'static,
+    ) {
+        self.dispatcher
+            .add_listener::<DeviceConnectionChangedEvent, _>(move |event| {
+                callback(event.0);
+            });
+    }
+
+    pub fn on_name_changed(&self, callback: impl Fn(&String) + Send + Sync + 'static) {
+        self.dispatcher
+            .add_listener::<DeviceNameChangedEvent, _>(move |event| {
+                callback(&event.0);
+            });
+    }
+}
+
+impl Device {
+    pub fn get_device_id(&self) -> Result<String> {
+        let device_id = self
+            .device
+            .DeviceId()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(device_id.to_string())
     }
 
-    pub fn get_name(&self) -> windows::core::Result<String> {
-        let name = self.device.DeviceInformation()?.Name()?;
+    pub fn get_name(&self) -> Result<String> {
+        let name = self
+            .device
+            .DeviceInformation()
+            .map_err(|_| Error::DeviceNotFound)?
+            .Name()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(name.to_string())
     }
 
-    pub fn get_address(&self) -> windows::core::Result<u64> {
-        let address = self.device.BluetoothAddress()?;
+    pub fn get_address(&self) -> Result<u64> {
+        let address = self
+            .device
+            .BluetoothAddress()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(address)
     }
 
-    pub fn get_info(&self) -> windows::core::Result<DeviceInformation> {
+    pub fn get_info(&self) -> Result<DeviceInformation> {
         let properties = vec![
             HSTRING::from(PROPERTY_BLUETOOTH_VENDOR_ID),
             HSTRING::from(PROPERTY_BLUETOOTH_PRODUCT_ID),
@@ -102,38 +152,58 @@ impl Device {
 
         let properties = windows_collections::IIterable::from(properties);
         let info = DeviceInformation::CreateFromIdAsyncAdditionalProperties(
-            &self.device.DeviceId()?,
+            &self.device.DeviceId().map_err(|_| Error::DeviceNotFound)?,
             &properties,
-        )?
-        .get()?;
+        )
+        .map_err(|_| Error::DeviceNotFound)?
+        .get()
+        .map_err(|_| Error::DeviceNotFound)?;
 
         Ok(info)
     }
 
-    pub fn get_vendor_id(&self) -> windows::core::Result<u16> {
-        let properties = self.get_info()?.Properties()?;
+    pub fn get_vendor_id(&self) -> Result<u16> {
+        let properties = self
+            .get_info()?
+            .Properties()
+            .map_err(|_| Error::PropertyNotFound)?;
         let vendor_id = properties
-            .Lookup(&HSTRING::from(PROPERTY_BLUETOOTH_VENDOR_ID))?
-            .cast::<IPropertyValue>()?
-            .GetUInt16()?;
+            .Lookup(&HSTRING::from(PROPERTY_BLUETOOTH_VENDOR_ID))
+            .map_err(|_| Error::PropertyNotFound)?
+            .cast::<IPropertyValue>()
+            .map_err(|_| Error::PropertyNotFound)?
+            .GetUInt16()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(vendor_id)
     }
 
-    pub fn get_product_id(&self) -> windows::core::Result<u16> {
-        let properties = self.get_info()?.Properties()?;
+    pub fn get_product_id(&self) -> Result<u16> {
+        let properties = self
+            .get_info()?
+            .Properties()
+            .map_err(|_| Error::PropertyNotFound)?;
         let product_id = properties
-            .Lookup(&HSTRING::from(PROPERTY_BLUETOOTH_PRODUCT_ID))?
-            .cast::<IPropertyValue>()?
-            .GetUInt16()?;
+            .Lookup(&HSTRING::from(PROPERTY_BLUETOOTH_PRODUCT_ID))
+            .map_err(|_| Error::PropertyNotFound)?
+            .cast::<IPropertyValue>()
+            .map_err(|_| Error::PropertyNotFound)?
+            .GetUInt16()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(product_id)
     }
 
-    pub fn get_aep_id(&self) -> windows::core::Result<u16> {
-        let properties = self.get_info()?.Properties()?;
+    pub fn get_aep_id(&self) -> Result<u16> {
+        let properties = self
+            .get_info()?
+            .Properties()
+            .map_err(|_| Error::PropertyNotFound)?;
         let product_id = properties
-            .Lookup(&HSTRING::from(PROPERTY_AEP_CONTAINER_ID))?
-            .cast::<IPropertyValue>()?
-            .GetUInt16()?;
+            .Lookup(&HSTRING::from(PROPERTY_AEP_CONTAINER_ID))
+            .map_err(|_| Error::PropertyNotFound)?
+            .cast::<IPropertyValue>()
+            .map_err(|_| Error::PropertyNotFound)?
+            .GetUInt16()
+            .map_err(|_| Error::PropertyNotFound)?;
         Ok(product_id)
     }
 
@@ -150,29 +220,12 @@ impl Device {
             DeviceConnectionState::Connected
         )
     }
-
-    pub fn on_connection_changed(
-        &self,
-        callback: impl Fn(DeviceConnectionState) + Send + Sync + 'static,
-    ) {
-        self.dispatcher
-            .add_listener::<DeviceConnectionChangedEvent, _>(move |event| {
-                callback(event.0);
-            });
-    }
-
-    pub fn on_name_changed(&self, callback: impl Fn(String) + Send + Sync + 'static) {
-        self.dispatcher
-            .add_listener::<DeviceNameChangedEvent, _>(move |event| {
-                callback(event.0.clone());
-            });
-    }
 }
 
 impl TryFrom<BluetoothDevice> for Device {
-    type Error = windows::core::Error;
+    type Error = Error;
 
-    fn try_from(value: BluetoothDevice) -> Result<Self, Self::Error> {
+    fn try_from(value: BluetoothDevice) -> Result<Self> {
         let dispatcher = EventDispatcher::new();
         let device = Self {
             device: value,
@@ -186,19 +239,11 @@ impl TryFrom<BluetoothDevice> for Device {
 }
 
 impl TryFrom<DeviceInformation> for Device {
-    type Error = windows::core::Error;
+    type Error = Error;
 
-    fn try_from(value: DeviceInformation) -> Result<Self, Self::Error> {
-        let bluetooth_device = BluetoothDevice::FromIdAsync(&value.Id()?)?.get()?;
-        let dispatcher = EventDispatcher::new();
-        let device = Self {
-            device: bluetooth_device,
-            dispatcher,
-        };
-
-        device.init();
-
-        Ok(device)
+    fn try_from(value: DeviceInformation) -> Result<Self> {
+        let device_id = value.Id().map_err(|_| Error::DeviceNotFound)?;
+        Self::from_device_id(device_id)
     }
 }
 
@@ -217,7 +262,7 @@ impl Debug for Device {
 }
 
 impl Serialize for Device {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> core::result::Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {

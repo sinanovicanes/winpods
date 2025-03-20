@@ -1,8 +1,9 @@
-use device::DeviceConnectionState;
 use windows::Devices::{
     Bluetooth::{BluetoothConnectionStatus, BluetoothDevice},
     Enumeration::{DeviceInformation, DeviceInformationCollection},
 };
+
+use crate::{Device, DeviceConnectionState};
 
 pub fn get_connected_device_informations() -> windows::core::Result<DeviceInformationCollection> {
     let query = BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
@@ -13,7 +14,7 @@ pub fn get_connected_device_informations() -> windows::core::Result<DeviceInform
     Ok(devices)
 }
 
-pub fn get_connected_device_list() -> Vec<device::Device> {
+pub fn get_connected_device_list() -> Vec<Device> {
     let Ok(aqsfilter) = BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
         BluetoothConnectionStatus::Connected,
     ) else {
@@ -29,14 +30,14 @@ pub fn get_connected_device_list() -> Vec<device::Device> {
     };
 
     let devices = devices.into_iter().filter_map(|device| {
-        let device = device::Device::try_from(device).ok()?;
+        let device = Device::try_from(device).ok()?;
         Some(device)
     });
 
     devices.collect()
 }
 
-pub fn find_connected_device_with_vendor_id(vendor_id: u16) -> Option<device::Device> {
+pub fn find_connected_device_with_vendor_id(vendor_id: u16) -> Option<Device> {
     let devices = get_connected_device_list();
     let device = devices.iter().find(|device| {
         device.get_vendor_id() == Ok(vendor_id)

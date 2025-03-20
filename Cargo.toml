@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "apps/desktop/src-tauri",
     "crates/bluetooth",
-    "crates/device",
     "crates/media",
     "crates/utils",
 ]

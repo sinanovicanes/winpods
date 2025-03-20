@@ -352,7 +352,6 @@ dependencies = [
 name = "bluetooth"
 version = "0.1.0"
 dependencies = [
- "device",
  "serde",
  "serde_json",
  "utils",
@@ -779,7 +778,6 @@ name = "desktop"
 version = "0.1.0"
 dependencies = [
  "bluetooth",
- "device",
  "media",
  "serde",
  "serde_json",
@@ -794,17 +792,6 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "utils",
-]
-
-[[package]]
-name = "device"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "utils",
- "windows 0.60.0",
- "windows-collections",
 ]
 
 [[package]]

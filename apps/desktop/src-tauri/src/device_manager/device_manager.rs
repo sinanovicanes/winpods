@@ -1,8 +1,7 @@
 use bluetooth::{
     apple_cp::{AppleDeviceModel, ProximityPairingMessage},
-    AdvertisementReceivedData, AdvertisementWatcher,
+    AdvertisementReceivedData, AdvertisementWatcher, Device, DeviceConnectionState,
 };
-use device::{Device, DeviceConnectionState};
 use utils::EventDispatcher;
 
 use crate::tray::Tooltip;
@@ -42,7 +41,7 @@ impl DeviceManagerState {
     pub fn connect(&mut self, device: Device) {
         let dispatcher = self.dispatcher.clone();
         device.on_name_changed(move |name| {
-            dispatcher.dispatch(DeviceNameUpdatedEvent(name));
+            dispatcher.dispatch(DeviceNameUpdatedEvent(name.clone()));
         });
 
         let dispatcher = self.dispatcher.clone();
