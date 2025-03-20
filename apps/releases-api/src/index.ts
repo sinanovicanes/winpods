@@ -12,7 +12,7 @@ export default {
 		const version = path.replace('/', '').replace('v', '');
 
 		if (!isValidVersionString(version)) {
-			return new Response('Invalid version', { status: 400 });
+			return new Response('Not found', { status: 404 });
 		}
 
 		try {
