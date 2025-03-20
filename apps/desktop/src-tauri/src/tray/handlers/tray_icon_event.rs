@@ -2,10 +2,12 @@ use tauri::{
     tray::{MouseButtonState, TrayIcon, TrayIconEvent},
     Manager,
 };
+use tauri_plugin_positioner::{Position, WindowExt};
 
 pub fn on_tray_icon_event(tray: &TrayIcon, event: TrayIconEvent) {
+    tauri_plugin_positioner::on_tray_event(tray.app_handle(), &event);
+
     if let tauri::tray::TrayIconEvent::Click {
-        position,
         button,
         button_state,
         ..
@@ -28,20 +30,20 @@ pub fn on_tray_icon_event(tray: &TrayIcon, event: TrayIconEvent) {
         // Toggle window visibility
         if let Ok(true) = window.is_visible() {
             tracing::info!("Hiding widget");
-            let _ = window.hide();
+
+            if window.hide().is_err() {
+                tracing::error!("Failed to hide window");
+            }
+            return;
+        }
+
+        // Update window position
+        if window.move_window(Position::TrayCenter).is_err() {
+            tracing::error!("Failed to move window to tray center");
             return;
         }
 
         tracing::info!("Showing widget");
-        // Get the window's current size
-        if let Ok(size) = window.inner_size() {
-            // Position window above the tray icon
-            let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
-                x: (position.x - (size.width as f64 / 2.0)) as i32,
-                y: (position.y - size.height as f64) as i32,
-            }));
-        }
-
         let _ = window.show();
         let _ = window.set_focus();
     }
