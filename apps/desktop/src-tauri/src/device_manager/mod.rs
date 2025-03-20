@@ -7,11 +7,11 @@ use tauri::{App, Emitter, Manager};
 
 use crate::events;
 
-mod device_manager;
 mod device_properties;
+mod manager;
 
-pub use device_manager::DeviceManagerState;
 pub use device_properties::DeviceProperties;
+pub use manager::DeviceManagerState;
 
 pub fn init(app: &mut App) {
     let mut state = DeviceManagerState::new();
