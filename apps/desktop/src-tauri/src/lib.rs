@@ -36,20 +36,6 @@ pub fn run() {
             device_manager::init(app);
             tray::init(app);
 
-            // let window = app.get_webview_window("main").unwrap();
-            // let window_clone = window.clone();
-
-            // Hide the window when it loses focus
-            // window.on_window_event(move |event| match event {
-            //     tauri::WindowEvent::Focused(focused) => {
-            //         if !focused {
-            //             tracing::info!("Hiding window");
-            //             let _ = window_clone.hide();
-            //         }
-            //     }
-            //     _ => {}
-            // });
-
             Ok(())
         })
         .on_window_event(|window, event| match event {
