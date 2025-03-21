@@ -29,7 +29,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::get_bluetooth_device_list,
             commands::connect,
-            commands::disconnect
+            commands::disconnect,
+            commands::get_current_device
         ])
         .setup(move |app| {
             settings::init(app);

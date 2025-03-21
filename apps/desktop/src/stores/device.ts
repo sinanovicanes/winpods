@@ -4,7 +4,7 @@ import { listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref, watch } from "vue";
 
-export const useDeviceConnection = defineStore("device-connection", () => {
+export const useDevice = defineStore("device-connection", () => {
   const device = ref<Device | null>(null);
   const deviceProperties = ref<DeviceProperties | null>(null);
   const availableDevices = ref<Device[]>([]);
@@ -56,6 +56,19 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     availableDevices.value = await getAvailableDevices();
   }
 
+  async function refreshCurrentDevice(): Promise<void> {
+    try {
+      const response = await invoke<{ device: Device; properties: DeviceProperties }>(
+        "get_current_device"
+      );
+
+      device.value = response.device || null;
+      deviceProperties.value = response.properties || null;
+    } catch (e) {
+      console.error(`Failed to request device: ${e}`);
+    }
+  }
+
   async function connect(address: number): Promise<void> {
     try {
       const device = availableDevices.value.find(d => d.address === address);
@@ -68,9 +81,18 @@ export const useDeviceConnection = defineStore("device-connection", () => {
     }
   }
 
-  getAvailableDevices().then(devices => {
+  async function init() {
+    await refreshCurrentDevice();
+
+    if (device.value) {
+      return;
+    }
+
+    const devices = await getAvailableDevices();
     availableDevices.value = devices;
-  });
+  }
+
+  init();
 
   return {
     device,
@@ -83,5 +105,5 @@ export const useDeviceConnection = defineStore("device-connection", () => {
 });
 
 if (import.meta.hot) {
-  import.meta.hot.accept(acceptHMRUpdate(useDeviceConnection, import.meta.hot));
+  import.meta.hot.accept(acceptHMRUpdate(useDevice, import.meta.hot));
 }

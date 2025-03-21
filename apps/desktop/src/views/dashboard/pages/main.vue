@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { AirPodsImage, Battery, Switch, WPButton } from "@/components";
 import { AirPodsModel } from "@/constants";
-import { useDeviceConnection } from "@/stores/device-connection";
+import { useDevice } from "@/stores/device";
 import { useSettings } from "@/stores/settings";
 import { computed } from "vue";
 
-const deviceStore = useDeviceConnection();
+const deviceStore = useDevice();
 const settings = useSettings();
 const device = computed(() => deviceStore.device);
 const deviceProperties = computed(() => deviceStore.deviceProperties);
