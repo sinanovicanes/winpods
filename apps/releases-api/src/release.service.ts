@@ -1,4 +1,4 @@
-import { GithubAPI } from './github_api';
+import { GithubAPI } from '@winpods/github-api';
 
 interface ReleasePlatform {
 	signature: string;
