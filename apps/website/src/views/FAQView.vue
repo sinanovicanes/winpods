@@ -1,5 +1,5 @@
 <template>
-  <main class="container grid grid-cols-1 gap-4 p-4">
+  <main class="container grid grid-cols-1 gap-4 pt-5">
     <h1 class="text-3xl font-semibold">Frequently Asked Questions</h1>
     <div class="collapse collapse-arrow bg-base-100 border border-base-300">
       <input type="radio" name="faq" :checked="true" />
