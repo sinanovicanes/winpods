@@ -87,6 +87,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+#app {
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
 a,
 .green {
   text-decoration: none;

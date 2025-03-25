@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import WPButton from './WPButton.vue';
 
 const routes = useRouter().getRoutes();
 </script>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 import WPNav from './components/WPNav.vue';
-import GithubIcon from '@/assets/github-mark-white.svg';
+import GithubIcon from '@/assets/icons/github-mark-white.svg';
+import WPButton from './components/WPButton.vue';
 
 interface Social {
   name: string;
@@ -22,7 +23,8 @@ const socials: Social[] = [
   <header class="w-full flex items-center justify-between py-4 px-50">
     <img src="/favicon.ico" alt="winpods" width="50px" />
     <WPNav />
-    <div class="flex gap-1 items-center">
+    <div class="flex gap-1 items-center justify-end w-1/3">
+      <WPButton variant="secondary">Download</WPButton>
       <a
         v-for="social in socials"
         :key="social.name"
