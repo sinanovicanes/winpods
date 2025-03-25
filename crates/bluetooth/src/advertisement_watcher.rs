@@ -7,7 +7,7 @@ use windows::{
     Foundation::TypedEventHandler,
 };
 
-use crate::advertisement_received_data::AdvertisementReceivedData;
+use crate::{Error, Result, advertisement_received_data::AdvertisementReceivedData};
 
 struct AdvertisementReceivedEvent(AdvertisementReceivedData);
 
@@ -17,9 +17,9 @@ pub struct AdvertisementWatcher {
 }
 
 impl AdvertisementWatcher {
-    pub fn new() -> windows::core::Result<Self> {
+    pub fn new() -> Result<Self> {
         let watcher = Self {
-            watcher: BluetoothLEAdvertisementWatcher::new()?,
+            watcher: BluetoothLEAdvertisementWatcher::new().map_err(|_| Error::WindowsError)?,
             dispatcher: EventDispatcher::new(),
         };
 
@@ -28,46 +28,53 @@ impl AdvertisementWatcher {
         Ok(watcher)
     }
 
-    fn init(&self) -> windows::core::Result<()> {
+    fn init(&self) -> Result<()> {
         let dispatcher = self.dispatcher.clone();
-        let _ = self.watcher.Received(&TypedEventHandler::<
-            BluetoothLEAdvertisementWatcher,
-            BluetoothLEAdvertisementReceivedEventArgs,
-        >::new(move |_watcher, args| {
-            let Some(args) = args.as_ref() else {
-                return Ok(());
-            };
+        let _ = self
+            .watcher
+            .Received(&TypedEventHandler::<
+                BluetoothLEAdvertisementWatcher,
+                BluetoothLEAdvertisementReceivedEventArgs,
+            >::new(move |_watcher, args| {
+                let Some(args) = args.as_ref() else {
+                    return Ok(());
+                };
 
-            let Ok(data) = AdvertisementReceivedData::try_from(args.clone()) else {
-                return Ok(());
-            };
+                let Ok(data) = AdvertisementReceivedData::try_from(args.clone()) else {
+                    return Ok(());
+                };
 
-            dispatcher.dispatch(AdvertisementReceivedEvent(data));
+                dispatcher.dispatch(AdvertisementReceivedEvent(data));
 
-            Ok(())
-        }))?;
+                Ok(())
+            }))
+            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
 
-    pub fn start(&self) -> windows::core::Result<()> {
-        self.watcher.Start()?;
+    pub fn start(&self) -> Result<()> {
+        self.watcher.Start().map_err(|_| Error::WindowsError)?;
         self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::Active)?;
+            .SetScanningMode(BluetoothLEScanningMode::Active)
+            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
 
-    pub fn stop(&self) -> windows::core::Result<()> {
-        self.watcher.Stop()?;
+    pub fn stop(&self) -> Result<()> {
+        self.watcher.Stop().map_err(|_| Error::WindowsError)?;
         self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::None)?;
+            .SetScanningMode(BluetoothLEScanningMode::None)
+            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
 
-    pub fn filter(&self, filter: &BluetoothLEAdvertisementFilter) -> windows::core::Result<()> {
-        self.watcher.SetAdvertisementFilter(filter)?;
+    pub fn filter(&self, filter: &BluetoothLEAdvertisementFilter) -> Result<()> {
+        self.watcher
+            .SetAdvertisementFilter(filter)
+            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
