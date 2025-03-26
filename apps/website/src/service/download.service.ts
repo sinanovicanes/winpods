@@ -1,3 +1,4 @@
+import { useNotifications } from '@/stores/notification.store';
 import { GithubAPI } from '@winpods/github-api';
 
 export class DownloadService {
@@ -21,7 +22,10 @@ export class DownloadService {
       document.body.removeChild(a);
     } catch (e) {
       console.error(e);
-      alert('Failed to start download');
+      useNotifications().add({
+        message: 'Failed to start download',
+        kind: 'error',
+      });
     }
   }
 }

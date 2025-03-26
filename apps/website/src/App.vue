@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import WPNav from '@/components/WPNav.vue';
 import { RouterView } from 'vue-router';
+import WPNotifications from './components/WPNotifications.vue';
 </script>
 
 <template>
@@ -8,4 +9,5 @@ import { RouterView } from 'vue-router';
     <WPNav />
   </header>
   <RouterView />
+  <WPNotifications />
 </template>
