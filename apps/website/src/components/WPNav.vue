@@ -49,8 +49,8 @@ const socials = computed<Social[]>(() => [
       >
         <img :src="social.icon" :alt="social.name" width="24px" />
       </a>
-      <a class="btn btn-lg">Download</a>
       <WPThemeController />
+      <a class="btn btn-lg">Download</a>
     </div>
   </nav>
 </template>
