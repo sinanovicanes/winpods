@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::sync::RwLock;
 
 use tauri::{App, Listener, Manager};
 
@@ -13,8 +13,8 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let Ok(mut settings_state) = settings_state.lock() else {
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let Ok(mut settings_state) = settings_state.write() else {
             tracing::error!("Failed to lock settings state");
             return;
         };
@@ -29,8 +29,8 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let Ok(mut settings_state) = settings_state.lock() else {
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let Ok(mut settings_state) = settings_state.write() else {
             tracing::error!("Failed to lock settings state");
             return;
         };
@@ -45,8 +45,8 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let Ok(mut settings_state) = settings_state.lock() else {
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let Ok(mut settings_state) = settings_state.write() else {
             tracing::error!("Failed to lock settings state");
             return;
         };
@@ -61,8 +61,8 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let Ok(mut settings_state) = settings_state.lock() else {
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let Ok(mut settings_state) = settings_state.write() else {
             tracing::error!("Failed to lock settings state");
             return;
         };

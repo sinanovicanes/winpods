@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 
 use tauri::{App, AppHandle, Listener, Manager};
 use tauri_plugin_notification::NotificationExt;
@@ -32,8 +32,8 @@ fn send_low_battery_notification(app_handle: &AppHandle) {
 pub fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
     app.listen(events::DEVICE_PROPERTIES_UPDATED, move |event| {
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let settings_state = settings_state.lock().unwrap();
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let settings_state = settings_state.read().unwrap();
 
         // Check if low battery notification is enabled
         if !settings_state.low_battery_notification {

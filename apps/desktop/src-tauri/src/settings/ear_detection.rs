@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::sync::{Mutex, RwLock};
 
 use media::GlobalMediaController;
 use tauri::{App, Listener, Manager};
@@ -16,8 +16,8 @@ struct EarDetectionState {
 pub fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
     app.listen(events::DEVICE_PROPERTIES_UPDATED, move |event| {
-        let settings_state = app_handle.state::<Mutex<SettingsState>>();
-        let settings_state = settings_state.lock().unwrap();
+        let settings_state = app_handle.state::<RwLock<SettingsState>>();
+        let settings_state = settings_state.read().unwrap();
 
         // Check if ear detection is enabled
         if !settings_state.ear_detection {

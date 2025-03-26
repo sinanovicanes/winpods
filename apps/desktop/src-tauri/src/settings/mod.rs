@@ -1,7 +1,7 @@
-use std::{fmt::Debug, sync::Mutex};
+use std::{fmt::Debug, sync::RwLock};
 
 use serde::{Deserialize, Serialize};
-use tauri::{App, Emitter, Listener, Manager};
+use tauri::{App, Emitter, Manager};
 use tauri_plugin_store::{Store, StoreExt};
 use utils::EventDispatcher;
 
@@ -151,10 +151,6 @@ pub fn init(app: &mut App) {
         .expect("Failed to get settings store");
     let settings_state = SettingsState::load_from_store(&store);
 
-    app.listen("store://change", |event| {
-        tracing::debug!("{:?}", event);
-    });
-
     let app_handle = app.app_handle().clone();
     settings_state.on_auto_update_changed(move |state| {
         app_handle
@@ -191,7 +187,7 @@ pub fn init(app: &mut App) {
         store.set("low_battery_notification", state.clone());
     });
 
-    app.manage(Mutex::new(settings_state));
+    app.manage(RwLock::new(settings_state));
 
     listeners::ui_listeners::init(app);
     ear_detection::init(app);

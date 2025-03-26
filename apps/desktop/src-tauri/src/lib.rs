@@ -1,4 +1,4 @@
-use tauri::{Manager, WindowEvent};
+use tauri::{Listener, Manager, WindowEvent};
 
 mod commands;
 mod device_manager;
@@ -38,6 +38,10 @@ pub fn run() {
             settings::init(app);
             device_manager::init(app);
             tray::init(app);
+
+            app.listen("store://change", |event| {
+                tracing::debug!("{:?}", event);
+            });
 
             Ok(())
         })
