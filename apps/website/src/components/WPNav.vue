@@ -5,6 +5,7 @@ import { useDark } from '@vueuse/core';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import WPThemeController from './WPThemeController.vue';
+import { DownloadService } from '@/service/download.service';
 
 interface Social {
   name: string;
@@ -17,7 +18,7 @@ const isDark = useDark();
 const socials = computed<Social[]>(() => [
   {
     name: 'Github',
-    url: import.meta.env.VITE_GITHUB_URL,
+    url: `https://github.com/${import.meta.env.VITE_GITHUB_REPO}`,
     icon: isDark.value ? GithubIconWhite : GithubIcon,
   },
 ]);
@@ -50,7 +51,7 @@ const socials = computed<Social[]>(() => [
         <img :src="social.icon" :alt="social.name" width="24px" />
       </a>
       <WPThemeController />
-      <a class="btn btn-lg">Download</a>
+      <a class="btn btn-lg" @click.stop="DownloadService.startDownload">Download</a>
     </div>
   </nav>
 </template>
