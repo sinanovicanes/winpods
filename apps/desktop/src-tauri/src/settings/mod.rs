@@ -1,7 +1,8 @@
 use std::{fmt::Debug, sync::Mutex};
 
 use serde::{Deserialize, Serialize};
-use tauri::{App, Emitter, Manager};
+use tauri::{App, Emitter, Listener, Manager};
+use tauri_plugin_store::{Store, StoreExt};
 use utils::EventDispatcher;
 
 mod ear_detection;
@@ -9,6 +10,7 @@ mod listeners;
 mod low_battery_notification;
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SettingsState {
     pub auto_update: bool,
     pub notification: bool,
@@ -22,6 +24,35 @@ struct OnAutoUpdateChangeEvent(pub bool);
 struct OnNotificationChangeEvent(pub bool);
 struct OnLowBatteryNotificationChangeEvent(pub bool);
 struct OnEarDetectionChangeEvent(pub bool);
+
+impl SettingsState {
+    pub fn load_from_store<R: tauri::Runtime>(store: &Store<R>) -> Self {
+        let auto_update = store
+            .get("auto_update")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+        let notification = store
+            .get("notification")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+        let low_battery_notification = store
+            .get("low_battery_notification")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+        let ear_detection = store
+            .get("ear_detection")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(true);
+
+        Self {
+            auto_update,
+            notification,
+            low_battery_notification,
+            ear_detection,
+            dispatcher: EventDispatcher::new(),
+        }
+    }
+}
 
 impl SettingsState {
     pub fn set_auto_update(&mut self, new_state: bool) {
@@ -115,13 +146,22 @@ impl Debug for SettingsState {
 }
 
 pub fn init(app: &mut App) {
-    let settings_state = SettingsState::default();
+    let store = app
+        .store("settings.json")
+        .expect("Failed to get settings store");
+    let settings_state = SettingsState::load_from_store(&store);
+
+    app.listen("store://change", |event| {
+        tracing::debug!("{:?}", event);
+    });
 
     let app_handle = app.app_handle().clone();
     settings_state.on_auto_update_changed(move |state| {
         app_handle
             .emit("settings:update:auto_update", state)
             .unwrap();
+        let store = app_handle.store("settings.json").unwrap();
+        store.set("auto_update", state.clone());
     });
 
     let app_handle = app.app_handle().clone();
@@ -129,6 +169,8 @@ pub fn init(app: &mut App) {
         app_handle
             .emit("settings:update:notification", state)
             .unwrap();
+        let store = app_handle.store("settings.json").unwrap();
+        store.set("notification", state.clone());
     });
 
     let app_handle = app.app_handle().clone();
@@ -136,6 +178,8 @@ pub fn init(app: &mut App) {
         app_handle
             .emit("settings:update:ear_detection", state)
             .unwrap();
+        let store = app_handle.store("settings.json").unwrap();
+        store.set("ear_detection", state.clone());
     });
 
     let app_handle = app.app_handle().clone();
@@ -143,6 +187,8 @@ pub fn init(app: &mut App) {
         app_handle
             .emit("settings:update:low_battery_notification", state)
             .unwrap();
+        let store = app_handle.store("settings.json").unwrap();
+        store.set("low_battery_notification", state.clone());
     });
 
     app.manage(Mutex::new(settings_state));

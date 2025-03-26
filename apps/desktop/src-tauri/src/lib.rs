@@ -26,11 +26,13 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_store::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             commands::get_bluetooth_device_list,
             commands::connect,
             commands::disconnect,
-            commands::get_current_device
+            commands::get_current_device,
+            commands::get_settings_state,
         ])
         .setup(move |app| {
             settings::init(app);
