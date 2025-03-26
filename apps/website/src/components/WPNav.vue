@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import GithubIconWhite from '@/assets/icons/github-mark-white.svg';
+import GithubIcon from '@/assets/icons/github-mark.svg';
+import { useDark } from '@vueuse/core';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import GithubIcon from '@/assets/icons/github-mark-white.svg';
+import WPThemeController from './WPThemeController.vue';
 
 interface Social {
   name: string;
@@ -8,15 +12,15 @@ interface Social {
   icon: string;
 }
 
-const socials: Social[] = [
+const routes = useRouter().getRoutes();
+const isDark = useDark();
+const socials = computed<Social[]>(() => [
   {
     name: 'Github',
     url: import.meta.env.VITE_GITHUB_URL,
-    icon: GithubIcon,
+    icon: isDark.value ? GithubIconWhite : GithubIcon,
   },
-];
-
-const routes = useRouter().getRoutes();
+]);
 </script>
 
 <template>
@@ -46,6 +50,7 @@ const routes = useRouter().getRoutes();
         <img :src="social.icon" :alt="social.name" width="24px" />
       </a>
       <a class="btn btn-lg">Download</a>
+      <WPThemeController />
     </div>
   </nav>
 </template>
