@@ -8,10 +8,8 @@ const settings = useSettings();
 <template>
   <div class="flex flex-col space-y-6 gap-4">
     <h1 class="text-3xl font-semibold text-gray-900">Settings</h1>
-
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8">
-      <!-- General Settings Section -->
-      <div class="border-b border-gray-100">
+      <section class="border-b border-gray-100">
         <div class="px-8 py-6">
           <h2 class="text-lg font-medium text-gray-900">General</h2>
         </div>
@@ -36,10 +34,8 @@ const settings = useSettings();
             <Switch v-model="settings.autoUpdate" />
           </div>
         </div>
-      </div>
-
-      <!-- Notification Settings Section -->
-      <div>
+      </section>
+      <section>
         <div class="px-8 py-6">
           <h2 class="text-lg font-medium text-gray-900">Notifications</h2>
         </div>
@@ -52,10 +48,16 @@ const settings = useSettings();
                 Sends notification when battery is low
               </p>
             </div>
-            <Switch v-model="settings.lowBatteryNotification" />
+            <input
+              type="number"
+              :min="0"
+              :max="90"
+              class="w-16 h-8 text-sm text-gray-900 border border-gray-200 rounded-md px-2 outline-none text-end"
+              v-model="settings.lowBatteryThreshold"
+            />
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>

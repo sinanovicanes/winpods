@@ -13,16 +13,14 @@ mod low_battery_notification;
 #[serde(rename_all = "camelCase")]
 pub struct SettingsState {
     pub auto_update: bool,
-    pub notification: bool,
-    pub low_battery_notification: bool,
+    pub low_battery_threshold: u8,
     pub ear_detection: bool,
     #[serde(skip)]
     dispatcher: EventDispatcher,
 }
 
 struct OnAutoUpdateChangeEvent(pub bool);
-struct OnNotificationChangeEvent(pub bool);
-struct OnLowBatteryNotificationChangeEvent(pub bool);
+struct OnLowBatteryThresholdChangeEvent(pub u8);
 struct OnEarDetectionChangeEvent(pub bool);
 
 impl SettingsState {
@@ -31,14 +29,10 @@ impl SettingsState {
             .get("auto_update")
             .and_then(|v| v.as_bool())
             .unwrap_or(true);
-        let notification = store
-            .get("notification")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
-        let low_battery_notification = store
-            .get("low_battery_notification")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
+        let low_battery_threshold = store
+            .get("low_battery_threshold")
+            .and_then(|v| v.as_u64())
+            .unwrap_or(20) as u8;
         let ear_detection = store
             .get("ear_detection")
             .and_then(|v| v.as_bool())
@@ -46,8 +40,7 @@ impl SettingsState {
 
         Self {
             auto_update,
-            notification,
-            low_battery_notification,
+            low_battery_threshold,
             ear_detection,
             dispatcher: EventDispatcher::new(),
         }
@@ -63,22 +56,13 @@ impl SettingsState {
         self.dispatcher.dispatch(OnAutoUpdateChangeEvent(new_state));
     }
 
-    pub fn set_notification(&mut self, new_state: bool) {
-        if self.notification == new_state {
+    pub fn set_low_battery_threshold(&mut self, new_state: u8) {
+        if self.low_battery_threshold == new_state {
             return;
         }
-        self.notification = new_state;
+        self.low_battery_threshold = new_state;
         self.dispatcher
-            .dispatch(OnNotificationChangeEvent(new_state));
-    }
-
-    pub fn set_low_battery_notification(&mut self, new_state: bool) {
-        if self.low_battery_notification == new_state {
-            return;
-        }
-        self.low_battery_notification = new_state;
-        self.dispatcher
-            .dispatch(OnLowBatteryNotificationChangeEvent(new_state));
+            .dispatch(OnLowBatteryThresholdChangeEvent(new_state));
     }
 
     pub fn set_ear_detection(&mut self, new_state: bool) {
@@ -97,19 +81,9 @@ impl SettingsState {
             });
     }
 
-    pub fn on_notification_changed(&self, callback: impl Fn(&bool) + Send + Sync + 'static) {
+    pub fn on_low_battery_threshold_changed(&self, callback: impl Fn(&u8) + Send + Sync + 'static) {
         self.dispatcher
-            .add_listener::<OnNotificationChangeEvent, _>(move |event| {
-                callback(&event.0);
-            });
-    }
-
-    pub fn on_low_battery_notification_changed(
-        &self,
-        callback: impl Fn(&bool) + Send + Sync + 'static,
-    ) {
-        self.dispatcher
-            .add_listener::<OnLowBatteryNotificationChangeEvent, _>(move |event| {
+            .add_listener::<OnLowBatteryThresholdChangeEvent, _>(move |event| {
                 callback(&event.0);
             });
     }
@@ -126,8 +100,7 @@ impl Default for SettingsState {
     fn default() -> Self {
         Self {
             auto_update: true,
-            notification: true,
-            low_battery_notification: true,
+            low_battery_threshold: 20,
             ear_detection: true,
             dispatcher: EventDispatcher::new(),
         }
@@ -138,8 +111,7 @@ impl Debug for SettingsState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("SettingsState")
             .field("auto_update", &self.auto_update)
-            .field("notification", &self.notification)
-            .field("low_battery_notification", &self.low_battery_notification)
+            .field("low_battery_threshold", &self.low_battery_threshold)
             .field("ear_detection", &self.ear_detection)
             .finish()
     }
@@ -161,15 +133,6 @@ pub fn init(app: &mut App) {
     });
 
     let app_handle = app.app_handle().clone();
-    settings_state.on_notification_changed(move |state| {
-        app_handle
-            .emit("settings:update:notification", state)
-            .unwrap();
-        let store = app_handle.store("settings.json").unwrap();
-        store.set("notification", state.clone());
-    });
-
-    let app_handle = app.app_handle().clone();
     settings_state.on_ear_detection_changed(move |state| {
         app_handle
             .emit("settings:update:ear_detection", state)
@@ -179,12 +142,12 @@ pub fn init(app: &mut App) {
     });
 
     let app_handle = app.app_handle().clone();
-    settings_state.on_low_battery_notification_changed(move |state| {
+    settings_state.on_low_battery_threshold_changed(move |state| {
         app_handle
-            .emit("settings:update:low_battery_notification", state)
+            .emit("settings:update:low_battery_threshold", state)
             .unwrap();
         let store = app_handle.store("settings.json").unwrap();
-        store.set("low_battery_notification", state.clone());
+        store.set("low_battery_threshold", state.clone());
     });
 
     app.manage(RwLock::new(settings_state));

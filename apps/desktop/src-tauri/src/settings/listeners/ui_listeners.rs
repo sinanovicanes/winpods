@@ -23,9 +23,9 @@ pub fn init(app: &mut App) {
     });
 
     let app_handle = app.app_handle().clone();
-    app.listen("settings:set:notification", move |event| {
-        let Ok(new_state) = event.payload().parse::<bool>() else {
-            tracing::error!("Failed to parse payload for settings:set:notification");
+    app.listen("settings:set:low_battery_threshold", move |event| {
+        let Ok(new_state) = event.payload().parse::<u8>() else {
+            tracing::error!("Failed to parse payload for settings:set:low_battery_threshold");
             return;
         };
 
@@ -35,23 +35,7 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        settings_state.set_notification(new_state);
-    });
-
-    let app_handle = app.app_handle().clone();
-    app.listen("settings:set:low_battery_notification", move |event| {
-        let Ok(new_state) = event.payload().parse::<bool>() else {
-            tracing::error!("Failed to parse payload for settings:set:low_battery_notification");
-            return;
-        };
-
-        let settings_state = app_handle.state::<RwLock<SettingsState>>();
-        let Ok(mut settings_state) = settings_state.write() else {
-            tracing::error!("Failed to lock settings state");
-            return;
-        };
-
-        settings_state.set_low_battery_notification(new_state);
+        settings_state.set_low_battery_threshold(new_state);
     });
 
     let app_handle = app.app_handle().clone();

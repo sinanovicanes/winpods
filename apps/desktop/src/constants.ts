@@ -17,11 +17,9 @@ export enum Events {
   DeviceNameUpdated = "device-name-updated",
   DeviceConnectionUpdated = "device-connection-updated",
   SettingsUpdateAutoUpdate = "settings:update:auto_update",
-  SettingsUpdateNotifications = "settings:update:notifications",
-  SettingsUpdateLowBatteryNotification = "settings:update:low_battery_notification",
+  SettingsUpdateLowBatteryThreshold = "settings:update:low_battery_threshold",
   SettingsUpdateEarDetection = "settings:update:ear_detection",
   SettingsSetAutoUpdate = "settings:set:auto_update",
-  SettingsSetNotifications = "settings:set:notifications",
-  SettingsSetLowBatteryNotification = "settings:set:low_battery_notification",
+  SettingsSetLowBatteryThreshold = "settings:set:low_battery_threshold",
   SettingsSetEarDetection = "settings:set:ear_detection"
 }

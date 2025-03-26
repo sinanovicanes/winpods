@@ -12,9 +12,6 @@ struct LowBatteryNotificationState {
     pub sended: bool,
 }
 
-// TODO: Move to settings
-const BATTERY_TRESHOLD: u8 = 20;
-
 fn send_low_battery_notification(app_handle: &AppHandle) {
     let result = app_handle
         .notification()
@@ -36,7 +33,7 @@ pub fn init(app: &mut App) {
         let settings_state = settings_state.read().unwrap();
 
         // Check if low battery notification is enabled
-        if !settings_state.low_battery_notification {
+        if settings_state.low_battery_threshold > 0 {
             return;
         }
 
@@ -49,9 +46,11 @@ pub fn init(app: &mut App) {
             app_handle.state::<Mutex<LowBatteryNotificationState>>();
         let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
 
-        if !properties.left_battery.charging && properties.left_battery.level <= BATTERY_TRESHOLD
+        let battery_threshold = settings_state.low_battery_threshold;
+
+        if !properties.left_battery.charging && properties.left_battery.level <= battery_threshold
             || !properties.right_battery.charging
-                && properties.right_battery.level <= BATTERY_TRESHOLD
+                && properties.right_battery.level <= battery_threshold
         {
             if !low_battery_notification_state.sended {
                 tracing::info!("Sending low battery notification");

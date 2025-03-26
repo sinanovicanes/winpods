@@ -8,23 +8,21 @@ import { ref, watch } from "vue";
 interface SettingsState {
   autoUpdate: boolean;
   notification: boolean;
-  lowBatteryNotification: boolean;
+  lowBatteryThreshold: number;
   earDetection: boolean;
 }
 
 export const useSettings = defineStore("settings", () => {
   const autoStart = ref(true);
   const autoUpdate = ref(true);
-  const notifications = ref(true);
-  const lowBatteryNotification = ref(true);
+  const lowBatteryThreshold = ref(20);
   const earDetection = ref(true);
 
   async function init() {
     const settingsState = await invoke<SettingsState>("get_settings_state");
 
     autoUpdate.value = settingsState.autoUpdate;
-    notifications.value = settingsState.notification;
-    lowBatteryNotification.value = settingsState.lowBatteryNotification;
+    lowBatteryThreshold.value = settingsState.lowBatteryThreshold;
     earDetection.value = settingsState.earDetection;
 
     // Initialize autoStart value
@@ -49,12 +47,8 @@ export const useSettings = defineStore("settings", () => {
       autoUpdate.value = event.payload;
     });
 
-    listen<boolean>(Events.SettingsUpdateNotifications, event => {
-      notifications.value = event.payload;
-    });
-
-    listen<boolean>(Events.SettingsUpdateLowBatteryNotification, event => {
-      lowBatteryNotification.value = event.payload;
+    listen<number>(Events.SettingsUpdateLowBatteryThreshold, event => {
+      lowBatteryThreshold.value = event.payload;
     });
 
     listen<boolean>(Events.SettingsUpdateEarDetection, event => {
@@ -64,11 +58,7 @@ export const useSettings = defineStore("settings", () => {
     const createSynchronizer = (event: string) => (newValue: any) =>
       emit(event, newValue);
     watch(autoUpdate, createSynchronizer(Events.SettingsSetAutoUpdate));
-    watch(notifications, createSynchronizer(Events.SettingsSetNotifications));
-    watch(
-      lowBatteryNotification,
-      createSynchronizer(Events.SettingsSetLowBatteryNotification)
-    );
+    watch(lowBatteryThreshold, createSynchronizer(Events.SettingsSetLowBatteryThreshold));
     watch(earDetection, createSynchronizer(Events.SettingsSetEarDetection));
   }
 
@@ -77,8 +67,7 @@ export const useSettings = defineStore("settings", () => {
   return {
     autoStart,
     autoUpdate,
-    notifications,
-    lowBatteryNotification,
+    lowBatteryThreshold,
     earDetection
   };
 });
