@@ -14,7 +14,7 @@ export const useNotifications = defineStore('notification', () => {
 
   function add(notification: Notification) {
     notifications.value.push(notification);
-    setTimeout(() => notifications.value.pop(), NOTIFICATION_TIMEOUT);
+    setTimeout(() => notifications.value.shift(), NOTIFICATION_TIMEOUT);
   }
 
   return {
