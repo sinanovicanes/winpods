@@ -31,9 +31,10 @@ pub fn init(app: &mut App) {
     app.listen(events::DEVICE_PROPERTIES_UPDATED, move |event| {
         let settings_state = app_handle.state::<RwLock<SettingsState>>();
         let settings_state = settings_state.read().unwrap();
+        let battery_threshold = settings_state.low_battery_threshold;
 
         // Check if low battery notification is enabled
-        if settings_state.low_battery_threshold > 0 {
+        if battery_threshold == 0 {
             return;
         }
 
@@ -45,8 +46,6 @@ pub fn init(app: &mut App) {
         let low_battery_notification_state =
             app_handle.state::<Mutex<LowBatteryNotificationState>>();
         let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
-
-        let battery_threshold = settings_state.low_battery_threshold;
 
         if !properties.left_battery.charging && properties.left_battery.level <= battery_threshold
             || !properties.right_battery.charging

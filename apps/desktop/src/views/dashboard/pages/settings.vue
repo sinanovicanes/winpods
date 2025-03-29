@@ -3,6 +3,13 @@ import { Switch } from "@/components";
 import { useSettings } from "@/stores/settings";
 
 const settings = useSettings();
+const batteryThresholdOptions = [
+  { value: 0, label: "Disabled" },
+  ...Array.from({ length: 9 }, (_, i) => ({
+    value: (i + 1) * 10,
+    label: `${(i + 1) * 10}%`
+  }))
+];
 </script>
 
 <template>
@@ -48,13 +55,21 @@ const settings = useSettings();
                 Sends notification when battery is low
               </p>
             </div>
-            <input
-              type="number"
-              :min="0"
-              :max="90"
-              class="w-16 h-8 text-sm text-gray-900 border border-gray-200 rounded-md px-2 outline-none text-end"
-              v-model="settings.lowBatteryThreshold"
-            />
+            <div class="relative">
+              <select
+                class="h-9 min-w-24 text-sm text-end font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-2 outline-none appearance-none cursor-pointer transition-all"
+                v-model="settings.lowBatteryThreshold"
+              >
+                <option
+                  v-for="option in batteryThresholdOptions"
+                  :key="option.value"
+                  :value="option.value"
+                  class="py-1 text-end cursor-pointer"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
       </section>
