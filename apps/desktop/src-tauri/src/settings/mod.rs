@@ -129,7 +129,7 @@ pub fn init(app: &mut App) {
             .emit("settings:update:auto_update", state)
             .unwrap();
         let store = app_handle.store("settings.json").unwrap();
-        store.set("auto_update", state.clone());
+        store.set("auto_update", *state);
     });
 
     let app_handle = app.app_handle().clone();
@@ -138,7 +138,7 @@ pub fn init(app: &mut App) {
             .emit("settings:update:ear_detection", state)
             .unwrap();
         let store = app_handle.store("settings.json").unwrap();
-        store.set("ear_detection", state.clone());
+        store.set("ear_detection", *state);
     });
 
     let app_handle = app.app_handle().clone();
@@ -147,7 +147,7 @@ pub fn init(app: &mut App) {
             .emit("settings:update:low_battery_threshold", state)
             .unwrap();
         let store = app_handle.store("settings.json").unwrap();
-        store.set("low_battery_threshold", state.clone());
+        store.set("low_battery_threshold", *state);
     });
 
     app.manage(RwLock::new(settings_state));
