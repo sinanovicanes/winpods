@@ -6,6 +6,7 @@ mod events;
 mod models;
 mod settings;
 mod tray;
+mod update;
 mod utils;
 mod views;
 
@@ -38,6 +39,7 @@ pub fn run() {
             settings::init(app);
             device_manager::init(app);
             tray::init(app);
+            update::init(app);
 
             app.listen("store://change", |event| {
                 tracing::debug!("{:?}", event);
