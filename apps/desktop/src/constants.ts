@@ -16,9 +16,11 @@ export enum Events {
   DevicePropertiesUpdated = "device-properties-updated",
   DeviceNameUpdated = "device-name-updated",
   DeviceConnectionUpdated = "device-connection-updated",
+  SettingsUpdateAutoStart = "settings:update:auto_start",
   SettingsUpdateAutoUpdate = "settings:update:auto_update",
   SettingsUpdateLowBatteryThreshold = "settings:update:low_battery_threshold",
   SettingsUpdateEarDetection = "settings:update:ear_detection",
+  SettingsSetAutoStart = "settings:set:auto_start",
   SettingsSetAutoUpdate = "settings:set:auto_update",
   SettingsSetLowBatteryThreshold = "settings:set:low_battery_threshold",
   SettingsSetEarDetection = "settings:set:ear_detection"
