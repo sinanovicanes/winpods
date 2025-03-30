@@ -24,7 +24,6 @@ pub fn init(app: &mut tauri::App) {
 
 async fn update(app: tauri::AppHandle) -> tauri_plugin_updater::Result<()> {
     // Check for updates
-    // Note: This will only check for updates if the app is running in release mode
     if let Some(update) = app.updater()?.check().await? {
         let mut downloaded = 0;
 
