@@ -1,5 +1,5 @@
 use bluetooth::{
-    apple_cp::{AppleDeviceModel, ProximityPairingMessage},
+    apple_cp::{AppleDeviceExt, ProximityPairingMessage},
     AdvertisementReceivedData, AdvertisementWatcher, Device, DeviceConnectionState,
 };
 use utils::EventDispatcher;
@@ -129,19 +129,6 @@ impl DeviceManagerState {
             .add_listener::<DevicePropertiesUpdatedEvent, _>(move |event| {
                 callback(&event.0);
             });
-    }
-}
-
-trait AppleDevice {
-    fn get_device_model(&self) -> AppleDeviceModel;
-}
-
-impl AppleDevice for Device {
-    fn get_device_model(&self) -> AppleDeviceModel {
-        match self.get_product_id() {
-            Ok(product_id) => AppleDeviceModel::from_model_id(product_id),
-            Err(_) => AppleDeviceModel::Unknown,
-        }
     }
 }
 

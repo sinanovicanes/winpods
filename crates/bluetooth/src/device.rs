@@ -11,7 +11,10 @@ use windows::{
     core::{HSTRING, IInspectable, Interface},
 };
 
-use crate::{Error, Result};
+use crate::{
+    Error, Result,
+    apple_cp::{AppleDeviceExt, AppleDeviceModel},
+};
 
 const PROPERTY_BLUETOOTH_VENDOR_ID: &str = "System.DeviceInterface.Bluetooth.VendorId";
 const PROPERTY_BLUETOOTH_PRODUCT_ID: &str = "System.DeviceInterface.Bluetooth.ProductId";
@@ -270,5 +273,14 @@ impl Serialize for Device {
         state.serialize_field("name", &self.get_name().unwrap_or("Unknown".to_string()))?;
         state.serialize_field("address", &self.get_address().unwrap_or(0))?;
         state.end()
+    }
+}
+
+impl AppleDeviceExt for Device {
+    fn get_device_model(&self) -> AppleDeviceModel {
+        match self.get_product_id() {
+            Ok(product_id) => AppleDeviceModel::from_model_id(product_id),
+            Err(_) => AppleDeviceModel::Unknown,
+        }
     }
 }

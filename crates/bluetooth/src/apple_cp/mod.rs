@@ -73,6 +73,10 @@ pub enum Color {
     Yellow = 0xC,
 }
 
+pub trait AppleDeviceExt {
+    fn get_device_model(&self) -> AppleDeviceModel;
+}
+
 pub fn proximity_pairing_message_from_bytes(
     data: &[u8],
 ) -> Option<proximity_pairing::ProximityPairingMessage> {
