@@ -1,3 +1,42 @@
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { MainPage, SettingsPage } from "./pages";
+import { WPButton } from "@/components";
+import { useUpdater } from "@/stores/updater";
+
+enum DashboardPages {
+  Main,
+  Settings
+}
+
+interface NavItem {
+  label: string;
+  page: DashboardPages;
+}
+
+const navItems: NavItem[] = [
+  {
+    label: "Dashboard",
+    page: DashboardPages.Main
+  },
+  {
+    label: "Settings",
+    page: DashboardPages.Settings
+  }
+];
+
+const updater = useUpdater();
+const activePage = ref<DashboardPages>(DashboardPages.Main);
+const currentPage = computed(() => {
+  switch (activePage.value) {
+    case DashboardPages.Settings:
+      return SettingsPage;
+    default:
+      return MainPage;
+  }
+});
+</script>
+
 <template>
   <div class="h-screen w-full bg-gray-50 font-sans">
     <div
@@ -27,42 +66,19 @@
       <main class="flex-1 overflow-y-auto p-8">
         <component :is="currentPage" />
       </main>
+      <footer
+        class="bg-white border-t border-gray-200 px-8 py-2 flex items-center justify-between"
+      >
+        <span>v{{ updater.currentVersion }}</span>
+        <WPButton
+          v-if="updater.isUpdateAvailable"
+          :loading="updater.isUpdating"
+          @click.stop="updater.update"
+          variant="blue"
+          size="xs"
+          >Update is available</WPButton
+        >
+      </footer>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed } from "vue";
-import { MainPage, SettingsPage } from "./pages";
-
-enum DashboardPages {
-  Main,
-  Settings
-}
-
-interface NavItem {
-  label: string;
-  page: DashboardPages;
-}
-
-const navItems: NavItem[] = [
-  {
-    label: "Dashboard",
-    page: DashboardPages.Main
-  },
-  {
-    label: "Settings",
-    page: DashboardPages.Settings
-  }
-];
-
-const activePage = ref<DashboardPages>(DashboardPages.Main);
-const currentPage = computed(() => {
-  switch (activePage.value) {
-    case DashboardPages.Settings:
-      return SettingsPage;
-    default:
-      return MainPage;
-  }
-});
-</script>
