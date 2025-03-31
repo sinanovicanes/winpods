@@ -13,6 +13,7 @@
         "@tauri-apps/plugin-notification": "^2.2.2",
         "@tauri-apps/plugin-opener": "^2",
         "@tauri-apps/plugin-positioner": "^2.2.0",
+        "@tauri-apps/plugin-process": ">=2",
         "@tauri-apps/plugin-updater": "^2.6.0",
         "pinia": "^3.0.1",
         "tauri-plugin-pinia": "2.0.0",
@@ -25,7 +26,7 @@
         "@vitejs/plugin-vue": "^5.2.1",
         "tailwindcss": "^4.0.12",
         "typescript": "~5.6.2",
-        "vite": "^6.0.3",
+        "vite": "^6.2.3",
         "vue-tsc": "^2.1.10",
       },
     },
@@ -60,6 +61,7 @@
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.4.0",
         "@vue/tsconfig": "^0.7.0",
+        "@winpods/github-api": "workspace:*",
         "daisyui": "^5.0.9",
         "eslint": "^9.20.1",
         "eslint-plugin-vue": "^9.32.0",
@@ -408,6 +410,8 @@
     "@tauri-apps/plugin-opener": ["@tauri-apps/plugin-opener@2.2.6", "", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-bSdkuP71ZQRepPOn8BOEdBKYJQvl6+jb160QtJX/i2H9BF6ZySY/kYljh76N2Ne5fJMQRge7rlKoStYQY5Jq1w=="],
 
     "@tauri-apps/plugin-positioner": ["@tauri-apps/plugin-positioner@2.2.0", "", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-3JIWqV4U1US4nmM4PGmAHODq0ltkJ91MyANR033elKSSpX3AqKnVQnLz76xThBFHjChJrZwsXASpc2Inpu+cTg=="],
+
+    "@tauri-apps/plugin-process": ["@tauri-apps/plugin-process@2.2.0", "", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-uypN2Crmyop9z+KRJr3zl71OyVFgTuvHFjsJ0UxxQ/J5212jVa5w4nPEYjIewcn8bUEXacRebwE6F7owgrbhSw=="],
 
     "@tauri-apps/plugin-updater": ["@tauri-apps/plugin-updater@2.6.1", "", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-iiOevw4kc12Ok99J9KthXwUqwPv1sYjG+tNEDZqPmwvOmIq7s58nKMRz6NJPKXT4U16NzMPffFcP/LUOsz6c4A=="],
 

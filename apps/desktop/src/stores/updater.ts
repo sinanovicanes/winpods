@@ -1,4 +1,5 @@
 import { app } from "@tauri-apps/api";
+import { relaunch } from "@tauri-apps/plugin-process";
 import { check } from "@tauri-apps/plugin-updater";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -10,11 +11,15 @@ export const useUpdater = defineStore("updater", () => {
   const isUpdating = ref(false);
 
   async function init() {
-    const [current, update] = await Promise.all([app.getVersion(), check()]);
+    const [current, update] = await Promise.all([
+      app.getVersion(),
+      check().catch(() => null)
+    ]);
 
     currentVersion.value = current;
     latestVersion.value = (update && update.version) || current;
 
+    // Check for updates every 5 minutes
     setInterval(
       async () => {
         try {
@@ -25,22 +30,27 @@ export const useUpdater = defineStore("updater", () => {
         }
       },
       5 * 60 * 1000
-    ); // Check for updates every 5 minutes
+    );
   }
 
   async function update() {
     if (isUpdating.value) return;
     isUpdating.value = true;
-    const update = await check();
 
-    if (!update) {
-      console.error("[Updater] No update information found.");
+    try {
+      const update = await check();
+
+      if (!update) {
+        throw new Error("No update available");
+      }
+
+      await update.downloadAndInstall();
+      await relaunch(); // Restart the app after update
+    } catch (e) {
+      console.error("[Updater] Error during update:", e);
+    } finally {
       isUpdating.value = false;
-      return;
     }
-
-    await update.downloadAndInstall();
-    // TODO: Add import { relaunch } from '@tauri-apps/plugin-process';
   }
 
   init().catch(e => console.error("[Updater] Error during initialization:", e));
