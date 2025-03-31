@@ -52,7 +52,8 @@ const batteryThresholdOptions = [
             <div>
               <p class="text-sm font-medium text-gray-700">Low battery</p>
               <p class="text-xs text-gray-500 mt-1">
-                Sends notification when battery is low
+                Sends a notification when the battery level is equal to or lower than the
+                threshold value
               </p>
             </div>
             <div class="relative">

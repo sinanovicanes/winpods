@@ -26,7 +26,7 @@ fn send_low_battery_notification(app_handle: &AppHandle) {
     }
 }
 
-pub fn init(app: &mut App) {
+pub(super) fn init(app: &mut App) {
     let app_handle = app.app_handle().clone();
     app.listen(events::DEVICE_PROPERTIES_UPDATED, move |event| {
         let settings_state = app_handle.state::<RwLock<SettingsState>>();

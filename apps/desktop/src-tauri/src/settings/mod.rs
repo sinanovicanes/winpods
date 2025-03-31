@@ -1,6 +1,6 @@
 use std::{fmt::Debug, sync::RwLock};
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use tauri::{App, Emitter, Manager};
 use tauri_plugin_store::{Store, StoreExt};
 use utils::EventDispatcher;
@@ -10,7 +10,7 @@ mod ear_detection;
 mod listeners;
 mod low_battery_notification;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SettingsState {
     pub auto_start: bool,

@@ -23,7 +23,7 @@ fn synchronize_auto_start_state(app: &App) {
     update_auto_start(app.app_handle(), auto_launch);
 }
 
-pub fn init(app: &mut App) {
+pub(super) fn init(app: &mut App) {
     // Make sure the auto start setting is in sync with the current state
     synchronize_auto_start_state(app);
 
