@@ -23,7 +23,7 @@ const faq = [
     <div
       v-for="(q, i) in faq"
       :key="i"
-      class="collapse collapse-arrow bg-base-100 border border-base-300"
+      class="collapse collapse-arrow bg-base-200 border border-base-300"
     >
       <input type="radio" name="faq" :checked="i === 0" />
       <div class="collapse-title font-semibold text-lg">{{ q.question }}</div>
