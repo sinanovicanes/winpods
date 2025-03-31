@@ -41,6 +41,7 @@ const socials = computed<Social[]>(() => [
       </ul>
     </div>
     <div class="navbar-end gap-2">
+      <a class="btn btn-lg" @click.stop="DownloadService.startDownload">Download</a>
       <a
         v-for="social in socials"
         :key="social.name"
@@ -51,7 +52,6 @@ const socials = computed<Social[]>(() => [
         <img :src="social.icon" :alt="social.name" width="24px" />
       </a>
       <WPThemeController />
-      <a class="btn btn-lg" @click.stop="DownloadService.startDownload">Download</a>
     </div>
   </nav>
 </template>
