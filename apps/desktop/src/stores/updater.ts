@@ -19,18 +19,21 @@ export const useUpdater = defineStore("updater", () => {
     currentVersion.value = current;
     latestVersion.value = (update && update.version) || current;
 
-    // Check for updates every 5 minutes
-    setInterval(
-      async () => {
-        try {
-          const update = await check();
-          latestVersion.value = (update && update.version) || currentVersion.value;
-        } catch (e) {
-          console.error("[Updater] Error checking for updates:", e);
-        }
-      },
-      5 * 60 * 1000
-    );
+    // createUpdateCheckerInterval();
+  }
+
+  function createUpdateCheckerInterval(ms = 60 * 60 * 1000) {
+    const interval = setInterval(async () => {
+      try {
+        const update = await check();
+        latestVersion.value = (update && update.version) || currentVersion.value;
+      } catch (e) {
+        console.error("[Updater] Error checking for updates:", e);
+      }
+    }, ms);
+
+    // Cleanup function to clear the interval
+    return () => clearInterval(interval);
   }
 
   async function update() {
