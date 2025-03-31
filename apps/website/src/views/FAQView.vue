@@ -18,7 +18,7 @@ const faq = [
 </script>
 
 <template>
-  <main class="container grid grid-cols-1 gap-4 pt-5">
+  <main class="container grid grid-cols-1 gap-4">
     <h1 class="text-3xl font-semibold">Frequently Asked Questions</h1>
     <div
       v-for="(q, i) in faq"

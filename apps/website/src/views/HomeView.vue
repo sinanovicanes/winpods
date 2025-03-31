@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main class="pt-5 flex flex-col gap-4">
+  <main class="flex flex-col gap-4">
     <h1 class="text-3xl font-semibold">Enhance your AirPods experience on Windows</h1>
     <section class="hero bg-base-200">
       <div class="hero-content flex-col lg:flex-row">
