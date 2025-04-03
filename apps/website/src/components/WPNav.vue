@@ -42,6 +42,7 @@ const socials = computed<Social[]>(() => [
     </div>
     <div class="navbar-end gap-2">
       <a class="btn btn-lg" @click.stop="DownloadService.startDownload">Download</a>
+      <div class="divider divider-horizontal" />
       <a
         v-for="social in socials"
         :key="social.name"
