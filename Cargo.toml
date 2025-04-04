@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "apps/desktop/src-tauri",
+    "crates/desktop/src-tauri",
     "crates/bluetooth",
     "crates/media",
     "crates/utils",
@@ -13,7 +13,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tracing = { version = "0.1.41", features = ["log"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-windows = { version = "0.60.0", features = [
+windows = { version = "0.61.1", features = [
     "Devices_Bluetooth",
     "Devices_Bluetooth_Advertisement",
     "Devices_Bluetooth_GenericAttributeProfile",
@@ -26,4 +26,4 @@ windows = { version = "0.60.0", features = [
     "Foundation_Collections",
     "Media_Control",
 ] }
-windows-collections = { version = "0.1.1" }
+windows-collections = { version = "0.2" }

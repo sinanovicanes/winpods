@@ -51,7 +51,7 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd apps/desktop
+          cd crates/desktop
           bun install
 
       - name: Build Tauri app
@@ -70,4 +70,4 @@ jobs:
             See the assets to download this version and install.
           releaseDraft: true
           prerelease: false
-          projectPath: ./apps/desktop
+          projectPath: ./crates/desktop

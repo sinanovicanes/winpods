@@ -18,9 +18,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-utils = { path = "../../../crates/utils" }
-bluetooth = { path = "../../../crates/bluetooth" }
-media = { path = "../../../crates/media" }
+utils = { path = "../../utils" }
+bluetooth = { path = "../../bluetooth" }
+media = { path = "../../media" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }

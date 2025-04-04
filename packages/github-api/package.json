@@ -1,8 +1,0 @@
-{
-  "name": "@winpods/github-api",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250313.0"
-  }
-}

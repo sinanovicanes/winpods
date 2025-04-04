@@ -1,8 +1,0 @@
-{
-  "name": "winpods",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
-}
