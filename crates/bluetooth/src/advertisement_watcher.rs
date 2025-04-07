@@ -2,14 +2,21 @@ use utils::EventDispatcher;
 use windows::{
     Devices::Bluetooth::Advertisement::{
         BluetoothLEAdvertisementFilter, BluetoothLEAdvertisementReceivedEventArgs,
-        BluetoothLEAdvertisementWatcher, BluetoothLEScanningMode,
+        BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementWatcherStatus,
+        BluetoothLEAdvertisementWatcherStoppedEventArgs, BluetoothLEScanningMode,
     },
     Foundation::TypedEventHandler,
 };
 
 use crate::{Error, Result, advertisement_received_data::AdvertisementReceivedData};
 
+struct AdvertisementStoppedEvent;
 struct AdvertisementReceivedEvent(AdvertisementReceivedData);
+
+pub enum AdvertisementWatcherStatus {
+    Started,
+    Stopped,
+}
 
 pub struct AdvertisementWatcher {
     watcher: BluetoothLEAdvertisementWatcher,
@@ -50,6 +57,18 @@ impl AdvertisementWatcher {
             }))
             .map_err(|_| Error::WindowsError)?;
 
+        let dispatcher = self.dispatcher.clone();
+        let _ = self
+            .watcher
+            .Stopped(&TypedEventHandler::<
+                BluetoothLEAdvertisementWatcher,
+                BluetoothLEAdvertisementWatcherStoppedEventArgs,
+            >::new(move |_watcher, _args| {
+                dispatcher.dispatch(AdvertisementStoppedEvent);
+                Ok(())
+            }))
+            .map_err(|_| Error::WindowsError)?;
+
         Ok(())
     }
 
@@ -71,6 +90,19 @@ impl AdvertisementWatcher {
         Ok(())
     }
 
+    pub fn status(&self) -> AdvertisementWatcherStatus {
+        let status = self
+            .watcher
+            .Status()
+            .map_err(|_| Error::WindowsError)
+            .unwrap_or_default();
+
+        match status {
+            BluetoothLEAdvertisementWatcherStatus::Started => AdvertisementWatcherStatus::Started,
+            _ => AdvertisementWatcherStatus::Stopped,
+        }
+    }
+
     pub fn filter(&self, filter: &BluetoothLEAdvertisementFilter) -> Result<()> {
         self.watcher
             .SetAdvertisementFilter(filter)
@@ -86,6 +118,13 @@ impl AdvertisementWatcher {
         self.dispatcher
             .add_listener::<AdvertisementReceivedEvent, _>(move |event| {
                 callback(&event.0);
+            });
+    }
+
+    pub fn on_stopped(&self, callback: impl Fn() + Send + Sync + 'static) {
+        self.dispatcher
+            .add_listener::<AdvertisementStoppedEvent, _>(move |_| {
+                callback();
             });
     }
 }
