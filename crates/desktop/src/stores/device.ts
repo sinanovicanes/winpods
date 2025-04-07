@@ -34,15 +34,6 @@ export const useDevice = defineStore("device-connection", () => {
     event => (deviceProperties.value = event.payload)
   );
 
-  async function disconnect(): Promise<void> {
-    try {
-      await invoke("disconnect");
-      device.value = null;
-    } catch (e) {
-      console.error(`Failed to disconnect: ${e}`);
-    }
-  }
-
   async function getAvailableDevices(): Promise<Device[]> {
     try {
       return await invoke<Device[]>("get_bluetooth_device_list");
@@ -69,15 +60,24 @@ export const useDevice = defineStore("device-connection", () => {
     }
   }
 
-  async function connect(address: number): Promise<void> {
+  async function selectDevice(address: number): Promise<void> {
     try {
       const device = availableDevices.value.find(d => d.address === address);
       if (!device) {
         throw new Error(`Device not found with address: ${address}`);
       }
-      await invoke("connect", device);
+      await invoke("select_device", device);
     } catch (e) {
       console.error(`Failed to connect to device: ${e}`);
+    }
+  }
+
+  async function clearDeviceSelection(): Promise<void> {
+    try {
+      await invoke("clear_device_selection");
+      device.value = null;
+    } catch (e) {
+      console.error(`Failed to disconnect: ${e}`);
     }
   }
 
@@ -98,8 +98,8 @@ export const useDevice = defineStore("device-connection", () => {
     device,
     deviceProperties,
     availableDevices,
-    connect,
-    disconnect,
+    connect: selectDevice,
+    disconnect: clearDeviceSelection,
     refreshAvailableDevices
   };
 });
