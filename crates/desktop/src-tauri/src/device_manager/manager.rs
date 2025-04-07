@@ -6,7 +6,6 @@ use crate::tray::Tooltip;
 use super::DeviceProperties;
 
 struct DeviceConnectedEvent(Device);
-struct DevicePropertiesUpdatedEvent(DeviceProperties);
 struct DeviceDisconnectedEvent;
 struct DeviceNameUpdatedEvent(String);
 struct DeviceConnectionUpdatedEvent(DeviceConnectionState);
@@ -55,13 +54,6 @@ impl DeviceManagerState {
         self.dispatcher.dispatch(DeviceDisconnectedEvent);
     }
 
-    pub fn dispatch_device_updated(&self) {
-        if let Some(properties) = &self.device_properties {
-            self.dispatcher
-                .dispatch(DevicePropertiesUpdatedEvent(properties.clone()));
-        }
-    }
-
     pub fn on_device_connected(&self, callback: impl Fn(&Device) + Send + Sync + 'static) {
         self.dispatcher
             .add_listener::<DeviceConnectedEvent, _>(move |event| {
@@ -89,16 +81,6 @@ impl DeviceManagerState {
     pub fn on_device_name_changed(&self, callback: impl Fn(&String) + Send + Sync + 'static) {
         self.dispatcher
             .add_listener::<DeviceNameUpdatedEvent, _>(move |event| {
-                callback(&event.0);
-            });
-    }
-
-    pub fn on_device_properties_updated(
-        &self,
-        callback: impl Fn(&DeviceProperties) + Send + Sync + 'static,
-    ) {
-        self.dispatcher
-            .add_listener::<DevicePropertiesUpdatedEvent, _>(move |event| {
                 callback(&event.0);
             });
     }

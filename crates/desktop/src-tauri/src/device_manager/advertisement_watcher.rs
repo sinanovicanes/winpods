@@ -1,13 +1,12 @@
-use std::sync::RwLock;
-
+use super::{DeviceManagerState, DeviceProperties};
+use crate::events;
 use bluetooth::{
     AdapterState,
     apple_cp::{self, AppleDeviceExt},
     get_adapter_state,
 };
-use tauri::{App, Manager};
-
-use super::{DeviceManagerState, DeviceProperties};
+use std::sync::RwLock;
+use tauri::{App, Emitter, Manager};
 
 pub fn init(app: &mut App) {
     let state = app.state::<RwLock<DeviceManagerState>>();
@@ -31,34 +30,41 @@ pub fn init(app: &mut App) {
         let mut device_manager = device_manager_lock.write().unwrap();
 
         let Some(device) = &device_manager.device else {
-            tracing::info!("No device selected, ignoring advertisement");
+            // tracing::info!("No device selected, ignoring advertisement");
             return;
         };
 
         let properties = DeviceProperties::from_advertisement(data, &protocol);
 
         if device.get_device_model() != properties.model {
-            tracing::info!(
-                "Received advertisement for a different device model: {:?}",
-                properties.model
-            );
+            // tracing::info!(
+            //     "Received advertisement for a different device model: {:?}",
+            //     properties.model
+            // );
             return;
         }
 
         if let Some(device_properties) = &device_manager.device_properties {
             if !device_properties.is_within_update_limits(&properties) {
+                // tracing::info!(
+                //     "Received advertisement with properties outside update limits: {:?}",
+                //     properties
+                // );
                 return;
             }
         }
 
-        device_manager.device_properties = Some(properties);
+        device_manager.device_properties = Some(properties.clone());
 
-        // Switch back to read mode to dispatch the event
-        // This is necessary because the event handler may need to read the device manager state
+        // Drop write lock before emitting the event
+        // This is necessary because the event handlers may need to read the device manager state
         // and we cannot have a write lock while doing that
         drop(device_manager);
-        let device_manager = device_manager_lock.read().unwrap();
-        device_manager.dispatch_device_updated();
+        app_handle
+            .emit(events::DEVICE_PROPERTIES_UPDATED, properties)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device updated event: {}", e);
+            });
     });
 
     let adapter_state = get_adapter_state();

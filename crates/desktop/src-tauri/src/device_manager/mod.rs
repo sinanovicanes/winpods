@@ -73,15 +73,6 @@ pub fn init(app: &mut App) {
             });
     });
 
-    let app_handle = app.app_handle().clone();
-    state.on_device_properties_updated(move |device| {
-        app_handle
-            .emit(events::DEVICE_PROPERTIES_UPDATED, device)
-            .unwrap_or_else(|e| {
-                tracing::error!("Failed to emit device updated event: {}", e);
-            });
-    });
-
     if let Some(device) = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID) {
         state.select_device(device);
     }
