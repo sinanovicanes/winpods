@@ -8,7 +8,9 @@ use windows::{
     Foundation::TypedEventHandler,
 };
 
-use crate::{Error, Result, advertisement_received_data::AdvertisementReceivedData};
+use crate::{Error, Result};
+
+use super::AdvertisementReceivedData;
 
 struct AdvertisementStoppedEvent;
 struct AdvertisementReceivedEvent(AdvertisementReceivedData);
