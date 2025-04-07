@@ -1,17 +1,14 @@
-use std::{
-    thread::{self, JoinHandle},
-    time::Duration,
-};
-
 use utils::EventDispatcher;
+use windows::{Devices::Radios::Radio, Foundation::TypedEventHandler};
 
+use super::get_bluetooth_adapter_radio;
 use crate::{AdapterState, get_adapter_state};
 
 struct AdapterStateChangedEvent(AdapterState);
 
 pub struct AdapterWatcher {
     dispatcher: EventDispatcher,
-    thread_handle: Option<JoinHandle<()>>,
+    radio: Option<Radio>,
 }
 
 impl AdapterWatcher {
@@ -20,31 +17,45 @@ impl AdapterWatcher {
 
         AdapterWatcher {
             dispatcher,
-            thread_handle: None,
+            radio: None,
+        }
+    }
+
+    pub fn state(&self) -> AdapterState {
+        match self.radio {
+            Some(ref radio) => AdapterState::from(radio),
+            None => get_adapter_state(),
         }
     }
 
     pub fn start(&mut self) {
-        if self.thread_handle.is_some() {
+        let Some(radio) = get_bluetooth_adapter_radio() else {
             return;
-        }
+        };
 
-        let mut current_state = get_adapter_state();
-        let dispatcher_clone = self.dispatcher.clone();
-        let thread_handle = thread::spawn(move || {
-            loop {
-                thread::sleep(Duration::from_secs(1));
+        let mut current_state = AdapterState::from(&radio);
+        let dispatcher = self.dispatcher.clone();
+        let _ = radio.StateChanged(&TypedEventHandler::<Radio, _>::new(move |radio, _| {
+            let Some(radio) = radio.as_ref() else {
+                return Ok(());
+            };
 
-                let new_state = get_adapter_state();
+            let new_state = AdapterState::from(radio);
 
-                if new_state != current_state {
-                    current_state = new_state;
-                    dispatcher_clone.dispatch(AdapterStateChangedEvent(new_state));
-                }
+            if new_state == current_state {
+                return Ok(());
             }
-        });
 
-        self.thread_handle = Some(thread_handle);
+            current_state = new_state;
+            dispatcher.dispatch(AdapterStateChangedEvent(new_state));
+            Ok(())
+        }));
+
+        self.radio = Some(radio);
+    }
+
+    pub fn stop(&mut self) {
+        self.radio = None;
     }
 
     pub fn on_state_changed(&self, callback: impl Fn(AdapterState) + Send + Sync + 'static) {

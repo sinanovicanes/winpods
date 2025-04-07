@@ -1,9 +1,8 @@
 use super::{DeviceManagerState, DeviceProperties};
 use crate::events;
 use bluetooth::{
-    AdapterState,
     apple_cp::{self, AppleDeviceExt},
-    get_adapter_state,
+    is_adapter_on,
 };
 use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
@@ -67,9 +66,7 @@ pub fn init(app: &mut App) {
             });
     });
 
-    let adapter_state = get_adapter_state();
-
-    if adapter_state == AdapterState::On {
+    if is_adapter_on() {
         state.adv_watcher.start().unwrap_or_else(|_| {
             tracing::error!("Failed to start AdvertisementWatcher");
         });
