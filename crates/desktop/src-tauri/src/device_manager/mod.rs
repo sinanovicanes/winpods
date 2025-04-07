@@ -1,6 +1,7 @@
 use bluetooth::{
+    AdapterState,
     apple_cp::{self},
-    find_connected_device_with_vendor_id,
+    find_connected_device_with_vendor_id, get_adapter_state,
 };
 use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
@@ -53,6 +54,22 @@ pub fn init(app: &mut App) {
         let device_manager = device_manager_lock.read().unwrap();
 
         device_manager.dispatch_device_updated();
+    });
+
+    let app_handle = app.app_handle().clone();
+    state.adapter_watcher.on_state_changed(move |state| {
+        tracing::info!("Bluetooth adapter state changed: {:?}", state);
+        let device_manager = app_handle.state::<RwLock<DeviceManagerState>>();
+        let device_manager = device_manager.read().unwrap();
+
+        match state {
+            AdapterState::On => device_manager.adv_watcher.start().unwrap_or_else(|_| {
+                tracing::error!("Failed to start AdvertisementWatcher");
+            }),
+            AdapterState::Off => device_manager.adv_watcher.stop().unwrap_or_else(|_| {
+                tracing::error!("Failed to stop AdvertisementWatcher");
+            }),
+        };
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
@@ -114,12 +131,16 @@ pub fn init(app: &mut App) {
     // Store the watcher in the app state to keep it alive
     app.manage(RwLock::new(state));
 
-    // Start the AdvertisementWatcher after storing it in the app state
     let state = app.state::<RwLock<DeviceManagerState>>();
-    let state = state.read().unwrap();
+    let mut state = state.write().unwrap();
 
-    state
-        .adv_watcher
-        .start()
-        .expect("Failed to start AdvertisementWatcher");
+    state.adapter_watcher.start();
+
+    let adapter_state = get_adapter_state();
+
+    if adapter_state == AdapterState::On {
+        state.adv_watcher.start().unwrap_or_else(|_| {
+            tracing::error!("Failed to start AdvertisementWatcher");
+        });
+    }
 }
