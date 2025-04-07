@@ -1,7 +1,4 @@
-use bluetooth::{
-    AdapterWatcher, AdvertisementReceivedData, AdvertisementWatcher, Device, DeviceConnectionState,
-    apple_cp::{AppleDeviceExt, ProximityPairingMessage},
-};
+use bluetooth::{AdapterWatcher, AdvertisementWatcher, Device, DeviceConnectionState};
 use utils::EventDispatcher;
 
 use crate::tray::Tooltip;
@@ -37,10 +34,6 @@ impl DeviceManagerState {
         }
     }
 
-    pub fn is_connected(&self) -> bool {
-        self.device.is_some()
-    }
-
     pub fn select_device(&mut self, device: Device) {
         let dispatcher = self.dispatcher.clone();
         device.on_name_changed(move |name| {
@@ -60,31 +53,6 @@ impl DeviceManagerState {
         self.device = None;
         self.device_properties = None;
         self.dispatcher.dispatch(DeviceDisconnectedEvent);
-    }
-
-    pub fn on_advertisement_received(
-        &mut self,
-        data: &AdvertisementReceivedData,
-        protocol: &ProximityPairingMessage,
-    ) -> bool {
-        let Some(device) = &self.device else {
-            return false;
-        };
-
-        let new_properties = DeviceProperties::from_advertisement(data, protocol);
-
-        if device.get_device_model() != new_properties.model {
-            return false;
-        }
-
-        if let Some(properties) = &self.device_properties {
-            if !properties.is_within_update_limits(&new_properties) {
-                return false;
-            }
-        }
-
-        self.device_properties = Some(new_properties);
-        true
     }
 
     pub fn dispatch_device_updated(&self) {
