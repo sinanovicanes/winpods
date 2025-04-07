@@ -1,8 +1,4 @@
-use bluetooth::{
-    AdapterState,
-    apple_cp::{self},
-    find_connected_device_with_vendor_id, get_adapter_state,
-};
+use bluetooth::{AdapterState, apple_cp, find_connected_device_with_vendor_id, get_adapter_state};
 use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
 
@@ -125,7 +121,7 @@ pub fn init(app: &mut App) {
     });
 
     if let Some(device) = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID) {
-        state.connect(device);
+        state.select_device(device);
     }
 
     // Store the watcher in the app state to keep it alive

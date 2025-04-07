@@ -41,7 +41,7 @@ impl DeviceManagerState {
         self.device.is_some()
     }
 
-    pub fn connect(&mut self, device: Device) {
+    pub fn select_device(&mut self, device: Device) {
         let dispatcher = self.dispatcher.clone();
         device.on_name_changed(move |name| {
             dispatcher.dispatch(DeviceNameUpdatedEvent(name.clone()));
@@ -56,8 +56,9 @@ impl DeviceManagerState {
         self.dispatcher.dispatch(DeviceConnectedEvent(device));
     }
 
-    pub fn disconnect(&mut self) {
+    pub fn clear_device_selection(&mut self) {
         self.device = None;
+        self.device_properties = None;
         self.dispatcher.dispatch(DeviceDisconnectedEvent);
     }
 

@@ -5,7 +5,7 @@ use bluetooth::Device;
 use crate::device_manager::DeviceManagerState;
 
 #[tauri::command]
-pub fn connect(
+pub fn select_device(
     address: u64,
     device_manager: tauri::State<RwLock<DeviceManagerState>>,
 ) -> Result<(), &'static str> {
@@ -16,7 +16,7 @@ pub fn connect(
         return Err("Failed to create device");
     };
 
-    device_manager.write().unwrap().connect(device);
+    device_manager.write().unwrap().select_device(device);
 
     Ok(())
 }

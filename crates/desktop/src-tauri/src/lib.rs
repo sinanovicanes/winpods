@@ -31,8 +31,8 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .invoke_handler(tauri::generate_handler![
             commands::get_bluetooth_device_list,
-            commands::connect,
-            commands::disconnect,
+            commands::select_device,
+            commands::clear_device_selection,
             commands::get_current_device,
             commands::get_settings_state,
         ])
