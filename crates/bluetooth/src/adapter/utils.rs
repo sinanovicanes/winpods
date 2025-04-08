@@ -1,14 +1,14 @@
-use windows::Devices::Radios::{Radio, RadioKind, RadioState};
+use windows::Devices::{
+    Bluetooth::BluetoothAdapter,
+    Radios::{Radio, RadioKind, RadioState},
+};
 
 use super::AdapterState;
 
 pub fn get_bluetooth_adapter_radio() -> Option<Radio> {
-    let radios = Radio::GetRadiosAsync().ok()?.get().ok()?;
+    let adapter = BluetoothAdapter::GetDefaultAsync().ok()?.get().ok()?;
 
-    radios.into_iter().find(|radio| match radio.Kind() {
-        Ok(kind) => matches!(kind, RadioKind::Bluetooth),
-        Err(_) => false,
-    })
+    adapter.GetRadioAsync().ok()?.get().ok()
 }
 
 pub fn get_adapter_radios() -> Vec<Radio> {
@@ -27,18 +27,11 @@ pub fn get_adapter_radios() -> Vec<Radio> {
 }
 
 pub fn is_adapter_on() -> bool {
-    let radios = match Radio::GetRadiosAsync() {
-        Ok(r) => match r.get() {
-            Ok(list) => list,
-            Err(_) => return false,
-        },
-        Err(_) => return false,
+    let Some(radio) = get_bluetooth_adapter_radio() else {
+        return false;
     };
 
-    radios.into_iter().any(|radio| {
-        matches!(radio.Kind(), Ok(RadioKind::Bluetooth))
-            && matches!(radio.State(), Ok(RadioState::On))
-    })
+    matches!(radio.State(), Ok(RadioState::On))
 }
 
 pub fn get_adapter_state() -> AdapterState {
