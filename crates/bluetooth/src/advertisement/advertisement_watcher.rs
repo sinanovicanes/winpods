@@ -3,7 +3,7 @@ use windows::{
     Devices::Bluetooth::Advertisement::{
         BluetoothLEAdvertisementFilter, BluetoothLEAdvertisementReceivedEventArgs,
         BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementWatcherStatus,
-        BluetoothLEAdvertisementWatcherStoppedEventArgs, BluetoothLEScanningMode,
+        BluetoothLEAdvertisementWatcherStoppedEventArgs,
     },
     Foundation::TypedEventHandler,
 };
@@ -15,6 +15,7 @@ use super::AdvertisementReceivedData;
 struct AdvertisementStoppedEvent;
 struct AdvertisementReceivedEvent(AdvertisementReceivedData);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AdvertisementWatcherStatus {
     Started,
     Stopped,
@@ -76,18 +77,12 @@ impl AdvertisementWatcher {
 
     pub fn start(&self) -> Result<()> {
         self.watcher.Start().map_err(|_| Error::WindowsError)?;
-        self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::Active)
-            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
 
     pub fn stop(&self) -> Result<()> {
         self.watcher.Stop().map_err(|_| Error::WindowsError)?;
-        self.watcher
-            .SetScanningMode(BluetoothLEScanningMode::None)
-            .map_err(|_| Error::WindowsError)?;
 
         Ok(())
     }
@@ -98,6 +93,8 @@ impl AdvertisementWatcher {
             .Status()
             .map_err(|_| Error::WindowsError)
             .unwrap_or_default();
+
+        println!("Status: {:?}", status);
 
         match status {
             BluetoothLEAdvertisementWatcherStatus::Started => AdvertisementWatcherStatus::Started,
