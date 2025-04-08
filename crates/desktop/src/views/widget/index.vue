@@ -20,28 +20,32 @@ const deviceProperties = computed(() => connectedDeviceStore.deviceProperties);
       <div class="flex justify-center mb-6">
         <AirPodsImage class="w-4/5" :model="device.model" />
       </div>
-      <div v-if="deviceProperties">
-        <div class="space-y-4">
-          <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-medium">Left</span>
-            <div class="flex items-center">
-              <Battery :battery="deviceProperties.leftBattery" />
-            </div>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Left</span>
+          <div class="flex items-center">
+            <Battery v-if="deviceProperties" :battery="deviceProperties.leftBattery" />
+            <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"></div>
           </div>
-          <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-medium">Right</span>
-            <div class="flex items-center">
-              <Battery :battery="deviceProperties.rightBattery" />
-            </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Right</span>
+          <div class="flex items-center">
+            <Battery v-if="deviceProperties" :battery="deviceProperties.rightBattery" />
+            <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"></div>
           </div>
-          <div class="flex items-center justify-between">
-            <span class="text-gray-700 font-medium">Case</span>
-            <div class="flex items-center">
-              <Battery
-                v-if="deviceProperties.caseBattery"
-                :battery="deviceProperties.caseBattery"
-              />
-            </div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-700 font-medium">Case</span>
+          <div class="flex items-center">
+            <Battery
+              v-if="deviceProperties?.caseBattery"
+              :battery="deviceProperties.caseBattery"
+            />
+            <div
+              v-else-if="!deviceProperties"
+              class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"
+            ></div>
           </div>
         </div>
       </div>

@@ -31,23 +31,27 @@ const availableDevices = computed(() => deviceStore.availableDevices);
               </p>
             </div>
           </header>
-          <div v-if="deviceProperties">
-            <div class="space-y-5 w-[100px]">
-              <div class="flex items-center justify-between">
-                <span class="text-gray-700 font-medium">Left</span>
-                <Battery :battery="deviceProperties.leftBattery" />
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-gray-700 font-medium">Right</span>
-                <Battery :battery="deviceProperties.rightBattery" />
-              </div>
-              <div class="flex w-full items-center justify-between">
-                <span class="text-gray-700 font-medium">Case</span>
-                <Battery
-                  v-if="deviceProperties.caseBattery"
-                  :battery="deviceProperties.caseBattery"
-                />
-              </div>
+          <div class="space-y-5 w-[100px]">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-700 font-medium">Left</span>
+              <Battery v-if="deviceProperties" :battery="deviceProperties.leftBattery" />
+              <div v-else class="animate-pulse rounded-lg w-1/2 p-1 bg-gray-200"></div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-700 font-medium">Right</span>
+              <Battery v-if="deviceProperties" :battery="deviceProperties.rightBattery" />
+              <div v-else class="animate-pulse rounded-lg w-1/2 p-1 bg-gray-200"></div>
+            </div>
+            <div class="flex w-full items-center justify-between">
+              <span class="text-gray-700 font-medium">Case</span>
+              <Battery
+                v-if="deviceProperties?.caseBattery"
+                :battery="deviceProperties.caseBattery"
+              />
+              <div
+                v-else-if="!deviceProperties"
+                class="animate-pulse rounded-lg w-1/2 p-1 bg-gray-200"
+              ></div>
             </div>
           </div>
         </div>
