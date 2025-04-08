@@ -19,7 +19,7 @@ export const useUpdater = defineStore("updater", () => {
     currentVersion.value = current;
     latestVersion.value = (update && update.version) || current;
 
-    // createUpdateCheckerInterval();
+    createUpdateCheckerInterval();
   }
 
   function createUpdateCheckerInterval(ms = 60 * 60 * 1000) {
