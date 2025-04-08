@@ -35,6 +35,7 @@ pub fn run() {
             commands::clear_device_selection,
             commands::get_current_device,
             commands::get_settings_state,
+            commands::is_bluetooth_adapter_active,
         ])
         .setup(move |app| {
             settings::init(app);

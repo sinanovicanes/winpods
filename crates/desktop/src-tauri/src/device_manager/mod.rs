@@ -28,6 +28,12 @@ pub fn init(app: &mut App) {
                 tracing::error!("Failed to stop AdvertisementWatcher");
             }),
         };
+
+        app_handle
+            .emit(events::BLUETOOTH_ADAPTER_STATE_UPDATED, state)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device connected event: {}", e);
+            });
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();

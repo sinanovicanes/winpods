@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
 use windows::Devices::Radios::{Radio, RadioState};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum AdapterState {
     On,
     Off,

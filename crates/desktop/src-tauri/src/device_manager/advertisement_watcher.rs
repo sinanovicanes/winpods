@@ -66,6 +66,10 @@ pub fn init(app: &mut App) {
             });
     });
 
+    state.adv_watcher.on_stopped(move || {
+        tracing::info!("AdvertisementWatcher stopped");
+    });
+
     if is_adapter_on() {
         state.adv_watcher.start().unwrap_or_else(|_| {
             tracing::error!("Failed to start AdvertisementWatcher");
