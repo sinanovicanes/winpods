@@ -1,4 +1,4 @@
-use bluetooth::{AdapterWatcher, AdvertisementWatcher, Device, DeviceConnectionState};
+use bluetooth::{Device, DeviceConnectionState};
 use utils::EventDispatcher;
 
 use crate::tray::Tooltip;
@@ -13,22 +13,14 @@ struct DeviceConnectionUpdatedEvent(DeviceConnectionState);
 pub struct DeviceManagerState {
     pub device: Option<Device>,
     pub device_properties: Option<DeviceProperties>,
-    pub adv_watcher: AdvertisementWatcher,
-    pub adapter_watcher: AdapterWatcher,
     dispatcher: EventDispatcher,
 }
 
 impl DeviceManagerState {
     pub fn new() -> Self {
-        let adv_watcher =
-            AdvertisementWatcher::new().expect("Failed to initialize AdvertisementWatcher");
-        let adapter_watcher = AdapterWatcher::new();
-
         Self {
             device: None,
             device_properties: None,
-            adv_watcher,
-            adapter_watcher,
             dispatcher: EventDispatcher::new(),
         }
     }

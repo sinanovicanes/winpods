@@ -1,19 +1,70 @@
-use super::{DeviceManagerState, DeviceProperties};
-use crate::events;
-use bluetooth::{
-    apple_cp::{self, AppleDeviceExt},
-    is_adapter_on,
-};
 use std::sync::RwLock;
+
+use bluetooth::{
+    AdapterState, AdapterWatcher, AdvertisementWatcher,
+    apple_cp::{self, AppleDeviceExt},
+};
 use tauri::{App, Emitter, Manager};
 
-pub fn init(app: &mut App) {
-    let state = app.state::<RwLock<DeviceManagerState>>();
-    let state = state.read().unwrap();
+use crate::{
+    device_manager::{DeviceManagerState, DeviceProperties},
+    events,
+};
 
-    // Get app_handle for the callback
+pub struct BluetoothState {
+    pub adapter_watcher: AdapterWatcher,
+    pub adv_watcher: AdvertisementWatcher,
+}
+
+impl BluetoothState {
+    pub fn new() -> Self {
+        let adapter_watcher = AdapterWatcher::new();
+        let adv_watcher =
+            AdvertisementWatcher::new().expect("Failed to create AdvertisementWatcher");
+
+        BluetoothState {
+            adapter_watcher,
+            adv_watcher,
+        }
+    }
+}
+
+pub fn init(app: &mut App) {
+    let mut state = BluetoothState::new();
+
+    let app_handle = app.app_handle().clone();
+    state.adapter_watcher.on_state_changed(move |state| {
+        tracing::info!("Bluetooth adapter state changed: {:?}", state);
+
+        // Toggle the advertisement watcher based on the adapter state
+        {
+            let bluetooth_state = app_handle.state::<RwLock<BluetoothState>>();
+            let bluetooth_state = bluetooth_state.read().unwrap();
+
+            match state {
+                AdapterState::On => bluetooth_state.adv_watcher.start().unwrap_or_else(|_| {
+                    tracing::error!("Failed to start AdvertisementWatcher");
+                }),
+                AdapterState::Off => bluetooth_state.adv_watcher.stop().unwrap_or_else(|_| {
+                    tracing::error!("Failed to stop AdvertisementWatcher");
+                }),
+            };
+        }
+
+        // Emit the adapter state updated event after device manager lock is released
+        app_handle
+            .emit(events::BLUETOOTH_ADAPTER_STATE_UPDATED, state)
+            .unwrap_or_else(|e| {
+                tracing::error!("Failed to emit device connected event: {}", e);
+            });
+    });
+
     let app_handle = app.app_handle().clone();
     state.adv_watcher.on_received(move |data| {
+        // We could have just emit the adv recieved event and handle it on the device manager side,
+        // but we don't need to serialize and deserialize the data again, so we handle it here directly
+        // and emit the device properties updated event if needed.
+
         let Some(apple_data) = data.manufacturer_data_map.get(&apple_cp::VENDOR_ID) else {
             // tracing::info!("No Apple data found in received advertisement");
             return;
@@ -24,7 +75,7 @@ pub fn init(app: &mut App) {
             return;
         };
 
-        let device_manager_lock: tauri::State<'_, RwLock<DeviceManagerState>> =
+        let device_manager_lock: tauri::State<RwLock<DeviceManagerState>> =
             app_handle.state::<RwLock<DeviceManagerState>>();
         let mut device_manager = device_manager_lock.write().unwrap();
 
@@ -70,9 +121,14 @@ pub fn init(app: &mut App) {
         tracing::info!("AdvertisementWatcher stopped");
     });
 
-    if is_adapter_on() {
+    state.adapter_watcher.start();
+
+    // Only start the advertisement watcher if the adapter is on
+    if matches!(state.adapter_watcher.state(), AdapterState::On) {
         state.adv_watcher.start().unwrap_or_else(|_| {
             tracing::error!("Failed to start AdvertisementWatcher");
         });
     }
+
+    app.manage(RwLock::new(state));
 }

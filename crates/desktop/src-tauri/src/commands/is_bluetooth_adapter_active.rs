@@ -2,15 +2,13 @@ use std::sync::RwLock;
 
 use bluetooth::AdapterState;
 
-use crate::device_manager::DeviceManagerState;
+use crate::bluetooth::BluetoothState;
 
 #[tauri::command]
-pub fn is_bluetooth_adapter_active(
-    device_manager_state: tauri::State<RwLock<DeviceManagerState>>,
-) -> bool {
-    let device_manager = device_manager_state.read().unwrap();
-    let adapter_state = device_manager.adapter_watcher.state();
-    match adapter_state {
+pub fn is_bluetooth_adapter_active(bluetooth_state: tauri::State<RwLock<BluetoothState>>) -> bool {
+    let bluetooth_state = bluetooth_state.read().unwrap();
+
+    match bluetooth_state.adapter_watcher.state() {
         AdapterState::On => true,
         AdapterState::Off => false,
     }

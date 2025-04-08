@@ -1,5 +1,6 @@
 use tauri::{Listener, Manager, WindowEvent};
 
+mod bluetooth;
 mod commands;
 mod device_manager;
 mod events;
@@ -40,6 +41,7 @@ pub fn run() {
         .setup(move |app| {
             settings::init(app);
             device_manager::init(app);
+            bluetooth::init(app);
             tray::init(app);
             updater::init(app);
 

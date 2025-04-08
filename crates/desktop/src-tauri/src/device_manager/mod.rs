@@ -4,8 +4,6 @@ use tauri::{App, Emitter, Manager};
 
 use crate::events;
 
-mod adapter_watcher;
-mod advertisement_watcher;
 mod device_properties;
 mod manager;
 
@@ -62,9 +60,5 @@ pub fn init(app: &mut App) {
         state.select_device(device);
     }
 
-    // Store the watcher in the app state to keep it alive
     app.manage(RwLock::new(state));
-
-    advertisement_watcher::init(app);
-    adapter_watcher::init(app);
 }
