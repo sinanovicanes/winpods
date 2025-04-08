@@ -5,8 +5,8 @@ use crate::tray::Tooltip;
 
 use super::DeviceProperties;
 
-struct DeviceConnectedEvent(Device);
-struct DeviceDisconnectedEvent;
+struct DeviceSelectedEvent(Device);
+struct DeviceSelectionClearedEvent;
 struct DeviceNameUpdatedEvent(String);
 struct DeviceConnectionUpdatedEvent(DeviceConnectionState);
 
@@ -45,25 +45,25 @@ impl DeviceManagerState {
         });
 
         self.device = Some(device.clone());
-        self.dispatcher.dispatch(DeviceConnectedEvent(device));
+        self.dispatcher.dispatch(DeviceSelectedEvent(device));
     }
 
     pub fn clear_device_selection(&mut self) {
         self.device = None;
         self.device_properties = None;
-        self.dispatcher.dispatch(DeviceDisconnectedEvent);
+        self.dispatcher.dispatch(DeviceSelectionClearedEvent);
     }
 
-    pub fn on_device_connected(&self, callback: impl Fn(&Device) + Send + Sync + 'static) {
+    pub fn on_device_selected(&self, callback: impl Fn(&Device) + Send + Sync + 'static) {
         self.dispatcher
-            .add_listener::<DeviceConnectedEvent, _>(move |event| {
+            .add_listener::<DeviceSelectedEvent, _>(move |event| {
                 callback(&event.0);
             });
     }
 
-    pub fn on_device_disconnected(&self, callback: impl Fn() + Send + Sync + 'static) {
+    pub fn on_device_selection_cleared(&self, callback: impl Fn() + Send + Sync + 'static) {
         self.dispatcher
-            .add_listener::<DeviceDisconnectedEvent, _>(move |_event| {
+            .add_listener::<DeviceSelectionClearedEvent, _>(move |_event| {
                 callback();
             });
     }

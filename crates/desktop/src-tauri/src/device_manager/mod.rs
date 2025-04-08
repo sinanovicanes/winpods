@@ -16,7 +16,7 @@ pub fn init(app: &mut App) {
     let mut state = DeviceManagerState::new();
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
-    state.on_device_connected(move |device| {
+    state.on_device_selected(move |device| {
         tracing::info!("Device connected: {:?}", device);
         app_handle
             .emit(events::DEVICE_CONNECTED, device)
@@ -26,7 +26,7 @@ pub fn init(app: &mut App) {
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
-    state.on_device_disconnected(move || {
+    state.on_device_selection_cleared(move || {
         tracing::info!("Device disconnected");
         app_handle
             .emit(events::DEVICE_DISCONNECTED, "")
