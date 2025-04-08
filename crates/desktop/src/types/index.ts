@@ -27,4 +27,5 @@ interface Device {
   address: number;
   name: string;
   connectionState: "connected" | "disconnected";
+  model: AirPodsModel;
 }

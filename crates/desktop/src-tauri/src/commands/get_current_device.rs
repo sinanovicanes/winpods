@@ -1,13 +1,14 @@
+use serde::Serialize;
 use std::sync::RwLock;
 
-use bluetooth::Device;
-use serde::Serialize;
-
-use crate::device_manager::{DeviceManagerState, DeviceProperties};
+use crate::{
+    device_manager::{DeviceManagerState, DeviceProperties},
+    models::DeviceInfo,
+};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CurrentDeviceInfo {
-    device: Option<Device>,
+    device: Option<DeviceInfo>,
     properties: Option<DeviceProperties>,
 }
 
@@ -17,7 +18,7 @@ pub fn get_current_device(
 ) -> CurrentDeviceInfo {
     tracing::info!("UI requested current device information");
     let device_manager = device_manager.read().unwrap();
-    let device = device_manager.device.clone();
+    let device = device_manager.device.clone().map(|d| DeviceInfo::from(&d));
     let properties = device_manager.device_properties.clone();
 
     CurrentDeviceInfo { device, properties }

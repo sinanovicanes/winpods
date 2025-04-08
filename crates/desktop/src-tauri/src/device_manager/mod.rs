@@ -2,7 +2,7 @@ use bluetooth::{apple_cp, find_connected_device_with_vendor_id};
 use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
 
-use crate::events;
+use crate::{events, models::DeviceInfo};
 
 mod device_properties;
 mod manager;
@@ -15,9 +15,9 @@ pub fn init(app: &mut App) {
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
     state.on_device_selected(move |device| {
-        tracing::info!("Device connected: {:?}", device);
+        tracing::info!("Device selected: {:?}", device);
         app_handle
-            .emit(events::DEVICE_CONNECTED, device)
+            .emit(events::DEVICE_CONNECTED, DeviceInfo::from(device))
             .unwrap_or_else(|e| {
                 tracing::error!("Failed to emit device connected event: {}", e);
             });

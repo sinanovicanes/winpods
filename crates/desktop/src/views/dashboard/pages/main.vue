@@ -16,7 +16,7 @@ const availableDevices = computed(() => deviceStore.availableDevices);
   <div class="flex flex-col space-y-6 gap-4">
     <h1 class="text-3xl font-semibold text-gray-900">Dashboard</h1>
     <section
-      v-if="device && deviceProperties"
+      v-if="device"
       class="bg-white rounded-2xl shadow-md p-8 border border-gray-100 flex flex-col gap-2"
     >
       <main class="flex justify-between w-full">
@@ -27,33 +27,32 @@ const availableDevices = computed(() => deviceStore.availableDevices);
                 {{ device.name || "Connected Device" }}
               </h2>
               <p class="text-sm text-gray-500 mt-1">
-                {{ AirPodsModel[deviceProperties.model] }}
+                {{ AirPodsModel[device.model] }}
               </p>
             </div>
           </header>
-          <div class="space-y-5 w-[100px]">
-            <div class="flex items-center justify-between">
-              <span class="text-gray-700 font-medium">Left</span>
-              <Battery :battery="deviceProperties.leftBattery" />
-            </div>
-
-            <div class="flex items-center justify-between">
-              <span class="text-gray-700 font-medium">Right</span>
-              <Battery :battery="deviceProperties.rightBattery" />
-            </div>
-
-            <div class="flex w-full items-center justify-between">
-              <span class="text-gray-700 font-medium">Case</span>
-              <Battery
-                v-if="deviceProperties.caseBattery"
-                :battery="deviceProperties.caseBattery"
-              />
+          <div v-if="deviceProperties">
+            <div class="space-y-5 w-[100px]">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-700 font-medium">Left</span>
+                <Battery :battery="deviceProperties.leftBattery" />
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-700 font-medium">Right</span>
+                <Battery :battery="deviceProperties.rightBattery" />
+              </div>
+              <div class="flex w-full items-center justify-between">
+                <span class="text-gray-700 font-medium">Case</span>
+                <Battery
+                  v-if="deviceProperties.caseBattery"
+                  :battery="deviceProperties.caseBattery"
+                />
+              </div>
             </div>
           </div>
         </div>
-
         <div class="w-[200px] flex justify-center items-center">
-          <AirPodsImage :model="deviceProperties.model" />
+          <AirPodsImage :model="device.model" />
         </div>
       </main>
       <footer class="flex flex-col gap-4 justify-start mt-2">
@@ -69,10 +68,6 @@ const availableDevices = computed(() => deviceStore.availableDevices);
         </div>
         <WPButton variant="danger" @click="deviceStore.disconnect()">Disconnect</WPButton>
       </footer>
-    </section>
-    <section v-else-if="!!device" class="flex flex-col gap-2">
-      <p class="text-gray-500">Connecting...</p>
-      <WPButton variant="danger" @click.stop="deviceStore.disconnect()">Cancel</WPButton>
     </section>
     <section v-else class="flex flex-col gap-2">
       <header class="flex justify-between items-end w-full">
