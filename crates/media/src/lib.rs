@@ -1,5 +1,6 @@
 use windows::Media::Control::{
     GlobalSystemMediaTransportControlsSession, GlobalSystemMediaTransportControlsSessionManager,
+    GlobalSystemMediaTransportControlsSessionPlaybackStatus,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -28,6 +29,13 @@ impl GlobalMediaController {
         let sessions = session_manager.GetSessions()?;
 
         for session in sessions.into_iter() {
+            // Only pause sessions that are currently playing
+            if session.GetPlaybackInfo()?.PlaybackStatus()?
+                != GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing
+            {
+                continue;
+            }
+
             if session.TryPauseAsync().is_ok() {
                 self.paused_sessions.push(session)
             }
