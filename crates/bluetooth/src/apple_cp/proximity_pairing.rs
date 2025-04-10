@@ -13,18 +13,16 @@ pub struct ProximityPairingMessage {
     packet_type: PacketType,
     pub remaining_length: u8,
 
-    // AirPods-specific fields
     unk1: [u8; 1],
     pub model_id: u16,
-    status_flags: u8,        // Will be accessed through methods
-    battery_status: [u8; 2], // Will be accessed through methods
-    lid_status: u8,          // Will be accessed through methods
+    status_flags: u8,
+    battery_status: [u8; 2],
+    lid_status: u8,
     color: Color,
     unk11: [u8; 1],
     unk12: [u8; 16], // Hash or encrypted payload
 }
 
-// Rust doesn't support bit fields directly, so we'll use methods to access the bit fields
 impl ProximityPairingMessage {
     pub const VENDOR_ID: u16 = super::VENDOR_ID;
 
@@ -33,7 +31,7 @@ impl ProximityPairingMessage {
             return false;
         }
 
-        // Calculate the expected remaining length (match the C++ code)
+        // Calculate the expected remaining length
         const HEADER_REMAINING_LENGTH_OFFSET: usize = 1; // Offset of remainingLength in Header
         const SHOULD_REMAINING_LENGTH: u8 = std::mem::size_of::<ProximityPairingMessage>() as u8
             - (HEADER_REMAINING_LENGTH_OFFSET + std::mem::size_of::<u8>()) as u8;
@@ -62,8 +60,6 @@ impl ProximityPairingMessage {
             Some(*airpods_ptr)
         }
     }
-
-    // Methods to access the bit fields based on the C++ implementation
 
     pub fn get_broadcast_side(&self) -> ProximitySide {
         if (self.status_flags & 0x20) == 0 {
@@ -154,7 +150,6 @@ impl ProximityPairingMessage {
     }
 
     pub fn is_left_in_ear(&self) -> bool {
-        // Match C++ implementation with the charging check
         if self.is_left_charging() {
             return false;
         }
@@ -167,7 +162,6 @@ impl ProximityPairingMessage {
     }
 
     pub fn is_right_in_ear(&self) -> bool {
-        // Match C++ implementation with the charging check
         if self.is_right_charging() {
             return false;
         }
