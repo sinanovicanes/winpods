@@ -23,9 +23,11 @@ interface DeviceProperties {
   caseBattery?: Battery;
 }
 
+type DeviceConnectionState = "connected" | "disconnected";
+
 interface Device {
   address: number;
   name: string;
-  connectionState: "connected" | "disconnected";
+  connectionState: DeviceConnectionState;
   model: AirPodsModel;
 }

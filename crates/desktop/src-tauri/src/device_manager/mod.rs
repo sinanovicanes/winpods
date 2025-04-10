@@ -1,4 +1,4 @@
-use bluetooth::{apple_cp, find_connected_device_with_vendor_id};
+use bluetooth::{DeviceConnectionState, apple_cp, find_connected_device_with_vendor_id};
 use std::sync::RwLock;
 use tauri::{App, Emitter, Manager};
 
@@ -54,6 +54,13 @@ pub fn init(app: &mut App) {
                     e
                 );
             });
+
+        // Clear device properties if disconnected
+        if matches!(state, DeviceConnectionState::Disconnected) {
+            let device_manager = app_handle.state::<RwLock<DeviceManagerState>>();
+            let mut device_manager = device_manager.write().unwrap();
+            device_manager.device_properties = None;
+        }
     });
 
     if let Some(device) = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID) {

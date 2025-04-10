@@ -25,9 +25,15 @@ export const useDevice = defineStore("device-connection", () => {
     if (!device.value) return;
     device.value = { ...device.value, name: event.payload.name };
   });
-  listen<Pick<Device, "connectionState">>(Events.DeviceConnectionUpdated, event => {
-    if (!device.value) return;
-    device.value = { ...device.value, connectionState: event.payload.connectionState };
+  listen<DeviceConnectionState>(Events.DeviceConnectionStateUpdated, event => {
+    console.log("Device connection state updated", event.payload);
+    if (device.value) {
+      device.value.connectionState = event.payload;
+    }
+
+    if (event.payload === "disconnected") {
+      deviceProperties.value = null;
+    }
   });
   listen<DeviceProperties>(
     Events.DevicePropertiesUpdated,

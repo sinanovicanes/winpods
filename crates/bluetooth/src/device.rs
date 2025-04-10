@@ -30,6 +30,7 @@ pub struct Device {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub enum DeviceConnectionState {
     Connected,
     Disconnected,

@@ -20,7 +20,7 @@ export enum Events {
   DeviceDisconnected = "device-disconnected",
   DevicePropertiesUpdated = "device-properties-updated",
   DeviceNameUpdated = "device-name-updated",
-  DeviceConnectionUpdated = "device-connection-updated",
+  DeviceConnectionStateUpdated = "device-connection-state-updated",
   BluetoothAdapterStateUpdated = "bluetooth-adapter-state-updated",
   SettingsUpdateAutoStart = "settings:update:auto_start",
   SettingsUpdateAutoUpdate = "settings:update:auto_update",
