@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { AirPodsImage, Battery, Error } from "@/components";
+import { Battery, Error } from "@/components";
 import { useDevice } from "@/stores/device";
-import { AirPodsModel } from "@/constants";
+import { faThumbTack, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { computed } from "vue";
 
 const connectedDeviceStore = useDevice();
 const device = computed(() => connectedDeviceStore.device);
@@ -10,50 +11,31 @@ const deviceProperties = computed(() => connectedDeviceStore.deviceProperties);
 </script>
 
 <template>
-  <main
-    class="bg-gradient-to-b from-gray-50 to-gray-200 h-screen w-screen flex flex-col items-center justify-center p-4"
-  >
-    <div v-if="device" class="bg-white rounded-xl shadow-lg p-6 max-w-xs w-full">
-      <h1 class="text-center text-xl font-semibold text-gray-800 mb-2">
-        {{ device.name || AirPodsModel[device.model] }}
-      </h1>
-      <div class="flex justify-center mb-6">
-        <AirPodsImage class="w-4/5" :model="device.model" />
-      </div>
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-gray-700 font-medium">Left</span>
-          <div class="flex items-center">
-            <Battery v-if="deviceProperties" :battery="deviceProperties.leftBattery" />
-            <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"></div>
-          </div>
+  <div class="w-[300px] h-[100px] bg-black/40 backdrop-opacity-40 text-white">
+    <template v-if="device">
+      <header class="absolute top-2 right-2 flex">
+        <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1">
+          <FontAwesomeIcon size="xs" :icon="faThumbTack" />
+        </button>
+        <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1.5">
+          <FontAwesomeIcon size="sm" :icon="faXmark" />
+        </button>
+      </header>
+      <main class="flex justify-around items-center h-full px-7">
+        <div class="flex flex-col items-center gap-2">
+          <img class="h-[50px] w-[50px]" src="@/assets/airpods-earbuds.webp" />
+          <Battery :battery="{ level: 50, charging: false }" />
         </div>
-        <div class="flex items-center justify-between">
-          <span class="text-gray-700 font-medium">Right</span>
-          <div class="flex items-center">
-            <Battery v-if="deviceProperties" :battery="deviceProperties.rightBattery" />
-            <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"></div>
-          </div>
+        <div class="flex flex-col items-center" v-if="deviceProperties?.caseBattery">
+          <img class="h-[50px] w-[50px]" src="@/assets/airpods-case.webp" />
+          <Battery :battery="deviceProperties.caseBattery" />
         </div>
-        <div class="flex items-center justify-between">
-          <span class="text-gray-700 font-medium">Case</span>
-          <div class="flex items-center">
-            <Battery
-              v-if="deviceProperties?.caseBattery"
-              :battery="deviceProperties.caseBattery"
-            />
-            <div
-              v-else-if="!deviceProperties"
-              class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-200"
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </main>
+    </template>
     <Error
       v-else
-      title="No device selected"
-      message="Please select a device from the dashboard."
+      title="Disconnected"
+      message="Please enable Bluetooth in your system settings."
     />
-  </main>
+  </div>
 </template>

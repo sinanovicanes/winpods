@@ -12,7 +12,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div
-    class="bg-white rounded-xl shadow-lg p-6 h-screen w-full flex flex-col justify-center items-center"
+    class="rounded-xl shadow-lg p-6 h-screen w-full flex flex-col justify-center items-center"
   >
     <div class="text-red-500 mb-2">
       <svg

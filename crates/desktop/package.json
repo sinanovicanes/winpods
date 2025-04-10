@@ -10,6 +10,9 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "@tauri-apps/api": "^2.4.1",
     "@tauri-apps/plugin-autostart": "^2.3.0",
     "@tauri-apps/plugin-notification": "^2.2.2",
@@ -17,8 +20,8 @@
     "@tauri-apps/plugin-positioner": "^2.2.0",
     "@tauri-apps/plugin-process": "^2.2.1",
     "@tauri-apps/plugin-updater": "^2.7.0",
-    "pinia": "^3.0.1",
     "@tauri-store/pinia": "3.2.0",
+    "pinia": "^3.0.1",
     "vue": "^3.5.13"
   },
   "devDependencies": {
