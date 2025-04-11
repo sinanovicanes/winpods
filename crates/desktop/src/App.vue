@@ -21,5 +21,5 @@ const CurrentView = computed(() => views[windowLabel.value] || Error);
     title="Disconnected"
     message="Please enable Bluetooth in your system settings."
   />
-  <CurrentView v-else />
+  <CurrentView class="select-none" v-else />
 </template>
