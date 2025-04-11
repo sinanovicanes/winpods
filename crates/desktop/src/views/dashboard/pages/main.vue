@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { AirPodsImage, Battery, Switch, WPButton } from "@/components";
-import { AirPodsModel } from "@/constants";
+import { Battery, Switch, WPButton } from "@/components";
+import { getModelDetails } from "@/models";
 import { useDevice } from "@/stores/device";
 import { useSettings } from "@/stores/settings";
 import { computed } from "vue";
@@ -10,6 +10,7 @@ const settings = useSettings();
 const device = computed(() => deviceStore.device);
 const deviceProperties = computed(() => deviceStore.deviceProperties);
 const availableDevices = computed(() => deviceStore.availableDevices);
+const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unknown"));
 </script>
 
 <template>
@@ -27,7 +28,7 @@ const availableDevices = computed(() => deviceStore.availableDevices);
                 {{ device.name || "Connected Device" }}
               </h2>
               <p class="text-sm text-gray-500 mt-1">
-                {{ AirPodsModel[device.model] }}
+                {{ modelDetails.name }}
               </p>
             </div>
           </header>
@@ -56,7 +57,7 @@ const availableDevices = computed(() => deviceStore.availableDevices);
           </div>
         </div>
         <div class="w-[200px] flex justify-center items-center">
-          <AirPodsImage :model="device.model" />
+          <img :src="modelDetails.image" :alt="device.model" />
         </div>
       </main>
       <footer class="flex flex-col gap-4 justify-start mt-2">
