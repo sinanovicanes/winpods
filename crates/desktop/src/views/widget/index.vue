@@ -12,10 +12,29 @@ const connectedDeviceStore = useDevice();
 const device = computed(() => connectedDeviceStore.device);
 const deviceProperties = computed(() => connectedDeviceStore.deviceProperties);
 const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unknown"));
+const batteryLevel = computed(() => {
+  const properties = deviceProperties.value;
+
+  if (!properties) {
+    return 0;
+  }
+
+  return Math.min(properties.leftBattery.level, properties.rightBattery.level);
+});
+
+const batteryCharging = computed(() => {
+  const properties = deviceProperties.value;
+
+  if (!properties) {
+    return false;
+  }
+
+  return properties.leftBattery.charging && properties.rightBattery.charging;
+});
 </script>
 
 <template>
-  <div class="w-[300px] h-[125px] bg-black/20 backdrop-opacity-40 text-white">
+  <div class="w-[300px] h-[125px] bg-black/40 text-white">
     <template v-if="device">
       <header class="absolute top-2 right-2 flex">
         <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1">
@@ -28,7 +47,7 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
       <main class="flex justify-around items-center h-full px-7">
         <div class="flex flex-col items-center gap-2">
           <AirPodsImage class="h-[50px]" :model="device.model" />
-          <BatteryIcon />
+          <BatteryIcon :level="batteryLevel" :charging="batteryCharging" />
         </div>
         <div
           class="flex flex-col items-center gap-2"
@@ -39,7 +58,11 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
             :src="modelDetails.widget.caseImage"
             :alt="`${device.model}-case`"
           />
-          <BatteryIcon />
+          <BatteryIcon
+            v-if="deviceProperties?.caseBattery"
+            :level="deviceProperties.caseBattery.level"
+            :charging="deviceProperties.caseBattery.charging"
+          />
         </div>
       </main>
     </template>
