@@ -45,8 +45,8 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
     </template>
     <Error
       v-else
-      title="Disconnected"
-      message="Please enable Bluetooth in your system settings."
+      title="No Device Selected"
+      message="Please select a device from dashboard to view its status."
     />
   </div>
 </template>
