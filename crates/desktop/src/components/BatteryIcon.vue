@@ -5,128 +5,93 @@ interface Props {
   level?: number;
   charging?: boolean;
   showWarning?: boolean;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   level: 75,
   charging: false,
-  showWarning: true
+  showWarning: true,
+  size: "md"
 });
 
 const batteryFillClass = computed(() => {
   // When charging, always use green color
   if (props.charging) {
-    return "fill-green-500";
+    return "fill-[#37C058]";
   }
 
   if (!props.showWarning) {
-    return "fill-green-500";
+    return "fill-[#37C058]";
   }
 
   if (props.level <= 10) {
-    return "fill-red-500";
+    return "fill-[#FA3532]";
   } else if (props.level <= 20) {
-    return "fill-orange-500";
+    return "fill-[#FDC633]";
   } else {
-    return "fill-green-500";
+    return "fill-[#37C058]";
   }
 });
 
-const textColorClass = computed(() => {
-  // When charging, always use green text
-  if (props.charging) {
-    return "text-green-500";
-  }
-
-  if (!props.showWarning) {
-    return "text-gray-700";
-  }
-
-  if (props.level <= 10) {
-    return "text-red-500";
-  } else if (props.level <= 20) {
-    return "text-orange-500";
+const sizeClass = computed(() => {
+  if (typeof props.size === "number") {
+    return `w-[${props.size}px] h-[${props.size}px]`;
   } else {
-    return "text-gray-700";
+    switch (props.size) {
+      case "xs":
+        return "w-4";
+      case "sm":
+        return "w-6";
+      case "md":
+        return "w-8";
+      case "lg":
+        return "w-10";
+      case "xl":
+        return "w-12";
+      default:
+        return "w-8";
+    }
   }
 });
 </script>
 
 <template>
-  <div class="flex items-center space-x-2">
-    <div class="relative">
-      <!-- Battery outline -->
-      <svg width="24" height="12" viewBox="0 0 24 12" class="battery-icon">
-        <!-- Battery body -->
-        <rect
-          x="0"
-          y="0"
-          width="22"
-          height="12"
-          rx="2"
-          ry="2"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1"
-          class="battery-outline"
-        />
-        <!-- Battery cap -->
-        <rect
-          x="22"
-          y="3.5"
-          width="2"
-          height="5"
-          rx="1"
-          ry="1"
-          fill="currentColor"
-          class="battery-cap"
-        />
-        <!-- Battery fill based on battery.level -->
-        <rect
-          x="2"
-          y="2"
-          :width="`${Math.min(18 * (level / 100), 18)}`"
-          height="8"
-          rx="1"
-          ry="1"
-          :class="batteryFillClass"
-        />
-
-        <!-- Lightning bolt for charging state -->
-        <g v-if="charging" transform="translate(7.5, 0)" class="lightning-bolt">
-          <path d="M4.5,0 L0,7 L3,7 L1.5,12 L6,5 L3,5 L4.5,0 Z" fill="white" />
-        </g>
-      </svg>
-    </div>
-    <span class="text-sm font-medium" :class="textColorClass"> {{ level }}% </span>
-  </div>
+  <svg
+    v-bind="$attrs"
+    :class="sizeClass"
+    viewBox="0 0 72 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect
+      width="63.73"
+      height="31.865"
+      x="1.611"
+      y="2.059"
+      stroke="#fff"
+      stroke-opacity=".4"
+      stroke-width="2.655"
+      rx="9.294"
+    />
+    <rect
+      :width="`${Math.min(55.764 * (level / 100), 55.764)}`"
+      height="23.899"
+      x="5.594"
+      y="6.042"
+      rx="5.311"
+      :class="batteryFillClass"
+    />
+    <path
+      fill="#fff"
+      fill-opacity=".4"
+      d="M67.997 12.68c1.056 0 2.07.56 2.816 1.556.747.996 1.167 2.347 1.167 3.755 0 1.409-.42 2.76-1.167 3.756-.747.996-1.76 1.555-2.816 1.555V12.68Z"
+    />
+    <path
+      v-if="charging"
+      class="animate-pulse"
+      fill="#fff"
+      d="M24.182 19.893c0 .328.11.601.328.82.218.209.489.313.811.313h8.415l-4.414 12.318c-.152.428-.18.795-.085 1.104.104.308.28.532.527.67.246.14.522.17.826.09.313-.08.602-.293.868-.641l13.569-17.448c.266-.348.399-.696.399-1.044 0-.328-.11-.596-.328-.805-.209-.219-.48-.328-.811-.328h-8.4l4.399-12.318c.161-.428.19-.79.085-1.089-.095-.308-.266-.532-.513-.671-.246-.14-.526-.17-.84-.09-.303.08-.588.289-.854.627L24.595 18.864c-.275.348-.413.69-.413 1.029Z"
+    />
+  </svg>
 </template>
-
-<style scoped>
-.battery-icon {
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
-}
-
-@media (prefers-color-scheme: dark) {
-  .battery-outline,
-  .battery-cap {
-    color: #f3f4f6;
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.lightning-bolt {
-  animation: pulse 2s infinite ease-in-out;
-}
-</style>
