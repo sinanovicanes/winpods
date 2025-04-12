@@ -34,17 +34,17 @@ const batteryCharging = computed(() => {
 </script>
 
 <template>
-  <div class="w-[300px] h-[125px] bg-black/40 text-white">
+  <div data-tauri-drag-region class="w-[300px] h-[125px] bg-black/40 text-white">
+    <header class="absolute top-2 right-2 flex">
+      <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1">
+        <FontAwesomeIcon size="xs" :icon="faThumbTack" />
+      </button>
+      <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1.5">
+        <FontAwesomeIcon size="sm" :icon="faXmark" />
+      </button>
+    </header>
     <template v-if="device">
-      <header class="absolute top-2 right-2 flex">
-        <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1">
-          <FontAwesomeIcon size="xs" :icon="faThumbTack" />
-        </button>
-        <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1.5">
-          <FontAwesomeIcon size="sm" :icon="faXmark" />
-        </button>
-      </header>
-      <main class="flex justify-around items-center h-full px-7">
+      <main data-tauri-drag-region class="flex justify-around items-center h-full px-7">
         <div class="flex flex-col items-center gap-2">
           <AirPodsImage class="h-[50px]" :model="device.model" />
           <BatteryIcon :level="batteryLevel" :charging="batteryCharging" />
@@ -67,6 +67,7 @@ const batteryCharging = computed(() => {
       </main>
     </template>
     <Error
+      data-tauri-drag-region
       v-else
       title="No Device Selected"
       message="Please select a device from dashboard to view its status."

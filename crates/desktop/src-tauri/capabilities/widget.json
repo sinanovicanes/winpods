@@ -1,0 +1,10 @@
+{
+  "identifier": "widget-capability",
+  "windows": ["widget"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "process:default",
+    "core:window:allow-start-dragging"
+  ]
+}
