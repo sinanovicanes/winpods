@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use serde::{Serialize, ser::SerializeStruct};
+use serde::{Deserialize, Serialize, ser::SerializeStruct};
 use utils::EventDispatcher;
 use windows::{
     Devices::{
@@ -29,7 +29,7 @@ pub struct Device {
     dispatcher: EventDispatcher,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum DeviceConnectionState {
     Connected,

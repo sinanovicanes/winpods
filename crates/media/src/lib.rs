@@ -23,6 +23,10 @@ impl GlobalMediaController {
         Ok(())
     }
 
+    pub fn reset(&mut self) {
+        self.paused_sessions.clear();
+    }
+
     pub fn pause(&mut self) -> windows::core::Result<()> {
         let session_manager: GlobalSystemMediaTransportControlsSessionManager =
             GlobalSystemMediaTransportControlsSessionManager::RequestAsync()?.get()?;

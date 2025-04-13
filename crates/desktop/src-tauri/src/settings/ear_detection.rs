@@ -1,5 +1,6 @@
 use std::sync::{Mutex, RwLock};
 
+use bluetooth::DeviceConnectionState;
 use media::GlobalMediaController;
 use tauri::{App, Listener, Manager};
 
@@ -55,6 +56,49 @@ pub(super) fn init(app: &mut App) {
             Ok(_) => ear_detection_state.paused = true,
             Err(_) => tracing::error!("Failed to pause media"),
         }
+    });
+
+    let app_handle = app.app_handle().clone();
+    app.listen(events::DEVICE_CONNECTION_STATE_UPDATED, move |event| {
+        let Ok(state) = serde_json::from_str::<DeviceConnectionState>(event.payload()) else {
+            tracing::error!(
+                "Failed to parse device connection state: {}",
+                event.payload()
+            );
+            return;
+        };
+
+        // Only run if device is disconnected
+        if !matches!(state, DeviceConnectionState::Disconnected) {
+            return;
+        }
+
+        let detection_state = app_handle.state::<Mutex<EarDetectionState>>();
+        let mut detection_state = detection_state.lock().unwrap();
+
+        // Media is not paused, so we don't need to do anything
+        if !detection_state.paused {
+            return;
+        }
+
+        // Reset the media controller and current state
+        detection_state.media_controller.reset();
+        detection_state.paused = false;
+    });
+
+    let app_handle = app.app_handle().clone();
+    app.listen(events::DEVICE_DISCONNECTED, move |_| {
+        let detection_state = app_handle.state::<Mutex<EarDetectionState>>();
+        let mut detection_state = detection_state.lock().unwrap();
+
+        // Media is not paused, so we don't need to do anything
+        if !detection_state.paused {
+            return;
+        }
+
+        // Reset the media controller and current state
+        detection_state.media_controller.reset();
+        detection_state.paused = false;
     });
 
     app.manage(Mutex::new(EarDetectionState::default()));
