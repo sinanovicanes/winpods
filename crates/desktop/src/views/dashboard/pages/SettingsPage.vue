@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Switch } from "@/components";
+import Switch from "@/components/Switch.vue";
 import { useSettings } from "@/stores/settings";
 
 const settings = useSettings();

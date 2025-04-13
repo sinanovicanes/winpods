@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { MainPage, SettingsPage } from "./pages";
-import { WPButton } from "@/components";
+import Button from "@/components/Button.vue";
 import { useUpdater } from "@/stores/updater";
+import { computed, ref } from "vue";
+import MainPage from "./pages/MainPage.vue";
+import SettingsPage from "./pages/SettingsPage.vue";
 
 enum DashboardPages {
   Main,
@@ -70,14 +71,15 @@ const currentPage = computed(() => {
         class="bg-white border-t border-gray-200 px-8 py-2 flex items-center justify-between"
       >
         <span>v{{ updater.currentVersion }}</span>
-        <WPButton
+        <Button
           v-if="updater.isUpdateAvailable"
           :loading="updater.isUpdating"
           @click.stop="updater.update"
           variant="blue"
           size="xs"
-          >Update is available</WPButton
         >
+          Update is available
+        </Button>
       </footer>
     </div>
   </div>

@@ -1,5 +1,5 @@
-import DashboardView from "./dashboard/index.vue";
-import WidgetView from "./widget/index.vue";
+import DashboardView from "./dashboard/DashboardView.vue";
+import WidgetView from "./widget/WidgetView.vue";
 
 export type AppView = keyof typeof views;
 export const views = {

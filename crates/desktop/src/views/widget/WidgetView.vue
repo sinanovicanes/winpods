@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Error } from "@/components";
 import AirPodsImage from "@/components/AirPodsImage.vue";
-import BatteryIcon from "@/components/BatteryIcon.vue";
+import BatteryIcon from "@/components/icons/BatteryIcon.vue";
+import Warning from "@/components/Warning.vue";
 import { getModelDetails } from "@/models";
 import { useDevice } from "@/stores/device";
 import { debounce } from "@/utils";
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
         </div>
       </main>
     </template>
-    <Error
+    <Warning
       data-tauri-drag-region
       v-else
       title="No Device Selected"

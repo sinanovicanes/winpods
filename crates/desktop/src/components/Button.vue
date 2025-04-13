@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import LoadingIcon from "../icons/LoadingIcon.vue";
+import LoadingIcon from "./icons/LoadingIcon.vue";
 
 type ButtonVariant = keyof typeof variantStyles;
 type ButtonSize = keyof typeof sizeStyles;

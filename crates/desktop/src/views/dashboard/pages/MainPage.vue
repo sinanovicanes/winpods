@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { Battery, Switch, WPButton } from "@/components";
+import Battery from "@/components/Battery.vue";
+import Switch from "@/components/Switch.vue";
+import Button from "@/components/Button.vue";
 import { getModelDetails } from "@/models";
 import { useDevice } from "@/stores/device";
 import { useSettings } from "@/stores/settings";
@@ -35,19 +37,28 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
           <div class="space-y-5 w-[100px]">
             <div class="flex items-center justify-between">
               <span class="text-gray-700 font-medium">Left</span>
-              <Battery v-if="deviceProperties" :battery="deviceProperties.leftBattery" />
+              <Battery
+                v-if="deviceProperties"
+                :level="deviceProperties.leftBattery.level"
+                :charging="deviceProperties.leftBattery.charging"
+              />
               <div v-else class="animate-pulse rounded-lg w-1/2 p-1 bg-gray-200"></div>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-gray-700 font-medium">Right</span>
-              <Battery v-if="deviceProperties" :battery="deviceProperties.rightBattery" />
+              <Battery
+                v-if="deviceProperties"
+                :level="deviceProperties.rightBattery.level"
+                :charging="deviceProperties.rightBattery.charging"
+              />
               <div v-else class="animate-pulse rounded-lg w-1/2 p-1 bg-gray-200"></div>
             </div>
             <div class="flex w-full items-center justify-between">
               <span class="text-gray-700 font-medium">Case</span>
               <Battery
                 v-if="deviceProperties?.caseBattery"
-                :battery="deviceProperties.caseBattery"
+                :level="deviceProperties.caseBattery.level"
+                :charging="deviceProperties.caseBattery.charging"
               />
               <div
                 v-else-if="!deviceProperties"
@@ -71,15 +82,15 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
           </div>
           <Switch v-model="settings.earDetection" />
         </div>
-        <WPButton variant="danger" @click="deviceStore.disconnect()">Disconnect</WPButton>
+        <Button variant="danger" @click="deviceStore.disconnect()">Disconnect</Button>
       </footer>
     </section>
     <section v-else class="flex flex-col gap-2">
       <header class="flex justify-between items-end w-full">
         <p class="text-gray-500">Select device to connect</p>
-        <WPButton variant="primary" @click.stop="deviceStore.refreshAvailableDevices()"
-          >Refresh</WPButton
-        >
+        <Button variant="primary" @click.stop="deviceStore.refreshAvailableDevices()">
+          Refresh
+        </Button>
       </header>
       <select
         @change="deviceStore.connect(Number(($event.target as HTMLSelectElement).value))"
