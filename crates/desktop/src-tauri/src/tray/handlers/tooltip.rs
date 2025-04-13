@@ -1,7 +1,7 @@
 use std::sync::RwLock;
 
 use crate::{device_manager::DeviceManagerState, events};
-use tauri::{tray::TrayIcon, Listener, Manager};
+use tauri::{Listener, Manager, tray::TrayIcon};
 
 pub fn init_tooltip_listener(tray: &TrayIcon) {
     let app_handle = tray.app_handle();
@@ -20,7 +20,7 @@ pub fn init_tooltip_listener(tray: &TrayIcon) {
 
     let tray_handle = tray.clone();
     let name: String = app_name.clone();
-    app_handle.listen(events::DEVICE_DISCONNECTED, move |_| {
+    app_handle.listen(events::DEVICE_SELECTION_CLEARED, move |_| {
         let _ = tray_handle.set_tooltip(Some(&name));
     });
 }

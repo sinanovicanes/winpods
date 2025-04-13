@@ -4,8 +4,8 @@ export enum BluetoothAdapterState {
 }
 
 export enum Events {
-  DeviceConnected = "device-connected",
-  DeviceDisconnected = "device-disconnected",
+  DeviceSelected = "device-selected",
+  DeviceSelectionCleared = "device-selection-cleared",
   DevicePropertiesUpdated = "device-properties-updated",
   DeviceNameUpdated = "device-name-updated",
   DeviceConnectionStateUpdated = "device-connection-state-updated",

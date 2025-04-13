@@ -87,7 +87,7 @@ pub(super) fn init(app: &mut App) {
     });
 
     let app_handle = app.app_handle().clone();
-    app.listen(events::DEVICE_DISCONNECTED, move |_| {
+    app.listen(events::DEVICE_SELECTION_CLEARED, move |_| {
         let detection_state = app_handle.state::<Mutex<EarDetectionState>>();
         let mut detection_state = detection_state.lock().unwrap();
 

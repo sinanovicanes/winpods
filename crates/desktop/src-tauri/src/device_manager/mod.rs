@@ -17,7 +17,7 @@ pub fn init(app: &mut App) {
     state.on_device_selected(move |device| {
         tracing::info!("Device selected: {:?}", device);
         app_handle
-            .emit(events::DEVICE_CONNECTED, DeviceInfo::from(device))
+            .emit(events::DEVICE_SELECTED, DeviceInfo::from(device))
             .unwrap_or_else(|e| {
                 tracing::error!("Failed to emit device connected event: {}", e);
             });
@@ -27,7 +27,7 @@ pub fn init(app: &mut App) {
     state.on_device_selection_cleared(move || {
         tracing::info!("Device disconnected");
         app_handle
-            .emit(events::DEVICE_DISCONNECTED, "")
+            .emit(events::DEVICE_SELECTION_CLEARED, "")
             .unwrap_or_else(|e| {
                 tracing::error!("Failed to emit device disconnected event: {}", e);
             });
