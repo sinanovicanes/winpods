@@ -5,10 +5,15 @@ import BatteryIcon from "@/components/BatteryIcon.vue";
 import { getModelDetails } from "@/models";
 import { useDevice } from "@/stores/device";
 import { debounce } from "@/utils";
-import { faThumbTack, faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faThumbTack,
+  faThumbTackSlash,
+  faXmark
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { Event, listen, TauriEvent, UnlistenFn } from "@tauri-apps/api/event";
-import { computed, onMounted, onUnmounted } from "vue";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { computed, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from "vue";
 
 const connectedDeviceStore = useDevice();
 const device = computed(() => connectedDeviceStore.device);
@@ -51,15 +56,64 @@ onUnmounted(() => {
     destroyMovedHandler = undefined;
   }
 });
+
+const showDecorations = ref(false);
+const widget = ref<HTMLElement | null>(null);
+const pinned = ref(false);
+
+watch(pinned, async () => {
+  await getCurrentWindow().setAlwaysOnTop(pinned.value);
+});
+
+const onMouseEnter = () => {
+  showDecorations.value = true;
+};
+const onMouseLeave = () => {
+  showDecorations.value = false;
+};
+
+const hideWindow = () => {
+  console.log("Hiding window");
+  getCurrentWindow().hide();
+};
+
+const togglePin = async () => {
+  pinned.value = !pinned.value;
+};
+
+onMounted(async () => {
+  getCurrentWindow()
+    .isAlwaysOnTop()
+    .then(p => {
+      pinned.value = p;
+    });
+  widget.value?.addEventListener("mouseenter", onMouseEnter);
+  widget.value?.addEventListener("mouseleave", onMouseLeave);
+});
+
+onBeforeUnmount(() => {
+  widget.value?.removeEventListener("mouseenter", onMouseEnter);
+  widget.value?.removeEventListener("mouseleave", onMouseLeave);
+});
 </script>
 
 <template>
-  <div data-tauri-drag-region class="w-[300px] h-[125px] bg-black/40 text-white">
-    <header class="absolute top-2 right-2 flex">
-      <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1">
-        <FontAwesomeIcon size="xs" :icon="faThumbTack" />
+  <div
+    ref="widget"
+    data-tauri-drag-region
+    class="w-[300px] h-[125px] bg-black/40 text-white"
+  >
+    <header v-if="showDecorations" class="absolute top-1 right-1 flex">
+      <button
+        @click.stop="togglePin"
+        class="cursor-pointer hover:bg-gray-700/40 rounded-sm py-0.25 px-2"
+      >
+        <FontAwesomeIcon size="xs" :icon="pinned ? faThumbTackSlash : faThumbTack" />
       </button>
-      <button class="cursor-pointer hover:bg-gray-700 rounded-full py-0.5 px-1.5">
+      <button
+        @click.stop="hideWindow"
+        class="cursor-pointer hover:bg-red-700/40 rounded-sm py-0.25 px-2"
+      >
         <FontAwesomeIcon size="sm" :icon="faXmark" />
       </button>
     </header>
