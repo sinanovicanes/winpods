@@ -14,7 +14,6 @@
         "@tauri-apps/plugin-positioner": "^2.2.0",
         "@tauri-apps/plugin-process": "^2.2.1",
         "@tauri-apps/plugin-updater": "^2.7.0",
-        "@tauri-store/pinia": "3.2.0",
         "pinia": "^3.0.1",
         "vue": "^3.5.13",
       },
@@ -205,10 +204,6 @@
 
     "@tauri-apps/plugin-updater": ["@tauri-apps/plugin-updater@2.7.0", "", { "dependencies": { "@tauri-apps/api": "^2.0.0" } }, "sha512-oBug5UCH2wOsoYk0LW5LEMAT51mszjg11s8eungRH26x/qOrEjLvnuJJoxVVr9nsWowJ6vnpXKS+lUMfFTlvHQ=="],
 
-    "@tauri-store/pinia": ["@tauri-store/pinia@3.2.0", "", { "dependencies": { "@tauri-apps/api": "^2.0.3", "@tauri-store/shared": "0.7.2", "pinia": "^3.0.1", "vue": "^3.5.13" } }, "sha512-Z9ZepfH+3Lvgq5CmzeYYct0WW26oqrE9aOR0swXlINALTEm+8FPaqRftwfkwe74GKWKVwENOwXZ5VVBsDapjug=="],
-
-    "@tauri-store/shared": ["@tauri-store/shared@0.7.2", "", { "dependencies": { "@tauri-apps/api": "^2.0.3", "es-toolkit": "^1.33.0" } }, "sha512-42nprNNeU+tjpCvYnaBsu3kYwAy8gP6KyXX9zeaIvpMys1tIhQdEiUAXo3KChHq/jCkSralXRLN4zfjCfBJFrw=="],
-
     "@types/estree": ["@types/estree@1.0.7", "", {}, "sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ=="],
 
     "@types/node": ["@types/node@22.14.0", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-Kmpl+z84ILoG+3T/zQFyAJsU6EPTmOCj8/2+83fSN6djd6I4o7uOuGIH6vq3PrjY5BGitSbFuMN18j3iknubbA=="],
@@ -268,8 +263,6 @@
     "enhanced-resolve": ["enhanced-resolve@5.18.1", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.2.0" } }, "sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg=="],
 
     "entities": ["entities@4.5.0", "", {}, "sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw=="],
-
-    "es-toolkit": ["es-toolkit@1.34.1", "", {}, "sha512-OA6cd94fJV9bm8dWhIySkWq4xV+rAQnBZUr2dnpXam0QJ8c+hurLbKA8/QooL9Mx4WCAxvIDsiEkid5KPQ5xgQ=="],
 
     "esbuild": ["esbuild@0.25.2", "", { "optionalDependencies": { "@esbuild/aix-ppc64": "0.25.2", "@esbuild/android-arm": "0.25.2", "@esbuild/android-arm64": "0.25.2", "@esbuild/android-x64": "0.25.2", "@esbuild/darwin-arm64": "0.25.2", "@esbuild/darwin-x64": "0.25.2", "@esbuild/freebsd-arm64": "0.25.2", "@esbuild/freebsd-x64": "0.25.2", "@esbuild/linux-arm": "0.25.2", "@esbuild/linux-arm64": "0.25.2", "@esbuild/linux-ia32": "0.25.2", "@esbuild/linux-loong64": "0.25.2", "@esbuild/linux-mips64el": "0.25.2", "@esbuild/linux-ppc64": "0.25.2", "@esbuild/linux-riscv64": "0.25.2", "@esbuild/linux-s390x": "0.25.2", "@esbuild/linux-x64": "0.25.2", "@esbuild/netbsd-arm64": "0.25.2", "@esbuild/netbsd-x64": "0.25.2", "@esbuild/openbsd-arm64": "0.25.2", "@esbuild/openbsd-x64": "0.25.2", "@esbuild/sunos-x64": "0.25.2", "@esbuild/win32-arm64": "0.25.2", "@esbuild/win32-ia32": "0.25.2", "@esbuild/win32-x64": "0.25.2" }, "bin": { "esbuild": "bin/esbuild" } }, "sha512-16854zccKPnC+toMywC+uKNeYSv+/eXkevRAfwRD/G9Cleq66m8XFIrigkbvauLLlCfDL45Q2cWegSg53gGBnQ=="],
 
