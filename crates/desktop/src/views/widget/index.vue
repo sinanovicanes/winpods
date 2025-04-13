@@ -4,9 +4,11 @@ import AirPodsImage from "@/components/AirPodsImage.vue";
 import BatteryIcon from "@/components/BatteryIcon.vue";
 import { getModelDetails } from "@/models";
 import { useDevice } from "@/stores/device";
+import { debounce } from "@/utils";
 import { faThumbTack, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { computed } from "vue";
+import { Event, listen, TauriEvent, UnlistenFn } from "@tauri-apps/api/event";
+import { computed, onMounted, onUnmounted } from "vue";
 
 const connectedDeviceStore = useDevice();
 const device = computed(() => connectedDeviceStore.device);
@@ -30,6 +32,24 @@ const batteryCharging = computed(() => {
   }
 
   return properties.leftBattery.charging && properties.rightBattery.charging;
+});
+
+let destroyMovedHandler: UnlistenFn | undefined = undefined;
+
+onMounted(async () => {
+  destroyMovedHandler = await listen(
+    TauriEvent.WINDOW_MOVED,
+    debounce((_e: Event<{ x: number; y: number }>) => {
+      // TODO: SAVE THE LATEST POSITION
+    }, 1000)
+  );
+});
+
+onUnmounted(() => {
+  if (destroyMovedHandler) {
+    destroyMovedHandler();
+    destroyMovedHandler = undefined;
+  }
 });
 </script>
 
