@@ -121,7 +121,12 @@ onBeforeUnmount(() => {
       <main data-tauri-drag-region class="flex justify-around items-center h-full px-7">
         <div class="flex flex-col items-center gap-2">
           <AirPodsImage class="h-[50px]" :model="device.model" />
-          <BatteryIcon :level="batteryLevel" :charging="batteryCharging" />
+          <BatteryIcon
+            v-if="deviceProperties"
+            :level="batteryLevel"
+            :charging="batteryCharging"
+          />
+          <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-100/40"></div>
         </div>
         <div
           class="flex flex-col items-center gap-2"
@@ -137,6 +142,7 @@ onBeforeUnmount(() => {
             :level="deviceProperties.caseBattery.level"
             :charging="deviceProperties.caseBattery.charging"
           />
+          <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-100/40"></div>
         </div>
       </main>
     </template>
