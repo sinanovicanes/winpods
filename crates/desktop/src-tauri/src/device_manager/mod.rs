@@ -19,17 +19,17 @@ pub fn init(app: &mut App) {
         app_handle
             .emit(events::DEVICE_SELECTED, DeviceInfo::from(device))
             .unwrap_or_else(|e| {
-                tracing::error!("Failed to emit device connected event: {}", e);
+                tracing::error!("Failed to emit device selected event: {}", e);
             });
     });
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
     state.on_device_selection_cleared(move || {
-        tracing::info!("Device disconnected");
+        tracing::info!("Device selection cleared");
         app_handle
             .emit(events::DEVICE_SELECTION_CLEARED, "")
             .unwrap_or_else(|e| {
-                tracing::error!("Failed to emit device disconnected event: {}", e);
+                tracing::error!("Failed to emit device selection cleared event: {}", e);
             });
     });
 

@@ -82,6 +82,7 @@ pub(super) fn init(app: &mut App) {
         }
 
         // Reset the media controller and current state
+        tracing::info!("Device disconnected, resetting media controller");
         detection_state.media_controller.reset();
         detection_state.paused = false;
     });
@@ -97,6 +98,7 @@ pub(super) fn init(app: &mut App) {
         }
 
         // Reset the media controller and current state
+        tracing::info!("Device selection cleared, resetting media controller");
         detection_state.media_controller.reset();
         detection_state.paused = false;
     });

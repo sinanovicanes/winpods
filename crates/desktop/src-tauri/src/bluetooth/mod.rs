@@ -84,6 +84,11 @@ pub fn init(app: &mut App) {
             return;
         };
 
+        if !device.is_connected() {
+            // tracing::info!("Device is not connected, ignoring advertisement");
+            return;
+        }
+
         let properties = DeviceProperties::from_advertisement(data, &protocol);
 
         if device.get_device_model() != properties.model {
