@@ -14,7 +14,7 @@ name = "desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { version = "2.1.1", features = [] }
 
 [dependencies]
 utils = { path = "../../utils" }
@@ -25,13 +25,13 @@ serde_json = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 
-tauri = { version = "2.3.1", features = ["tray-icon"] }
-tauri-plugin-opener = "2"
-tauri-plugin-notification = "2"
-tauri-plugin-store = "2"
-tauri-plugin-process = "2"
+tauri = { version = "2.4.1", features = ["tray-icon"] }
+tauri-plugin-opener = "2.2.6"
+tauri-plugin-notification = "2.2.2"
+tauri-plugin-store = "2.2.0"
+tauri-plugin-process = "2.2.1"
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-autostart = "2"
-tauri-plugin-positioner = { version = "2", features = ["tray-icon"] }
-tauri-plugin-single-instance = "2"
-tauri-plugin-updater = "2"
+tauri-plugin-autostart = "2.3.0"
+tauri-plugin-positioner = { version = "2.2.0", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2.2.3"
+tauri-plugin-updater = "2.7.0"
