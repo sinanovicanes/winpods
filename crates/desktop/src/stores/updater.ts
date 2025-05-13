@@ -4,6 +4,8 @@ import { check } from "@tauri-apps/plugin-updater";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { computed, ref } from "vue";
 
+const UPDATER_CHECK_INTERVAL = 60 * 60 * 1000; // 1 hour
+
 export const useUpdater = defineStore("updater", () => {
   const currentVersion = ref<string>("0.0.0");
   const latestVersion = ref<string>("0.0.0");
@@ -18,22 +20,18 @@ export const useUpdater = defineStore("updater", () => {
 
     currentVersion.value = current;
     latestVersion.value = (update && update.version) || current;
-
-    createUpdateCheckerInterval();
+    setTimeout(initiateUpdatePolling, UPDATER_CHECK_INTERVAL);
   }
 
-  function createUpdateCheckerInterval(ms = 60 * 60 * 1000) {
-    const interval = setInterval(async () => {
-      try {
-        const update = await check();
-        latestVersion.value = (update && update.version) || currentVersion.value;
-      } catch (e) {
-        console.error("[Updater] Error checking for updates:", e);
-      }
-    }, ms);
+  async function initiateUpdatePolling() {
+    try {
+      const update = await check();
+      latestVersion.value = (update && update.version) || currentVersion.value;
+    } catch (e) {
+      console.error("[Updater] Error checking for updates:", e);
+    }
 
-    // Cleanup function to clear the interval
-    return () => clearInterval(interval);
+    setTimeout(initiateUpdatePolling, UPDATER_CHECK_INTERVAL);
   }
 
   async function update() {
