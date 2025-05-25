@@ -26,6 +26,13 @@ const batteryLevel = computed(() => {
     return 0;
   }
 
+  // If either battery is not available, return the other battery's level
+  if (!properties.leftBattery.level) {
+    return properties.rightBattery.level;
+  } else if (!properties.rightBattery.level) {
+    return properties.leftBattery.level;
+  }
+
   return Math.min(properties.leftBattery.level, properties.rightBattery.level);
 });
 
