@@ -19,32 +19,6 @@ const connectedDeviceStore = useDevice();
 const device = computed(() => connectedDeviceStore.device);
 const deviceProperties = computed(() => connectedDeviceStore.deviceProperties);
 const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unknown"));
-const batteryLevel = computed(() => {
-  const properties = deviceProperties.value;
-
-  if (!properties) {
-    return 0;
-  }
-
-  // If either battery is not available, return the other battery's level
-  if (!properties.leftBattery.level) {
-    return properties.rightBattery.level;
-  } else if (!properties.rightBattery.level) {
-    return properties.leftBattery.level;
-  }
-
-  return Math.min(properties.leftBattery.level, properties.rightBattery.level);
-});
-
-const batteryCharging = computed(() => {
-  const properties = deviceProperties.value;
-
-  if (!properties) {
-    return false;
-  }
-
-  return properties.leftBattery.charging && properties.rightBattery.charging;
-});
 
 let destroyMovedHandler: UnlistenFn | undefined = undefined;
 
@@ -130,8 +104,8 @@ onBeforeUnmount(() => {
           <AirPodsImage class="h-[50px]" :model="device.model" />
           <BatteryIcon
             v-if="deviceProperties"
-            :level="batteryLevel"
-            :charging="batteryCharging"
+            :level="connectedDeviceStore.batteryLevel"
+            :charging="connectedDeviceStore.isCharging"
           />
           <div v-else class="animate-pulse rounded-lg w-[30px] p-1 bg-gray-100/40"></div>
         </div>

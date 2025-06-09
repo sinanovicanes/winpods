@@ -1,7 +1,7 @@
 {
   "name": "@winpods/desktop",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.11",
   "type": "module",
   "scripts": {
     "dev": "vite",

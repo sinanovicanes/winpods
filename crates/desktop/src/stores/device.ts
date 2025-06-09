@@ -2,12 +2,45 @@ import { Events } from "@/constants";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 export const useDevice = defineStore("device-connection", () => {
   const device = ref<Device | null>(null);
   const deviceProperties = ref<DeviceProperties | null>(null);
   const availableDevices = ref<Device[]>([]);
+  const batteryLevel = computed<number>(() => {
+    const properties = deviceProperties.value;
+
+    if (!properties) {
+      return 0;
+    }
+
+    // If either battery is not available, return the other battery's level
+    if (!properties.leftBattery.level) {
+      return properties.rightBattery.level;
+    } else if (!properties.rightBattery.level) {
+      return properties.leftBattery.level;
+    }
+
+    return Math.min(properties.leftBattery.level, properties.rightBattery.level);
+  });
+
+  const isCharging = computed<boolean>(() => {
+    const properties = deviceProperties.value;
+
+    if (!properties) {
+      return false;
+    }
+
+    // If either battery is not available, return the other battery's charging state
+    if (!properties.leftBattery.level) {
+      return properties.rightBattery.charging;
+    } else if (!properties.rightBattery.level) {
+      return properties.leftBattery.charging;
+    }
+
+    return properties.leftBattery.charging && properties.rightBattery.charging;
+  });
 
   watch(device, async newDevice => {
     // Clear available devices when a device is connected
@@ -104,6 +137,8 @@ export const useDevice = defineStore("device-connection", () => {
     device,
     deviceProperties,
     availableDevices,
+    batteryLevel,
+    isCharging,
     connect: selectDevice,
     disconnect: clearDeviceSelection,
     refreshAvailableDevices
