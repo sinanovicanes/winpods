@@ -90,7 +90,7 @@ impl Tooltip for DeviceManagerState {
             DeviceConnectionState::Disconnected => "Disconnected",
         };
 
-        if !device.is_connected() {
+        if !device.is_connected() && self.device_properties.is_none() {
             return format!("{device_name}\nStatus: {status}\nBattery: --");
         }
 

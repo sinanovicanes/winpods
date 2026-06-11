@@ -2,8 +2,10 @@ use std::sync::RwLock;
 
 use tauri::{
     App, AppHandle, Emitter, Manager, Wry,
-    menu::{MenuEvent, MenuItem},
+    menu::{Menu, MenuEvent, MenuItem, MenuItemKind},
 };
+
+use bluetooth::DeviceConnectionState;
 
 use crate::{device_manager::DeviceManagerState, events};
 
@@ -75,6 +77,70 @@ pub fn on_menu_event(app: &AppHandle, event: MenuEvent) {
             super::windows_settings::open_bluetooth_settings(app);
         }
         _ => {}
+    }
+}
+
+pub fn update_menu_items(menu: &Menu<Wry>, device_manager: &DeviceManagerState) {
+    let status = match &device_manager.device {
+        Some(device) => {
+            let name = device.get_name().unwrap_or_else(|_| "AirPods".to_string());
+            let state = match device.get_connection_state() {
+                DeviceConnectionState::Connected => "Connected",
+                DeviceConnectionState::Disconnected => "Selected",
+            };
+            format!("{name}: {state}")
+        }
+        None => "No AirPods selected".to_string(),
+    };
+
+    set_menu_text(menu, STATUS_MENU_ID, status);
+
+    let Some(properties) = &device_manager.device_properties else {
+        set_menu_text(menu, LEFT_BATTERY_MENU_ID, "Left: --");
+        set_menu_text(menu, RIGHT_BATTERY_MENU_ID, "Right: --");
+        set_menu_text(menu, CASE_BATTERY_MENU_ID, "Case: --");
+        return;
+    };
+
+    set_menu_text(
+        menu,
+        LEFT_BATTERY_MENU_ID,
+        format!("Left: {}", battery_text(properties.left_battery.level)),
+    );
+    set_menu_text(
+        menu,
+        RIGHT_BATTERY_MENU_ID,
+        format!("Right: {}", battery_text(properties.right_battery.level)),
+    );
+    set_menu_text(
+        menu,
+        CASE_BATTERY_MENU_ID,
+        format!(
+            "Case: {}",
+            properties
+                .case_battery
+                .as_ref()
+                .map(|battery| battery_text(battery.level))
+                .unwrap_or_else(|| "--".to_string())
+        ),
+    );
+}
+
+fn battery_text(level: u8) -> String {
+    if level == 0 {
+        "--".to_string()
+    } else {
+        format!("{level}%")
+    }
+}
+
+fn set_menu_text(menu: &Menu<Wry>, id: &str, text: impl AsRef<str>) {
+    let Some(MenuItemKind::MenuItem(item)) = menu.get(id) else {
+        return;
+    };
+
+    if let Err(error) = item.set_text(text) {
+        tracing::warn!("Failed to update tray menu item {id}: {error}");
     }
 }
 

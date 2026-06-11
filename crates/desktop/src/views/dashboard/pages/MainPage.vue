@@ -13,6 +13,28 @@ const device = computed(() => deviceStore.device);
 const deviceProperties = computed(() => deviceStore.deviceProperties);
 const availableDevices = computed(() => deviceStore.availableDevices);
 const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unknown"));
+const connectionLabel = computed(() =>
+  device.value?.connectionState === "connected" ? "Connected" : "Selected"
+);
+const hasBatteryData = computed(
+  () =>
+    !!deviceProperties.value &&
+    (deviceProperties.value.leftBattery.level > 0 ||
+      deviceProperties.value.rightBattery.level > 0 ||
+      (deviceProperties.value.caseBattery?.level ?? 0) > 0)
+);
+const batteryUpdatedAt = computed(() => {
+  if (!deviceProperties.value?.updatedAtUnixMs) {
+    return "";
+  }
+
+  return new Date(deviceProperties.value.updatedAtUnixMs).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+});
+const noiseModes = ["Transparency", "Noise Cancellation", "Off"];
 </script>
 
 <template>
@@ -29,11 +51,27 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
               <h2 class="text-xl font-medium text-gray-900">
                 {{ device.name || "Connected Device" }}
               </h2>
-              <p class="text-sm text-gray-500 mt-1">
-                {{ modelDetails.name }}
+              <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                <span>{{ modelDetails.name }}</span>
+                <span
+                  class="rounded-full px-2 py-0.5 text-xs"
+                  :class="
+                    device.connectionState === 'connected'
+                      ? 'bg-green-50 text-green-700'
+                      : 'bg-yellow-50 text-yellow-700'
+                  "
+                >
+                  {{ connectionLabel }}
+                </span>
               </p>
             </div>
           </header>
+          <p v-if="!hasBatteryData" class="text-xs text-gray-500">
+            Waiting for AirPods battery broadcast.
+          </p>
+          <p v-else class="text-xs text-gray-500">
+            Battery from AirPods broadcast at {{ batteryUpdatedAt }}.
+          </p>
           <div class="space-y-5 w-[100px]">
             <div class="flex items-center justify-between">
               <span class="text-gray-700 font-medium">Left</span>
@@ -72,17 +110,88 @@ const modelDetails = computed(() => getModelDetails(device.value?.model ?? "Unkn
         </div>
       </main>
       <footer class="flex flex-col gap-4 justify-start mt-2">
+        <div class="flex flex-col gap-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-gray-700">Noise Control</p>
+              <p class="text-xs text-gray-500 mt-1">
+                AirPods mode switching is not available from Windows yet.
+              </p>
+            </div>
+            <span class="rounded-full bg-yellow-50 px-2 py-0.5 text-xs text-yellow-700">
+              Planned
+            </span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              v-for="mode in noiseModes"
+              :key="mode"
+              disabled
+              class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-400"
+            >
+              {{ mode }}
+            </button>
+          </div>
+        </div>
+        <div class="flex flex-col gap-3 rounded-lg border border-gray-100 bg-gray-50 p-4">
+          <div>
+            <p class="text-sm font-medium text-gray-700">Device Switching</p>
+            <p class="text-xs text-gray-500 mt-1">
+              Experimental service toggles may connect or disconnect AirPods on Windows.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <Button
+              variant="primary"
+              size="sm"
+              :loading="deviceStore.serviceActionName === 'connect'"
+              :disabled="deviceStore.isServiceActionPending"
+              @click="deviceStore.connectServices()"
+            >
+              Connect
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              :loading="deviceStore.serviceActionName === 'disconnect'"
+              :disabled="deviceStore.isServiceActionPending"
+              @click="deviceStore.disconnectServices()"
+            >
+              Disconnect
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              :disabled="deviceStore.isServiceActionPending"
+              @click="deviceStore.disconnect()"
+            >
+              Clear selection
+            </Button>
+            <Button variant="primary" size="sm" @click="deviceStore.openBluetoothSettings()">
+              Bluetooth settings
+            </Button>
+            <Button variant="secondary" size="sm" @click="deviceStore.openSoundSettings()">
+              Sound settings
+            </Button>
+          </div>
+          <p v-if="deviceStore.serviceActionStatus" class="text-xs text-gray-600">
+            {{ deviceStore.serviceActionStatus }}
+          </p>
+        </div>
         <div class="flex items-center justify-between w-full">
           <div>
             <p class="text-sm font-medium text-gray-700">Automatic Ear Detection</p>
             <p class="text-xs text-gray-500 mt-1">
-              When enabled, audio automatically pauses when AirPods are removed from your
-              ears
+              Paused until AirPods in-ear broadcasts are reliable on Windows.
             </p>
           </div>
-          <Switch v-model="settings.earDetection" />
+          <div class="flex items-center gap-2">
+            <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+              Off
+            </span>
+            <Switch v-model="settings.earDetection" disabled />
+          </div>
         </div>
-        <Button variant="danger" @click="deviceStore.disconnect()">Disconnect</Button>
       </footer>
     </section>
     <section v-else class="flex flex-col gap-2">

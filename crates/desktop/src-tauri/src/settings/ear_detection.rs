@@ -31,6 +31,14 @@ pub(super) fn init(app: &mut App) {
 
         let ear_detection_state = app_handle.state::<Mutex<EarDetectionState>>();
         let mut ear_detection_state = ear_detection_state.lock().unwrap();
+        let has_battery_reading =
+            properties.left_battery.level > 0 || properties.right_battery.level > 0;
+
+        if !has_battery_reading {
+            tracing::debug!("Ignoring ear detection update without battery readings");
+            return;
+        }
+
         let both_in_ear = properties.left_in_ear && properties.right_in_ear;
 
         if both_in_ear {

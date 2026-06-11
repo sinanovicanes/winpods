@@ -1,4 +1,5 @@
 import { Events } from "@/constants";
+import { isTauriRuntime } from "@/tauri";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
@@ -19,6 +20,10 @@ export const useSettings = defineStore("settings", () => {
   const earDetection = ref(true);
 
   async function init() {
+    if (!isTauriRuntime()) {
+      return;
+    }
+
     const settingsState = await invoke<SettingsState>("get_settings_state");
 
     autoStart.value = settingsState.autoStart;
@@ -47,8 +52,7 @@ export const useSettings = defineStore("settings", () => {
       event => (earDetection.value = event.payload)
     );
 
-    const createSynchronizer = (event: string) => (newValue: any) =>
-      emit(event, newValue);
+    const createSynchronizer = (event: string) => (newValue: any) => emit(event, newValue);
     watch(autoStart, createSynchronizer(Events.SettingsSetAutoStart));
     watch(autoUpdate, createSynchronizer(Events.SettingsSetAutoUpdate));
     watch(lowBatteryThreshold, createSynchronizer(Events.SettingsSetLowBatteryThreshold));

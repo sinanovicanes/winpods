@@ -27,11 +27,13 @@ pub fn get_adapter_radios() -> Vec<Radio> {
 }
 
 pub fn is_adapter_on() -> bool {
-    let Some(radio) = get_bluetooth_adapter_radio() else {
-        return false;
-    };
+    if let Some(radio) = get_bluetooth_adapter_radio() {
+        return matches!(radio.State(), Ok(RadioState::On));
+    }
 
-    matches!(radio.State(), Ok(RadioState::On))
+    get_adapter_radios()
+        .iter()
+        .any(|radio| matches!(radio.State(), Ok(RadioState::On)))
 }
 
 pub fn get_adapter_state() -> AdapterState {

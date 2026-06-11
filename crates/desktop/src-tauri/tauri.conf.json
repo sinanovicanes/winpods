@@ -20,7 +20,7 @@
         "resizable": false,
         "maximizable": false,
         "center": true,
-        "visible": false
+        "visible": true
       },
       {
         "label": "widget",

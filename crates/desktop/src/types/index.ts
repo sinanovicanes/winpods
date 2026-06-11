@@ -17,6 +17,7 @@ interface Battery {
 interface DeviceProperties {
   rssi: number;
   address: number;
+  updatedAtUnixMs: number;
   model: AirPodsModel;
   leftBattery: Battery;
   rightBattery: Battery;
@@ -30,4 +31,25 @@ interface Device {
   name: string;
   connectionState: DeviceConnectionState;
   model: AirPodsModel;
+}
+
+interface ServiceToggleSummary {
+  attempted: number;
+  succeeded: number;
+  failed: number;
+}
+
+interface AudioEndpoint {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  isAirpodsMatch: boolean;
+}
+
+interface AudioRouteSummary {
+  matchedEndpoint?: AudioEndpoint;
+  endpoints: AudioEndpoint[];
+  rolesAttempted: number;
+  rolesSucceeded: number;
+  rolesFailed: number;
 }

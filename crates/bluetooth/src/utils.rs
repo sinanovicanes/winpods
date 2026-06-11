@@ -3,7 +3,7 @@ use windows::Devices::{
     Enumeration::{DeviceInformation, DeviceInformationCollection},
 };
 
-use crate::{Device, DeviceConnectionState};
+use crate::{Device, apple_cp::AppleDeviceExt};
 
 pub fn get_connected_device_informations() -> windows::core::Result<DeviceInformationCollection> {
     let query = BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
@@ -15,9 +15,25 @@ pub fn get_connected_device_informations() -> windows::core::Result<DeviceInform
 }
 
 pub fn get_connected_device_list() -> Vec<Device> {
-    let Ok(aqsfilter) = BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
-        BluetoothConnectionStatus::Connected,
-    ) else {
+    let connected_devices = get_device_list_from_selector(
+        BluetoothDevice::GetDeviceSelectorFromConnectionStatus(
+            BluetoothConnectionStatus::Connected,
+        )
+        .ok(),
+    );
+
+    if connected_devices
+        .iter()
+        .any(|device| device.get_device_model().is_supported_audio_device())
+    {
+        return connected_devices;
+    }
+
+    get_device_list_from_selector(BluetoothDevice::GetDeviceSelector().ok())
+}
+
+fn get_device_list_from_selector(aqsfilter: Option<windows::core::HSTRING>) -> Vec<Device> {
+    let Some(aqsfilter) = aqsfilter else {
         return vec![];
     };
 
@@ -29,19 +45,20 @@ pub fn get_connected_device_list() -> Vec<Device> {
         return vec![];
     };
 
-    let devices = devices.into_iter().filter_map(|device| {
-        let device = Device::try_from(device).ok()?;
-        Some(device)
-    });
-
-    devices.collect()
+    devices
+        .into_iter()
+        .filter_map(|device| {
+            let device = Device::try_from(device).ok()?;
+            Some(device)
+        })
+        .collect()
 }
 
 pub fn find_connected_device_with_vendor_id(vendor_id: u16) -> Option<Device> {
     let devices = get_connected_device_list();
     let device = devices.iter().find(|device| {
         device.get_vendor_id() == Ok(vendor_id)
-            && device.get_connection_state() == DeviceConnectionState::Connected
+            && device.get_device_model().is_supported_audio_device()
     })?;
 
     Some(device.clone())

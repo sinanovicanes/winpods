@@ -13,6 +13,10 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const textColorClass = computed(() => {
+  if (props.level <= 0) {
+    return "text-gray-400";
+  }
+
   // When charging, always use green text
   if (props.charging) {
     return "text-green-500";
@@ -37,6 +41,8 @@ const textColorClass = computed(() => {
     <div class="relative">
       <BatteryIcon :level="level" :charging="charging" :showWarning="showWarning" />
     </div>
-    <span class="text-sm font-medium" :class="textColorClass"> {{ level }}% </span>
+    <span class="text-sm font-medium" :class="textColorClass">
+      {{ level > 0 ? `${level}%` : "--" }}
+    </span>
   </div>
 </template>

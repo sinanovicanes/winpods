@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Warning from "@/components/Warning.vue";
+import { isTauriRuntime } from "@/tauri";
 import { AppView, views } from "@/views";
 import { Window } from "@tauri-apps/api/window";
 import { computed, onBeforeMount, ref } from "vue";
@@ -9,6 +10,10 @@ const bluetooth = useBluetooth();
 const windowLabel = ref<AppView>("main");
 
 onBeforeMount(() => {
+  if (!isTauriRuntime()) {
+    return;
+  }
+
   windowLabel.value = Window.getCurrent().label as AppView;
 });
 

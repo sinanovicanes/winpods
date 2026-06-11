@@ -3,7 +3,7 @@ use tauri::{
     menu::{Menu, MenuEvent},
 };
 
-mod airpods_actions;
+pub mod airpods_actions;
 mod audio_presets;
 mod dashboard;
 mod quit;

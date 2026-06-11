@@ -4,12 +4,16 @@
       <input
         type="checkbox"
         :checked="modelValue"
+        :disabled="disabled"
         @change="$emit('update:modelValue', ($event.target as HTMLInputElement).checked)"
         class="opacity-0 w-0 h-0"
       />
       <span
-        class="absolute cursor-pointer inset-0 rounded-full transition-colors duration-300 ease-in-out"
-        :class="modelValue ? 'bg-green-500' : 'bg-gray-300 bg-opacity-40'"
+        class="absolute inset-0 rounded-full transition-colors duration-300 ease-in-out"
+        :class="[
+          modelValue ? 'bg-green-500' : 'bg-gray-300 bg-opacity-40',
+          disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+        ]"
       >
         <span
           class="absolute w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out left-0.5 top-0.5"
@@ -23,6 +27,7 @@
 <script setup lang="ts">
 interface SwitchProps {
   modelValue: boolean;
+  disabled?: boolean;
 }
 
 defineProps<SwitchProps>();

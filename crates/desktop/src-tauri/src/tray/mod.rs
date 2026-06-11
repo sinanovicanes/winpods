@@ -19,7 +19,7 @@ pub fn init(app: &mut App) -> TrayIcon {
         .build(app)
         .unwrap();
 
-    handlers::init_tooltip_listener(&tray);
+    handlers::init_tooltip_listener(&tray, &menu);
 
     tray
 }

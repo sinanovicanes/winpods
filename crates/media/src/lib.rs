@@ -1,3 +1,7 @@
+mod audio_endpoints;
+
+pub use audio_endpoints::*;
+
 use windows::Media::Control::{
     GlobalSystemMediaTransportControlsSession, GlobalSystemMediaTransportControlsSessionManager,
     GlobalSystemMediaTransportControlsSessionPlaybackStatus,

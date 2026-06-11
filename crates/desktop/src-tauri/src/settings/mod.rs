@@ -10,6 +10,8 @@ mod ear_detection;
 mod listeners;
 mod low_battery_notification;
 
+const ENABLE_EXPERIMENTAL_EAR_DETECTION: bool = false;
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SettingsState {
@@ -40,10 +42,11 @@ impl SettingsState {
             .get("low_battery_threshold")
             .and_then(|v| v.as_u64())
             .unwrap_or(20) as u8;
-        let ear_detection = store
-            .get("ear_detection")
-            .and_then(|v| v.as_bool())
-            .unwrap_or(true);
+        let ear_detection = ENABLE_EXPERIMENTAL_EAR_DETECTION
+            && store
+                .get("ear_detection")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
 
         Self {
             auto_start,
@@ -82,6 +85,10 @@ impl SettingsState {
     }
 
     pub fn set_ear_detection(&mut self, new_state: bool) {
+        if new_state && !ENABLE_EXPERIMENTAL_EAR_DETECTION {
+            return;
+        }
+
         if self.ear_detection == new_state {
             return;
         }
@@ -125,7 +132,7 @@ impl Default for SettingsState {
             auto_start: true,
             auto_update: true,
             low_battery_threshold: 20,
-            ear_detection: true,
+            ear_detection: false,
             dispatcher: EventDispatcher::new(),
         }
     }

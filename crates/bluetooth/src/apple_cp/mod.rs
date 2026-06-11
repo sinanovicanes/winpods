@@ -34,6 +34,10 @@ impl AppleDeviceModel {
             _ => AppleDeviceModel::Unknown,
         }
     }
+
+    pub fn is_supported_audio_device(self) -> bool {
+        !matches!(self, AppleDeviceModel::Unknown)
+    }
 }
 
 #[repr(u8)]

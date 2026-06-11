@@ -46,9 +46,14 @@ pub(super) fn init(app: &mut App) {
         let low_battery_notification_state =
             app_handle.state::<Mutex<LowBatteryNotificationState>>();
         let mut low_battery_notification_state = low_battery_notification_state.lock().unwrap();
+        let left_battery_known = properties.left_battery.level > 0;
+        let right_battery_known = properties.right_battery.level > 0;
 
-        if !properties.left_battery.charging && properties.left_battery.level <= battery_threshold
-            || !properties.right_battery.charging
+        if left_battery_known
+            && !properties.left_battery.charging
+            && properties.left_battery.level <= battery_threshold
+            || right_battery_known
+                && !properties.right_battery.charging
                 && properties.right_battery.level <= battery_threshold
         {
             if !low_battery_notification_state.sended {

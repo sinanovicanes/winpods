@@ -1,3 +1,5 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use bluetooth::{
     AdvertisementReceivedData,
     apple_cp::{AppleDeviceModel, ProximityPairingMessage},
@@ -11,6 +13,7 @@ use crate::{models::Battery, tray::Tooltip};
 pub struct DeviceProperties {
     pub rssi: i16,
     pub address: u64,
+    pub updated_at_unix_ms: u64,
     pub model: AppleDeviceModel,
     pub left_battery: Battery,
     pub right_battery: Battery,
@@ -42,6 +45,10 @@ impl DeviceProperties {
         Self {
             rssi: data.rssi,
             address: data.address,
+            updated_at_unix_ms: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .map(|duration| duration.as_millis() as u64)
+                .unwrap_or_default(),
             model,
             right_battery,
             left_battery,
@@ -110,6 +117,7 @@ impl Tooltip for DeviceProperties {
             .unwrap_or_else(|| "--".to_string());
 
         tooltip.push_str(&format!("Case: {}\n", case_status));
+        tooltip.push_str("Source: AirPods BLE broadcast\n");
 
         tooltip
     }

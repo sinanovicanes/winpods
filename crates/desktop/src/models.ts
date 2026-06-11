@@ -82,8 +82,12 @@ export const AirPodsModelDetails: Record<AirPodsModel, ModelDetails> = {
   },
   ["Unknown"]: {
     name: "Unknown",
-    image: AirPodsMaxFImage,
-    widget: { image: AirPodsMaxImage, repeat: false }
+    image: AirPodsProFImage,
+    widget: {
+      image: AirPodProBImage,
+      caseImage: AirPodsProCaseImage,
+      repeat: true
+    }
   }
 };
 

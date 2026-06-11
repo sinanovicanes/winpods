@@ -1,3 +1,4 @@
+import { isTauriRuntime } from "@/tauri";
 import { app } from "@tauri-apps/api";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { check } from "@tauri-apps/plugin-updater";
@@ -13,6 +14,12 @@ export const useUpdater = defineStore("updater", () => {
   const isUpdating = ref(false);
 
   async function init() {
+    if (!isTauriRuntime()) {
+      currentVersion.value = "0.1.11";
+      latestVersion.value = "0.1.11";
+      return;
+    }
+
     const [current, update] = await Promise.all([
       app.getVersion(),
       check().catch(() => null)
@@ -24,6 +31,10 @@ export const useUpdater = defineStore("updater", () => {
   }
 
   async function initiateUpdatePolling() {
+    if (!isTauriRuntime()) {
+      return;
+    }
+
     try {
       const update = await check();
       latestVersion.value = (update && update.version) || currentVersion.value;
@@ -35,6 +46,10 @@ export const useUpdater = defineStore("updater", () => {
   }
 
   async function update() {
+    if (!isTauriRuntime()) {
+      return;
+    }
+
     if (isUpdating.value) return;
     isUpdating.value = true;
 
