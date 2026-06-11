@@ -2,6 +2,8 @@
 
 winpods is a lightweight desktop application that brings AirPods integration to Windows. Monitor battery levels, connection status, and control your AirPods directly from your Windows desktop.
 
+Taskbar-first AirPods companion for Windows 11 with battery status, smart switching, and audio mode helpers.
+
 ![winpods application](.github/images/app.png)
 
 ## Features
@@ -16,6 +18,25 @@ winpods is a lightweight desktop application that brings AirPods integration to 
 - ⚡ Minimal resource usage
 
 ![winpods widget](.github/images/widget.png)
+
+## Fork Improvement Direction
+
+This fork focuses on making WinPods more taskbar-first for Windows 11 users.
+
+The main goal is to show AirPods and case battery status directly from the Windows system tray/taskbar, reducing the need for a separate floating popup or widget.
+
+### Planned Improvements
+
+- Taskbar/system tray AirPods battery indicator
+- Tooltip showing left, right, and case battery levels
+- Right-click tray menu with refresh and reconnect options
+- Smart Switch Helper to reconnect AirPods to this PC
+- Audio mode helpers for music, gaming, and meetings
+- Use laptop mic instead of AirPods mic option
+- Sleep/wake auto-reconnect fix
+- Cleaner Windows 11-style tray experience
+- Experimental AirPods Pro noise control mode detection/switching
+- Better setup and troubleshooting documentation
 
 ## Installation
 
