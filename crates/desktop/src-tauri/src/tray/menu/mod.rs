@@ -1,6 +1,6 @@
 use tauri::{
-    menu::{Menu, MenuEvent},
     App, AppHandle, Wry,
+    menu::{Menu, MenuEvent},
 };
 
 mod airpods_actions;
@@ -47,8 +47,9 @@ pub fn on_menu_event(app: &AppHandle, event: MenuEvent) {
         airpods_actions::REFRESH_BATTERY_MENU_ID
         | airpods_actions::SWITCH_TO_PC_MENU_ID
         | airpods_actions::RECONNECT_MENU_ID => airpods_actions::on_menu_event(app, event),
-        windows_settings::BLUETOOTH_SETTINGS_MENU_ID
-        | windows_settings::SOUND_SETTINGS_MENU_ID => windows_settings::on_menu_event(app, event),
+        windows_settings::BLUETOOTH_SETTINGS_MENU_ID | windows_settings::SOUND_SETTINGS_MENU_ID => {
+            windows_settings::on_menu_event(app, event)
+        }
         _ => {
             tracing::warn!("Unknown menu item: {:?}", event.id);
         }

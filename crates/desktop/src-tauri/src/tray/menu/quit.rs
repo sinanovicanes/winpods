@@ -1,6 +1,6 @@
 use tauri::{
-    menu::{MenuEvent, MenuItem},
     App, AppHandle, Wry,
+    menu::{MenuEvent, MenuItem},
 };
 
 pub const MENU_ID: &str = "quit";

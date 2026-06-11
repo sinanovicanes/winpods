@@ -1,6 +1,6 @@
 use bluetooth::{
-    apple_cp::{AppleDeviceModel, ProximityPairingMessage},
     AdvertisementReceivedData,
+    apple_cp::{AppleDeviceModel, ProximityPairingMessage},
 };
 use serde::{Deserialize, Serialize};
 

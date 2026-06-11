@@ -1,6 +1,6 @@
 use tauri::{
-    tray::{MouseButtonState, TrayIcon, TrayIconEvent},
     Manager,
+    tray::{MouseButtonState, TrayIcon, TrayIconEvent},
 };
 use tauri_plugin_positioner::{Position, WindowExt};
 

@@ -1,6 +1,6 @@
 use tauri::{
-    tray::{TrayIcon, TrayIconBuilder},
     App,
+    tray::{TrayIcon, TrayIconBuilder},
 };
 
 pub use handlers::Tooltip;

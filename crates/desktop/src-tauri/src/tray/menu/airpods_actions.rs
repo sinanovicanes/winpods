@@ -1,8 +1,8 @@
 use std::sync::RwLock;
 
 use tauri::{
-    menu::{MenuEvent, MenuItem},
     App, AppHandle, Emitter, Manager, Wry,
+    menu::{MenuEvent, MenuItem},
 };
 
 use crate::{device_manager::DeviceManagerState, events};
@@ -32,8 +32,14 @@ pub fn create_case_battery_item(app: &App) -> MenuItem<Wry> {
 }
 
 pub fn create_refresh_battery_item(app: &App) -> MenuItem<Wry> {
-    MenuItem::with_id(app, REFRESH_BATTERY_MENU_ID, "Refresh Battery", true, None::<&str>)
-        .unwrap()
+    MenuItem::with_id(
+        app,
+        REFRESH_BATTERY_MENU_ID,
+        "Refresh Battery",
+        true,
+        None::<&str>,
+    )
+    .unwrap()
 }
 
 pub fn create_switch_to_pc_item(app: &App) -> MenuItem<Wry> {
@@ -48,7 +54,14 @@ pub fn create_switch_to_pc_item(app: &App) -> MenuItem<Wry> {
 }
 
 pub fn create_reconnect_item(app: &App) -> MenuItem<Wry> {
-    MenuItem::with_id(app, RECONNECT_MENU_ID, "Reconnect AirPods", true, None::<&str>).unwrap()
+    MenuItem::with_id(
+        app,
+        RECONNECT_MENU_ID,
+        "Reconnect AirPods",
+        true,
+        None::<&str>,
+    )
+    .unwrap()
 }
 
 pub fn on_menu_event(app: &AppHandle, event: MenuEvent) {

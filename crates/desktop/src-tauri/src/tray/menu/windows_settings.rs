@@ -1,8 +1,8 @@
 use std::process::Command;
 
 use tauri::{
-    menu::{MenuEvent, MenuItem},
     App, AppHandle, Wry,
+    menu::{MenuEvent, MenuItem},
 };
 
 pub const BLUETOOTH_SETTINGS_MENU_ID: &str = "open-bluetooth-settings";
