@@ -83,31 +83,33 @@ impl DeviceProperties {
 
 impl Tooltip for DeviceProperties {
     fn to_tooltip(&self) -> String {
+        fn battery_text(battery: &Battery) -> String {
+            if battery.level == 0 {
+                "--".to_string()
+            } else {
+                format!("{}%", battery.level)
+            }
+        }
+
+        fn charging_text(battery: &Battery) -> &'static str {
+            if battery.charging { " charging" } else { "" }
+        }
+
         let mut tooltip = format!(
-            "Left: {}% {}{}\nRight: {}% {}{}\n",
-            self.left_battery.level,
-            if self.left_battery.charging {
-                "⚡"
-            } else {
-                ""
-            },
-            if self.left_in_ear { "👂" } else { "" },
-            self.right_battery.level,
-            if self.right_battery.charging {
-                "⚡"
-            } else {
-                ""
-            },
-            if self.right_in_ear { "👂" } else { "" },
+            "Left: {}{}\nRight: {}{}\n",
+            battery_text(&self.left_battery),
+            charging_text(&self.left_battery),
+            battery_text(&self.right_battery),
+            charging_text(&self.right_battery),
         );
 
-        if let Some(case_battery) = &self.case_battery {
-            tooltip.push_str(&format!(
-                "Case: {}% {}\n",
-                case_battery.level,
-                if case_battery.charging { "⚡" } else { "" }
-            ));
-        }
+        let case_status = self
+            .case_battery
+            .as_ref()
+            .map(|battery| format!("{}{}", battery_text(battery), charging_text(battery)))
+            .unwrap_or_else(|| "--".to_string());
+
+        tooltip.push_str(&format!("Case: {}\n", case_status));
 
         tooltip
     }

@@ -81,14 +81,28 @@ impl DeviceManagerState {
 impl Tooltip for DeviceManagerState {
     fn to_tooltip(&self) -> String {
         let Some(device) = &self.device else {
-            return String::new();
+            return "AirPods\nStatus: Disconnected\nBattery: --".to_string();
         };
 
-        let mut tooltip = format!("{}\n", device.get_name().unwrap_or("Connected".to_string()));
+        let device_name = device.get_name().unwrap_or_else(|_| "AirPods".to_string());
+        let status = match device.get_connection_state() {
+            DeviceConnectionState::Connected => "Connected",
+            DeviceConnectionState::Disconnected => "Disconnected",
+        };
+
+        if !device.is_connected() {
+            return format!("{device_name}\nStatus: {status}\nBattery: --");
+        }
+
+        let mut tooltip = format!("{device_name}\n");
 
         if let Some(properties) = &self.device_properties {
             tooltip.push_str(&properties.to_tooltip());
+        } else {
+            tooltip.push_str("Left: --\nRight: --\nCase: --\n");
         }
+
+        tooltip.push_str(&format!("Status: {status}"));
 
         tooltip
     }

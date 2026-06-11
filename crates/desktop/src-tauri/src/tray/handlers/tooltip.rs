@@ -5,26 +5,43 @@ use tauri::{Listener, Manager, tray::TrayIcon};
 
 pub fn init_tooltip_listener(tray: &TrayIcon) {
     let app_handle = tray.app_handle();
-    let app_name = crate::utils::get_app_name_by_handle(app_handle);
+    update_tooltip(tray);
 
     let tray_handle = tray.clone();
-    let handle = app_handle.clone();
-    let name = app_name.clone();
     app_handle.listen(events::DEVICE_PROPERTIES_UPDATED, move |_| {
-        let device_manager = handle.state::<RwLock<DeviceManagerState>>();
-        let device_manager = device_manager.read().unwrap();
-
-        let tooltip = format!("{}\n{}", name, device_manager.to_tooltip());
-        let _ = tray_handle.set_tooltip(Some(&tooltip));
+        update_tooltip(&tray_handle);
     });
 
     let tray_handle = tray.clone();
-    let name: String = app_name.clone();
+    app_handle.listen(events::DEVICE_SELECTED, move |_| {
+        update_tooltip(&tray_handle);
+    });
+
+    let tray_handle = tray.clone();
+    app_handle.listen(events::DEVICE_NAME_UPDATED, move |_| {
+        update_tooltip(&tray_handle);
+    });
+
+    let tray_handle = tray.clone();
+    app_handle.listen(events::DEVICE_CONNECTION_STATE_UPDATED, move |_| {
+        update_tooltip(&tray_handle);
+    });
+
+    let tray_handle = tray.clone();
     app_handle.listen(events::DEVICE_SELECTION_CLEARED, move |_| {
-        let _ = tray_handle.set_tooltip(Some(&name));
+        update_tooltip(&tray_handle);
     });
 }
 
 pub trait Tooltip {
     fn to_tooltip(&self) -> String;
+}
+
+fn update_tooltip(tray: &TrayIcon) {
+    let app_handle = tray.app_handle();
+    let device_manager = app_handle.state::<RwLock<DeviceManagerState>>();
+    let device_manager = device_manager.read().unwrap();
+    let tooltip = device_manager.to_tooltip();
+
+    let _ = tray.set_tooltip(Some(&tooltip));
 }
