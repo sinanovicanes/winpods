@@ -30,7 +30,8 @@ impl BluetoothState {
 }
 
 pub fn init(app: &mut App) {
-    let mut state = BluetoothState::new();
+    let state_lock = app.state::<RwLock<BluetoothState>>();
+    let mut state = state_lock.write().unwrap();
 
     let app_handle = app.app_handle().clone();
     state.adapter_watcher.on_state_changed(move |state| {
@@ -128,12 +129,11 @@ pub fn init(app: &mut App) {
 
     state.adapter_watcher.start();
 
-    // Only start the advertisement watcher if the adapter is on
+    // Only start the advertisement watcher if the adapter is on. If the adapter is not reachable
+    // yet, the watcher keeps looking for it and the state changed handler above takes over.
     if matches!(state.adapter_watcher.state(), AdapterState::On) {
         state.adv_watcher.start().unwrap_or_else(|_| {
             tracing::error!("Failed to start AdvertisementWatcher");
         });
     }
-
-    app.manage(RwLock::new(state));
 }

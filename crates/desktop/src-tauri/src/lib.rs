@@ -1,9 +1,12 @@
+use std::sync::RwLock;
+
 use tauri::{Listener, Manager, WindowEvent};
 
 mod bluetooth;
 mod commands;
 mod device_manager;
 mod events;
+pub mod logging;
 mod models;
 mod settings;
 mod tray;
@@ -14,6 +17,11 @@ mod views;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // The windows declared in `tauri.conf.json` are created before the setup hook runs, so their
+        // webviews can invoke commands while we are still setting things up. Managing the states
+        // upfront keeps those early calls from failing with "state not managed".
+        .manage(RwLock::new(device_manager::DeviceManagerState::new()))
+        .manage(RwLock::new(bluetooth::BluetoothState::new()))
         .plugin(tauri_plugin_positioner::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,

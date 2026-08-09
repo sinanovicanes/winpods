@@ -1,5 +1,5 @@
 import { Events } from "@/constants";
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithRetry } from "@/utils";
 import { emit, listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref, watch } from "vue";
@@ -19,12 +19,17 @@ export const useSettings = defineStore("settings", () => {
   const earDetection = ref(true);
 
   async function init() {
-    const settingsState = await invoke<SettingsState>("get_settings_state");
+    try {
+      const settingsState = await invokeWithRetry<SettingsState>("get_settings_state");
 
-    autoStart.value = settingsState.autoStart;
-    autoUpdate.value = settingsState.autoUpdate;
-    lowBatteryThreshold.value = settingsState.lowBatteryThreshold;
-    earDetection.value = settingsState.earDetection;
+      autoStart.value = settingsState.autoStart;
+      autoUpdate.value = settingsState.autoUpdate;
+      lowBatteryThreshold.value = settingsState.lowBatteryThreshold;
+      earDetection.value = settingsState.earDetection;
+    } catch (e) {
+      // Keep going with the default values, otherwise the settings would not be editable at all
+      console.error(`Failed to get the settings state: ${e}`);
+    }
 
     // Initialize listeners after the initial values are set
     listen<boolean>(
