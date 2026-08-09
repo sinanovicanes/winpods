@@ -94,8 +94,6 @@ impl AdvertisementWatcher {
             .map_err(|_| Error::WindowsError)
             .unwrap_or_default();
 
-        println!("Status: {:?}", status);
-
         match status {
             BluetoothLEAdvertisementWatcherStatus::Started => AdvertisementWatcherStatus::Started,
             _ => AdvertisementWatcherStatus::Stopped,
