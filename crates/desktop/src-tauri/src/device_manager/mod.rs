@@ -11,7 +11,8 @@ pub use device_properties::DeviceProperties;
 pub use manager::DeviceManagerState;
 
 pub fn init(app: &mut App) {
-    let mut state = DeviceManagerState::new();
+    let state_lock = app.state::<RwLock<DeviceManagerState>>();
+    let mut state = state_lock.write().unwrap();
 
     let app_handle: tauri::AppHandle = app.app_handle().clone();
     state.on_device_selected(move |device| {
@@ -65,7 +66,7 @@ pub fn init(app: &mut App) {
 
     if let Some(device) = find_connected_device_with_vendor_id(apple_cp::VENDOR_ID) {
         state.select_device(device);
+    } else {
+        tracing::info!("No connected Apple device found");
     }
-
-    app.manage(RwLock::new(state));
 }

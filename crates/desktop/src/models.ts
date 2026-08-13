@@ -43,6 +43,24 @@ export const AirPodsModelDetails: Record<AirPodsModel, ModelDetails> = {
       repeat: true
     }
   },
+  ["AirPods4"]: {
+    name: "AirPods 4",
+    image: AirPodsFImage,
+    widget: {
+      image: AirPodBImage,
+      caseImage: AirPodsCaseImage,
+      repeat: true
+    }
+  },
+  ["AirPods4Anc"]: {
+    name: "AirPods 4 (ANC)",
+    image: AirPodsFImage,
+    widget: {
+      image: AirPodBImage,
+      caseImage: AirPodsCaseImage,
+      repeat: true
+    }
+  },
   ["AirPodsPro"]: {
     name: "AirPods Pro",
     image: AirPodsProFImage,
@@ -70,13 +88,53 @@ export const AirPodsModelDetails: Record<AirPodsModel, ModelDetails> = {
       repeat: true
     }
   },
+  ["AirPodsPro3"]: {
+    name: "AirPods Pro 3",
+    image: AirPodsProFImage,
+    widget: {
+      image: AirPodProBImage,
+      caseImage: AirPodsProCaseImage,
+      repeat: true
+    }
+  },
   ["AirPodsMax"]: {
     name: "AirPods Max",
     image: AirPodsMaxFImage,
     widget: { image: AirPodsMaxImage, repeat: false }
   },
+  ["AirPodsMaxUsbC"]: {
+    name: "AirPods Max (USB-C)",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
+  // TODO: Beats models are using the AirPods Max images as a placeholder
+  ["PowerbeatsPro"]: {
+    name: "Powerbeats Pro",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
+  ["PowerbeatsPro2"]: {
+    name: "Powerbeats Pro 2",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
   ["BeatsFitPro"]: {
     name: "Beats Fit Pro",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
+  ["BeatsStudioBuds"]: {
+    name: "Beats Studio Buds",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
+  ["BeatsStudioBudsPlus"]: {
+    name: "Beats Studio Buds +",
+    image: AirPodsMaxFImage,
+    widget: { image: AirPodsMaxImage, repeat: false }
+  },
+  ["BeatsSoloBuds"]: {
+    name: "Beats Solo Buds",
     image: AirPodsMaxFImage,
     widget: { image: AirPodsMaxImage, repeat: false }
   },

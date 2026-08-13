@@ -196,19 +196,21 @@ impl Device {
         Ok(product_id)
     }
 
-    pub fn get_aep_id(&self) -> Result<u16> {
+    /// The container id groups all the endpoints (audio, hands-free, ...) of a device together.
+    /// It is a GUID, not a number.
+    pub fn get_aep_container_id(&self) -> Result<String> {
         let properties = self
             .get_info()?
             .Properties()
             .map_err(|_| Error::PropertyNotFound)?;
-        let product_id = properties
+        let container_id = properties
             .Lookup(&HSTRING::from(PROPERTY_AEP_CONTAINER_ID))
             .map_err(|_| Error::PropertyNotFound)?
             .cast::<IPropertyValue>()
             .map_err(|_| Error::PropertyNotFound)?
-            .GetUInt16()
+            .GetGuid()
             .map_err(|_| Error::PropertyNotFound)?;
-        Ok(product_id)
+        Ok(format!("{:?}", container_id))
     }
 
     pub fn get_connection_state(&self) -> DeviceConnectionState {
@@ -259,7 +261,7 @@ impl Debug for Device {
             .field("address", &self.get_address())
             .field("vendor_id", &self.get_vendor_id())
             .field("product_id", &self.get_product_id())
-            .field("aep_id", &self.get_aep_id())
+            .field("aep_container_id", &self.get_aep_container_id())
             .field("connection_state", &self.get_connection_state())
             .finish()
     }

@@ -1,4 +1,5 @@
 import { Events } from "@/constants";
+import { invokeWithRetry, onWindowShown } from "@/utils";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
@@ -54,9 +55,9 @@ export const useDevice = defineStore("device-connection", () => {
 
   listen<Device>(Events.DeviceSelected, event => (device.value = event.payload));
   listen<Device>(Events.DeviceSelectionCleared, _ => (device.value = null));
-  listen<Pick<Device, "name">>(Events.DeviceNameUpdated, event => {
+  listen<string>(Events.DeviceNameUpdated, event => {
     if (!device.value) return;
-    device.value = { ...device.value, name: event.payload.name };
+    device.value = { ...device.value, name: event.payload };
   });
   listen<DeviceConnectionState>(Events.DeviceConnectionStateUpdated, event => {
     console.log("Device connection state updated", event.payload);
@@ -75,7 +76,7 @@ export const useDevice = defineStore("device-connection", () => {
 
   async function getAvailableDevices(): Promise<Device[]> {
     try {
-      return await invoke<Device[]>("get_bluetooth_device_list");
+      return await invokeWithRetry<Device[]>("get_bluetooth_device_list");
     } catch (e) {
       console.error(`Failed to get available devices: ${e}`);
       return [];
@@ -88,9 +89,10 @@ export const useDevice = defineStore("device-connection", () => {
 
   async function refreshCurrentDevice(): Promise<void> {
     try {
-      const response = await invoke<{ device: Device; properties: DeviceProperties }>(
-        "get_current_device"
-      );
+      const response = await invokeWithRetry<{
+        device: Device;
+        properties: DeviceProperties;
+      }>("get_current_device");
 
       device.value = response.device || null;
       deviceProperties.value = response.properties || null;
@@ -130,6 +132,10 @@ export const useDevice = defineStore("device-connection", () => {
     const devices = await getAvailableDevices();
     availableDevices.value = devices;
   }
+
+  // A device may have been selected before this window finished loading, in which case its event
+  // was missed. Asking again on show keeps the window from being stuck on "No Device Selected".
+  onWindowShown(init);
 
   init();
 

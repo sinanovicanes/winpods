@@ -16,6 +16,14 @@ pub fn on_menu_event(app: &AppHandle, _event: MenuEvent) {
     };
 
     if view.show().is_err() {
-        tracing::error!("Failed to show main window")
+        tracing::error!("Failed to show main window");
+        return;
+    }
+
+    // Bring the window to the front, this also lets the UI know it should refresh its state.
+    let _ = view.unminimize();
+
+    if view.set_focus().is_err() {
+        tracing::error!("Failed to focus main window")
     }
 }

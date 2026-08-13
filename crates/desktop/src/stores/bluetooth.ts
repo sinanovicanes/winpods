@@ -1,5 +1,5 @@
 import { BluetoothAdapterState, Events } from "@/constants";
-import { invoke } from "@tauri-apps/api/core";
+import { invokeWithRetry, onWindowShown } from "@/utils";
 import { listen } from "@tauri-apps/api/event";
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
@@ -9,8 +9,9 @@ export const useBluetooth = defineStore("bluetooth", () => {
 
   async function getBluetoothAdapterState(): Promise<boolean> {
     try {
-      return await invoke<boolean>("is_bluetooth_adapter_active");
-    } catch {
+      return await invokeWithRetry<boolean>("is_bluetooth_adapter_active");
+    } catch (e) {
+      console.error(`Failed to get the bluetooth adapter state: ${e}`);
       return false;
     }
   }
@@ -19,14 +20,19 @@ export const useBluetooth = defineStore("bluetooth", () => {
     isActive.value = event.payload === BluetoothAdapterState.On;
   });
 
-  async function init() {
+  async function refresh(): Promise<void> {
     isActive.value = await getBluetoothAdapterState();
   }
 
-  init();
+  // The adapter may have been unreachable while this window was loading, in which case its state
+  // update was missed. Refreshing on show keeps the window from being stuck on the warning.
+  onWindowShown(refresh);
+
+  refresh();
 
   return {
-    isActive
+    isActive,
+    refresh
   };
 });
 

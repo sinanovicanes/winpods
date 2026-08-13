@@ -5,6 +5,7 @@ use bluetooth::{
 use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
     pub address: u64,
     pub name: String,
