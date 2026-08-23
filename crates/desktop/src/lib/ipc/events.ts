@@ -10,5 +10,6 @@ export const Events = {
   DeviceConnectionChanged: "device-connection-changed",
   DeviceNameChanged: "device-name-changed",
   DevicePropertiesUpdated: "device-properties-updated",
-  SettingsChanged: "settings-changed"
+  SettingsChanged: "settings-changed",
+  UpdateStatusChanged: "update-status-changed"
 } as const;

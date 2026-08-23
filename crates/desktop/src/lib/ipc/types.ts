@@ -88,3 +88,22 @@ export interface Settings {
 
 /** A partial settings change. Only the named fields are applied. */
 export type SettingsPatch = Partial<Settings>;
+
+/**
+ * Update state, owned entirely by Rust.
+ *
+ * The UI never checks for or installs updates itself — two owners meant the automatic path and
+ * the manual button could install the same update at once and race to restart.
+ */
+export interface UpdateStatus {
+  /** The running version. */
+  current: string;
+  /** The newer version, when one is available. */
+  available: string | null;
+  /** Whether an install is running right now. */
+  installing: boolean;
+  /** Download progress as a percentage, when the total size is known. */
+  progress: number | null;
+  /** Why the last check or install failed. Cleared by the next successful check. */
+  error: string | null;
+}

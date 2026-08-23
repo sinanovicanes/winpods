@@ -1,8 +1,5 @@
-import { getVersion } from "@tauri-apps/api/app";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { relaunch } from "@tauri-apps/plugin-process";
-import { check } from "@tauri-apps/plugin-updater";
 
 import * as commands from "./commands";
 import type { Backend, Unlisten } from "./backend";
@@ -35,21 +32,6 @@ export const tauriBackend: Backend = {
   isAlwaysOnTop: () => getCurrentWindow().isAlwaysOnTop(),
   setAlwaysOnTop: (value: boolean) => getCurrentWindow().setAlwaysOnTop(value),
 
-  getVersion,
-
-  async checkForUpdate() {
-    const update = await check();
-    return update ? { version: update.version } : null;
-  },
-
-  async installUpdate() {
-    const update = await check();
-
-    if (!update) {
-      throw new Error("No update available");
-    }
-
-    await update.downloadAndInstall();
-    await relaunch();
-  }
+  getUpdateStatus: commands.getUpdateStatus,
+  installUpdate: commands.installUpdate
 };

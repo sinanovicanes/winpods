@@ -5,7 +5,8 @@ import type {
   DeviceInfo,
   DeviceSnapshot,
   Settings,
-  SettingsPatch
+  SettingsPatch,
+  UpdateStatus
 } from "./types";
 
 export type Unlisten = () => void;
@@ -42,8 +43,9 @@ export interface Backend {
   isAlwaysOnTop(): Promise<boolean>;
   setAlwaysOnTop(value: boolean): Promise<void>;
 
-  /** App version, and the update flow behind the dashboard's footer button. */
-  getVersion(): Promise<string>;
-  checkForUpdate(): Promise<{ version: string } | null>;
+  /**
+   * Update state. Rust owns checking and installing; the UI only reads and requests.
+   */
+  getUpdateStatus(): Promise<UpdateStatus>;
   installUpdate(): Promise<void>;
 }

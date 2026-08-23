@@ -36,6 +36,7 @@ pub mod logging;
 mod settings;
 mod state;
 mod tray;
+mod updater;
 mod views;
 
 use state::AppState;
@@ -50,7 +51,6 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // A second launch should surface the running app rather than start another tray icon.
             if let Some(window) = views::get(app, views::WIDGET) {
@@ -65,13 +65,15 @@ pub fn run() {
             commands::clear_device_selection,
             commands::get_settings,
             commands::update_settings,
+            commands::get_update_status,
+            commands::install_update,
         ])
         .setup(|app| {
             let settings_path = app
                 .path()
                 .app_config_dir()
                 .map(|dir| dir.join("settings.json"))?;
-            let state = AppState::new(settings_path)?;
+            let state = AppState::new(settings_path, app.package_info().version.to_string())?;
 
             app.manage(Arc::clone(&state));
             features::init(app.handle(), &state);

@@ -92,7 +92,11 @@
         loading={updater.installing}
         onclick={() => void updater.install()}
       >
-        {updater.installing ? "Updating…" : `Update to ${updater.latestVersion}`}
+        {#if updater.installing}
+          {updater.progress === null ? "Updating…" : `Updating ${updater.progress}%`}
+        {:else}
+          Update to {updater.latestVersion}
+        {/if}
       </Button>
     {/if}
   </footer>

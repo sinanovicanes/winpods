@@ -143,6 +143,16 @@ change, persisted by writing a sibling temp file and renaming it. Adding a setti
 field (with a default), extend `SettingsPatch`, extend the UI type in `src/lib/ipc/types.ts`, and
 add a test.
 
+### Rust owns updates too
+
+There is exactly one update check in the app: `features::updater` polls hourly and auto-installs
+when `auto_update` is on. The UI reads `get_update_status` and calls `install_update`; it never
+touches the updater plugin, and the frontend has no updater or process dependency at all.
+
+`UpdateService::install` holds a lock so only one install runs. That matters: before this, the
+backend auto-installed on startup while the UI independently offered a manual install of the *same*
+update, so both could download it at once and then race to restart the app.
+
 ### Both windows are separate prerendered routes
 
 `/` is the dashboard, `/widget/` is the tray widget, wired up by `url` in `tauri.conf.json`. They

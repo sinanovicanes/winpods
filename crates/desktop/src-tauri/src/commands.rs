@@ -7,12 +7,12 @@
 use std::sync::Arc;
 
 use serde::Serialize;
-use tauri::State;
+use tauri::{AppHandle, State};
 use winpods_apple_cp::AppleDeviceModel;
 use winpods_bluetooth::{AdapterState, Device, device};
 use winpods_core::{DeviceInfo, Settings, SettingsPatch};
 
-use crate::{device::DeviceSnapshot, error::CommandResult, state::AppState};
+use crate::{device::DeviceSnapshot, error::CommandResult, state::AppState, updater::UpdateStatus};
 
 /// A device offered in the picker.
 #[derive(Debug, Clone, Serialize)]
@@ -89,4 +89,21 @@ pub async fn update_settings(
     state: State<'_, Arc<AppState>>,
 ) -> CommandResult<Settings> {
     Ok(state.settings.update(patch).await?)
+}
+
+/// The running version, whether a newer one is available, and any install in progress.
+#[tauri::command]
+pub async fn get_update_status(state: State<'_, Arc<AppState>>) -> CommandResult<UpdateStatus> {
+    Ok(state.updates.status())
+}
+
+/// Downloads and installs the available update, then restarts the app.
+///
+/// A no-op when an install is already running, so pressing the button while the automatic path is
+/// mid-install cannot start a second one.
+#[tauri::command]
+pub async fn install_update(app: AppHandle, state: State<'_, Arc<AppState>>) -> CommandResult<()> {
+    state.updates.install(&app).await?;
+
+    Ok(())
 }

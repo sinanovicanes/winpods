@@ -1,16 +1,29 @@
-import { backend } from "$lib/ipc";
+import { backend, Events } from "$lib/ipc";
+import type { UpdateStatus } from "$lib/ipc";
 
-const CHECK_INTERVAL = 60 * 60 * 1000;
+const UNKNOWN: UpdateStatus = {
+  current: "0.0.0",
+  available: null,
+  installing: false,
+  progress: null,
+  error: null
+};
 
-/** Tracks the installed version and whether a newer one is available. */
+/**
+ * Mirrors the backend's update state.
+ *
+ * Deliberately has no timer and no check of its own. Rust polls the endpoint and pushes the result
+ * here, so there is exactly one update check in the app — previously the backend auto-installed
+ * while this store independently offered a manual install of the same update.
+ */
 class UpdaterStore {
-  currentVersion = $state("0.0.0");
-  latestVersion = $state<string | null>(null);
-  installing = $state(false);
+  status = $state<UpdateStatus>({ ...UNKNOWN });
 
-  readonly updateAvailable = $derived(
-    this.latestVersion !== null && this.latestVersion !== this.currentVersion
-  );
+  readonly currentVersion = $derived(this.status.current);
+  readonly latestVersion = $derived(this.status.available);
+  readonly updateAvailable = $derived(this.status.available !== null);
+  readonly installing = $derived(this.status.installing);
+  readonly progress = $derived(this.status.progress);
 
   #started = false;
 
@@ -18,36 +31,31 @@ class UpdaterStore {
     if (this.#started) return;
     this.#started = true;
 
-    try {
-      this.currentVersion = await backend.getVersion();
-    } catch (error) {
-      console.error("Failed to read the app version:", error);
-    }
+    await backend.listen<UpdateStatus>(Events.UpdateStatusChanged, status => {
+      this.status = status;
+    });
 
-    await this.check();
-    setInterval(() => void this.check(), CHECK_INTERVAL);
+    await this.refresh();
   }
 
-  async check() {
+  async refresh() {
     try {
-      const update = await backend.checkForUpdate();
-      this.latestVersion = update?.version ?? null;
+      this.status = await backend.getUpdateStatus();
     } catch (error) {
-      // Expected when offline; nothing the user needs to see.
-      console.warn("Update check failed:", error);
+      console.error("Failed to read the update status:", error);
     }
   }
 
+  /** Asks the backend to install. It restarts the app on success, so this may never resolve. */
   async install() {
-    if (this.installing) return;
-    this.installing = true;
+    if (this.status.installing) return;
 
     try {
       await backend.installUpdate();
     } catch (error) {
       console.error("Failed to install the update:", error);
-    } finally {
-      this.installing = false;
+      // The backend records the failure in its own status; pick it up.
+      await this.refresh();
     }
   }
 }

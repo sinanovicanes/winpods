@@ -30,6 +30,7 @@ defaults and clamping.
 | Adapter on/off | `AdapterWatcher` (cached in an `AtomicBool`) | `get_adapter_state` | — (OS owns it) |
 | Selected device + readings | `DeviceService` | `get_current_device` | `select_device`, `clear_device_selection` |
 | Settings | `SettingsService` | `get_settings` | `update_settings` |
+| Update status | `UpdateService` | `get_update_status` | `install_update` |
 | Theme | the UI (`localStorage`) | — | — |
 
 Everything except the theme is owned by Rust. The UI holds a mirror kept current by events, and

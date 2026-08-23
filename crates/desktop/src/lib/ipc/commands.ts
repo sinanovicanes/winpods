@@ -7,7 +7,8 @@ import type {
   DeviceInfo,
   DeviceSnapshot,
   Settings,
-  SettingsPatch
+  SettingsPatch,
+  UpdateStatus
 } from "./types";
 
 const RETRY_ATTEMPTS = 5;
@@ -57,3 +58,8 @@ export const getSettings = () => call<Settings>("get_settings");
 /** Applies a partial settings change and resolves with what the backend actually stored. */
 export const updateSettings = (patch: SettingsPatch) =>
   call<Settings>("update_settings", { patch });
+
+export const getUpdateStatus = () => call<UpdateStatus>("get_update_status");
+
+/** Asks the backend to install the available update. It restarts the app on success. */
+export const installUpdate = () => call<void>("install_update");

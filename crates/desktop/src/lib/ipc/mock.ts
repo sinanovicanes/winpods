@@ -9,7 +9,8 @@ import type {
   DeviceProperties,
   DeviceSnapshot,
   Settings,
-  SettingsPatch
+  SettingsPatch,
+  UpdateStatus
 } from "./types";
 
 /**
@@ -47,7 +48,13 @@ class MockBackend implements Backend {
     lowBatteryThreshold: 20
   };
   #alwaysOnTop = false;
-  #updateAvailable: { version: string } | null = { version: "0.2.1" };
+  #update: UpdateStatus = {
+    current: "0.2.0",
+    available: "0.2.1",
+    installing: false,
+    progress: null,
+    error: null
+  };
 
   constructor() {
     // Start with a device already selected, which is the interesting state to design against.
@@ -144,18 +151,30 @@ class MockBackend implements Backend {
 
   // ---------------------------------------------------------------- updater
 
-  async getVersion() {
-    return "0.2.0";
-  }
-
-  async checkForUpdate() {
-    return this.#updateAvailable;
+  async getUpdateStatus(): Promise<UpdateStatus> {
+    return this.#update;
   }
 
   async installUpdate() {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    this.#updateAvailable = null;
-    console.info("[mock] installUpdate() finished");
+    if (this.#update.installing) return;
+
+    // Mirrors the backend: progress ticks up, then the app would restart.
+    this.#patchUpdate({ installing: true, progress: 0 });
+
+    for (let percent = 20; percent <= 100; percent += 20) {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      this.#patchUpdate({ progress: percent });
+    }
+
+    this.#patchUpdate({ installing: false, progress: null, available: null });
+    console.info(
+      "[mock] installUpdate() finished (a real install would restart the app)"
+    );
+  }
+
+  #patchUpdate(patch: Partial<UpdateStatus>) {
+    this.#update = { ...this.#update, ...patch };
+    this.#emit(Events.UpdateStatusChanged, this.#update);
   }
 
   // ---------------------------------------------------------------- simulation

@@ -13,6 +13,8 @@ use tauri::{AppHandle, Emitter};
 use winpods_bluetooth::{AdapterState, ConnectionState};
 use winpods_core::{DeviceInfo, DeviceProperties, Settings};
 
+use crate::updater::UpdateStatus;
+
 /// Event names the UI subscribes to. Kept in sync with `src/lib/ipc/events.ts`.
 pub mod name {
     pub const ADAPTER_STATE_CHANGED: &str = "adapter-state-changed";
@@ -22,6 +24,7 @@ pub mod name {
     pub const DEVICE_NAME_CHANGED: &str = "device-name-changed";
     pub const DEVICE_PROPERTIES_UPDATED: &str = "device-properties-updated";
     pub const SETTINGS_CHANGED: &str = "settings-changed";
+    pub const UPDATE_STATUS_CHANGED: &str = "update-status-changed";
 }
 
 /// Something that changed in the backend.
@@ -34,6 +37,7 @@ pub enum AppEvent {
     DeviceNameChanged(String),
     DevicePropertiesUpdated(DeviceProperties),
     SettingsChanged(Settings),
+    UpdateStatusChanged(UpdateStatus),
 }
 
 impl AppEvent {
@@ -53,6 +57,7 @@ impl AppEvent {
                 app.emit(name::DEVICE_PROPERTIES_UPDATED, props)
             }
             Self::SettingsChanged(settings) => app.emit(name::SETTINGS_CHANGED, settings),
+            Self::UpdateStatusChanged(status) => app.emit(name::UPDATE_STATUS_CHANGED, status),
         };
 
         if let Err(e) = result {

@@ -6,7 +6,9 @@ use anyhow::{Context, Result};
 use tokio::sync::broadcast;
 use winpods_bluetooth::{AdapterWatcher, AdvertisementWatcher};
 
-use crate::{device::DeviceService, events::AppEvent, settings::SettingsService};
+use crate::{
+    device::DeviceService, events::AppEvent, settings::SettingsService, updater::UpdateService,
+};
 
 /// Room for a burst of events while a feature task is busy.
 const EVENT_CAPACITY: usize = 64;
@@ -19,12 +21,13 @@ pub struct AppState {
     pub events: broadcast::Sender<AppEvent>,
     pub settings: SettingsService,
     pub devices: Arc<DeviceService>,
+    pub updates: UpdateService,
     pub adapter: AdapterWatcher,
     pub advertisements: AdvertisementWatcher,
 }
 
 impl AppState {
-    pub fn new(settings_path: std::path::PathBuf) -> Result<Arc<Self>> {
+    pub fn new(settings_path: std::path::PathBuf, version: String) -> Result<Arc<Self>> {
         let (events, _) = broadcast::channel(EVENT_CAPACITY);
 
         // Filter to Apple's company id inside the WinRT callback. The handler runs for every
@@ -35,6 +38,7 @@ impl AppState {
         Ok(Arc::new(Self {
             settings: SettingsService::new(settings_path, events.clone()),
             devices: Arc::new(DeviceService::new(events.clone())),
+            updates: UpdateService::new(version, events.clone()),
             adapter: AdapterWatcher::new(),
             advertisements,
             events,
