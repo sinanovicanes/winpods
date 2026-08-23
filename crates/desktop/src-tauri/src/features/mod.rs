@@ -16,10 +16,10 @@ use tauri::AppHandle;
 use crate::state::AppState;
 
 /// Starts every background feature.
-pub fn start_all(app: &AppHandle, state: &Arc<AppState>) {
-    bridge::start(app, state);
-    autostart::start(app, state);
-    ear_detection::start(state);
-    low_battery::start(app, state);
-    updater::start(app, state);
+pub fn init(app: &AppHandle, state: &Arc<AppState>) {
+    bridge::init(app, state);
+    autostart::init(app, state);
+    ear_detection::init(state);
+    low_battery::init(app, state);
+    updater::init(app, state);
 }

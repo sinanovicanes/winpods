@@ -33,7 +33,7 @@ pub fn init(app: &App, state: &Arc<AppState>) -> Result<TrayIcon> {
         .build(app)
         .context("failed to build the tray icon")?;
 
-    tooltip::start(&tray, state, name);
+    tooltip::init(&tray, state, name);
 
     Ok(tray)
 }

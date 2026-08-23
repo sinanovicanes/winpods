@@ -7,7 +7,7 @@ use tauri_plugin_autostart::ManagerExt;
 
 use crate::{events::AppEvent, state::AppState};
 
-pub fn start(app: &AppHandle, state: &Arc<AppState>) {
+pub fn init(app: &AppHandle, state: &Arc<AppState>) {
     let app = app.clone();
     let state = Arc::clone(state);
 

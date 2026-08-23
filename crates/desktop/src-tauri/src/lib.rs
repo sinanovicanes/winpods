@@ -74,13 +74,9 @@ pub fn run() {
             let state = AppState::new(settings_path)?;
 
             app.manage(Arc::clone(&state));
-            features::start_all(app.handle(), &state);
+            features::init(app.handle(), &state);
             tray::init(app, &state)?;
-
-            let startup_state = Arc::clone(&state);
-            tauri::async_runtime::spawn(async move {
-                bluetooth::start(&startup_state).await;
-            });
+            bluetooth::init(&state);
 
             Ok(())
         })

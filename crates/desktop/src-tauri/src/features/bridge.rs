@@ -9,7 +9,7 @@ use tokio::sync::broadcast::error::RecvError;
 
 use crate::state::AppState;
 
-pub fn start(app: &AppHandle, state: &Arc<AppState>) {
+pub fn init(app: &AppHandle, state: &Arc<AppState>) {
     let app = app.clone();
     let mut events = state.subscribe();
 

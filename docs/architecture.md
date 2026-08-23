@@ -72,6 +72,21 @@ skippable, because every event carries the complete current value rather than a 
 event supersedes anything missed. This is explicit in `features::bridge` and
 `bluetooth::spawn_advertisement_task`; do not turn a lag into an error.
 
+## Setup
+
+`run()` in `crates/desktop/src-tauri/src/lib.rs` registers the plugins and commands, then the setup
+hook wires up the three subsystems. Each exposes `init(...)` and handles its own task spawning:
+
+| Call | Does |
+| --- | --- |
+| `features::init` | Starts the event-bus consumers: bridge, autostart, ear detection, low battery, updater |
+| `tray::init` | Builds the tray icon and menu, and starts the tooltip task |
+| `bluetooth::init` | Spawns the adapter and advertisement tasks, then picks up a connected device |
+
+State is managed **before** any of them run. The windows declared in `tauri.conf.json` exist before
+the setup hook, so their webviews can invoke commands while setup is still in progress; managing the
+state first is what keeps those early calls from failing with "state not managed".
+
 ## Threading
 
 - The Tauri/tokio runtime runs everything. There is no dedicated bluetooth thread.

@@ -7,7 +7,7 @@ use winpods_media::MediaController;
 
 use crate::{events::AppEvent, state::AppState};
 
-pub fn start(state: &Arc<AppState>) {
+pub fn init(state: &Arc<AppState>) {
     let state = Arc::clone(state);
 
     tauri::async_runtime::spawn(async move {

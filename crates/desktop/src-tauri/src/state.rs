@@ -24,12 +24,6 @@ pub struct AppState {
 }
 
 impl AppState {
-    /// Builds the state.
-    ///
-    /// Constructed before the Tauri app runs, because the windows declared in
-    /// `tauri.conf.json` exist before the setup hook and their webviews can invoke commands
-    /// while setup is still in progress. Managing the state up front is what keeps those early
-    /// calls from failing with "state not managed".
     pub fn new(settings_path: std::path::PathBuf) -> Result<Arc<Self>> {
         let (events, _) = broadcast::channel(EVENT_CAPACITY);
 
@@ -47,9 +41,6 @@ impl AppState {
         }))
     }
 
-    /// Publishes an event on the internal bus.
-    ///
-    /// A send failing only means nothing is subscribed yet, which is normal during startup.
     pub fn publish(&self, event: AppEvent) {
         let _ = self.events.send(event);
     }

@@ -9,7 +9,7 @@ use winpods_core::{Battery, DeviceProperties};
 use crate::{events::AppEvent, state::AppState};
 
 /// Starts the task that rewrites the tooltip as readings change.
-pub fn start(tray: &TrayIcon, state: &Arc<AppState>, app_name: String) {
+pub fn init(tray: &TrayIcon, state: &Arc<AppState>, app_name: String) {
     let tray = tray.clone();
     let state = Arc::clone(state);
 

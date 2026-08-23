@@ -11,7 +11,7 @@ use tauri_plugin_updater::UpdaterExt;
 
 use crate::state::AppState;
 
-pub fn start(app: &AppHandle, state: &Arc<AppState>) {
+pub fn init(app: &AppHandle, state: &Arc<AppState>) {
     let app = app.clone();
     let state = Arc::clone(state);
 

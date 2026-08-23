@@ -188,6 +188,18 @@ are gone. Use `tokio::sync::broadcast` with a typed enum.
   matching v0.1's implicit style, now enforced. Svelte 5 runes only; no stores from `svelte/store`.
   Shared state lives in `src/lib/stores/*.svelte.ts` as a class instance with an idempotent
   `start()`.
+- **Setup follows one shape.** Every subsystem the setup hook wires up exposes `init(...)` and
+  owns its own spawning, so `lib.rs` reads as a flat list of `init` calls with no `async_runtime`
+  bookkeeping at the call site:
+
+  ```rust
+  features::init(app.handle(), &state);
+  tray::init(app, &state)?;
+  bluetooth::init(&state);
+  ```
+
+  `init` must return promptly. `bluetooth::init` spawns and returns because attaching to the radio
+  is a WinRT round trip, and blocking the setup hook leaves the windows unresponsive while it waits.
 - **Comments** explain *why*, not what. Several comments in the tree record a bug that a change
   would reintroduce — do not delete those when refactoring.
 - **Tests** go next to the code in a `#[cfg(test)] mod tests`. Prefer testing the portable crates,

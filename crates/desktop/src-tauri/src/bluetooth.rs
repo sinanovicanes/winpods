@@ -11,8 +11,20 @@ use winpods_bluetooth::{AdapterState, device};
 
 use crate::{events::AppEvent, state::AppState};
 
-/// Starts watching bluetooth and selects an already connected Apple device, if there is one.
-pub async fn start(state: &Arc<AppState>) {
+/// Starts watching bluetooth.
+///
+/// Returns immediately: attaching to the radio and enumerating devices are WinRT round trips, and
+/// the setup hook must not block on them or the windows stay unresponsive while it waits.
+pub fn init(state: &Arc<AppState>) {
+    let state = Arc::clone(state);
+
+    tauri::async_runtime::spawn(async move {
+        start(&state).await;
+    });
+}
+
+/// Attaches the watchers and picks up an already connected Apple device, if there is one.
+async fn start(state: &Arc<AppState>) {
     spawn_adapter_task(state);
     spawn_advertisement_task(state);
 
