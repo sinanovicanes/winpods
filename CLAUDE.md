@@ -167,6 +167,21 @@ and the site read as one product. The tokens live in `crates/desktop/src/app.css
 Tailwind classes (`bg-card`, `text-muted-foreground`, `border-hairline`) and never hardcode a hex
 value. See [docs/ui.md](docs/ui.md).
 
+### Auto-selection must not undo "Forget this device"
+
+With nothing selected, `AutoSelect` in `bluetooth.rs` picks up a connected device as soon as a
+proximity pairing advertisement shows that supported hardware is in range, so a device that connects
+while the app sits in the tray reports its battery without the dashboard being opened.
+
+That runs straight into the clear command: the forgotten device is still connected, so the next
+advertisement would select it again and the button would look broken. `DeviceService::clear` records
+the address in `Selection::forgotten` and auto-selection skips it until it disconnects. Keep that in
+mind before adding another path that selects a device.
+
+Match on the *model*, not just the vendor. Apple keyboards, mice and phones pair over bluetooth
+under vendor id 76, and selecting one parks the dashboard on a device that never reports a battery
+-- `AppleDeviceModel::is_supported` is the gate.
+
 ### Device names come from the device, not the interface
 
 `BluetoothDevice::GetDeviceSelectorFromConnectionStatus` enumerates device *interfaces*, and one

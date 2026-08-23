@@ -103,14 +103,6 @@ pub async fn connected_devices() -> Result<Vec<DiscoveredDevice>> {
     Ok(devices)
 }
 
-/// Finds the first connected device made by `vendor_id`.
-pub async fn find_connected_device_by_vendor(vendor_id: u16) -> Result<Option<DiscoveredDevice>> {
-    Ok(connected_devices()
-        .await?
-        .into_iter()
-        .find(|device| device.vendor_id == Some(vendor_id)))
-}
-
 /// One enumeration result: a device *interface*, not a device.
 ///
 /// A single pair of AirPods exposes several (audio, hands-free, ...), and the vendor and product

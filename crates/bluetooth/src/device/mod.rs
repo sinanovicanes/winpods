@@ -2,7 +2,7 @@
 
 mod discovery;
 
-pub use discovery::{DiscoveredDevice, connected_devices, find_connected_device_by_vendor};
+pub use discovery::{DiscoveredDevice, connected_devices};
 pub use winpods_core::ConnectionState;
 
 use std::sync::Arc;

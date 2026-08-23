@@ -36,6 +36,11 @@ struct Selection {
     /// Cached so reads do not need a WinRT round trip for the name and model.
     info: Option<DeviceInfo>,
     properties: Option<DeviceProperties>,
+    /// Address the user cleared, which auto-selection must not pick straight back up.
+    ///
+    /// Deliberately not persisted: it suppresses one selection, it is not a preference. A
+    /// forgotten device becomes eligible again once it disconnects, or once the app restarts.
+    forgotten: Option<u64>,
 }
 
 impl DeviceService {
@@ -67,6 +72,9 @@ impl DeviceService {
         selection.info = Some(info.clone());
         // Readings belong to the previous device; keep none rather than showing its batteries.
         selection.properties = None;
+        // Choosing a device is the user engaging with the picker, so an earlier "forget" has had
+        // its effect and should not outlive it.
+        selection.forgotten = None;
         drop(selection);
 
         self.spawn_watcher(&device);
@@ -85,13 +93,34 @@ impl DeviceService {
             return;
         }
 
-        *selection = Selection::default();
+        // Remembered across the reset: without it the next advertisement would pick the same
+        // device straight back up and "Forget this device" would appear to do nothing.
+        let forgotten = selection.info.as_ref().map(|info| info.address);
+        *selection = Selection {
+            forgotten,
+            ..Selection::default()
+        };
         drop(selection);
 
         self.abort_watcher();
 
         tracing::info!("Device selection cleared");
         let _ = self.events.send(AppEvent::DeviceSelectionCleared);
+    }
+
+    /// Whether a device is currently selected.
+    pub async fn is_selected(&self) -> bool {
+        self.selection.read().await.device.is_some()
+    }
+
+    /// The address the user cleared, which auto-selection skips.
+    pub async fn forgotten(&self) -> Option<u64> {
+        self.selection.read().await.forgotten
+    }
+
+    /// Makes a forgotten device eligible again, once it is no longer connected.
+    pub async fn release_forgotten(&self) {
+        self.selection.write().await.forgotten = None;
     }
 
     /// The current device and readings.

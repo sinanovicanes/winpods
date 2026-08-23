@@ -121,6 +121,22 @@ Step 4's plausibility check (`DeviceProperties::is_plausible_update`) exists bec
 devices of the same model can be in range and they advertise identically. A reading that jumps more
 than 50 dBm or 20 percentage points is treated as a different pair and dropped.
 
+### Selecting a device without being asked
+
+The same stream drives auto-selection. With nothing selected, a proximity pairing advertisement
+means supported hardware is in range, so `AutoSelect` enumerates the connected devices and selects
+the first one whose vendor is Apple's *and* whose model is recognised -- the vendor alone would also
+match keyboards and mice, which never report a battery.
+
+Advertisements are the trigger rather than a bluetooth connection event: they are the signal the app
+actually needs, since a connected device that is not advertising has nothing to report, and the
+stream is already running. Attempts are rate limited to one every 5 seconds, because a scan costs a
+device enumeration and advertisements arrive several times a second.
+
+Clearing the selection records the address as forgotten, and auto-selection skips it until it
+disconnects. Without that, "Forget this device" would be undone by the next advertisement. The
+suppression lives in memory only: it suppresses one selection rather than expressing a preference.
+
 ## Frontend
 
 - SvelteKit 2 with `adapter-static`. Both routes are prerendered; `ssr = false`.

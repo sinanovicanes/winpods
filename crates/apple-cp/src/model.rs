@@ -53,6 +53,14 @@ impl AppleDeviceModel {
         }
     }
 
+    /// Whether this is a model winpods can report on.
+    ///
+    /// Apple keyboards, mice and phones all pair over bluetooth under the same vendor id, so the
+    /// vendor alone is not enough to decide a device is worth picking up automatically.
+    pub const fn is_supported(self) -> bool {
+        !matches!(self, Self::Unknown)
+    }
+
     /// Whether this model charges in a case.
     ///
     /// Over-ear models have no case, so a case battery reading coming from one is meaningless
@@ -75,6 +83,18 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
+
+    #[test]
+    fn only_recognised_models_are_supported() {
+        assert!(AppleDeviceModel::AirPodsPro2.is_supported());
+        assert!(AppleDeviceModel::AirPodsMaxUsbC.is_supported());
+        assert!(AppleDeviceModel::BeatsFitPro.is_supported());
+
+        // An Apple keyboard or mouse lands here, and selecting one would leave the dashboard on a
+        // device that never reports a battery.
+        assert!(!AppleDeviceModel::Unknown.is_supported());
+        assert!(!AppleDeviceModel::from_model_id(0x0000).is_supported());
+    }
 
     #[test]
     fn maps_known_product_ids() {
