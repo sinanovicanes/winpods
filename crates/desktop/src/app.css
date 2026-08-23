@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/*
+ * winpods design tokens.
+ *
+ * Lifted verbatim from winpods.app so the desktop app and the website read as one product.
+ * The palette is Apple's: #1d1d1f near-black text, #f5f5f7 surfaces, #0071e3 accent.
+ *
+ * Dark mode is driven by the `.dark` class on <html>, which the inline script in `app.html`
+ * sets before first paint from either the stored preference or the OS setting.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --radius: 0.75rem;
+
+  --background: #fff;
+  --foreground: #1d1d1f;
+  --card: #fff;
+  --card-foreground: #1d1d1f;
+  --popover: #fff;
+  --popover-foreground: #1d1d1f;
+  --primary: #0071e3;
+  --primary-foreground: #fff;
+  --secondary: #f5f5f7;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --accent: #f5f5f7;
+  --accent-foreground: #1d1d1f;
+  --destructive: #e30000;
+  --destructive-foreground: #fff;
+  --border: #d2d2d7;
+  --input: #d2d2d7;
+  --ring: #0071e3;
+  --link: #06c;
+  --surface: #f5f5f7;
+  --surface-foreground: #1d1d1f;
+  --nav: #ffffffb8;
+  --hairline: #0000001f;
+
+  /* Battery states. Apple's system greens/ambers/reds rather than Tailwind's. */
+  --battery-good: #37c058;
+  --battery-low: #fdc633;
+  --battery-critical: #fa3532;
+}
+
+.dark {
+  --background: #000;
+  --foreground: #f5f5f7;
+  --card: #1d1d1f;
+  --card-foreground: #f5f5f7;
+  --popover: #1d1d1f;
+  --popover-foreground: #f5f5f7;
+  --primary: #0071e3;
+  --primary-foreground: #fff;
+  --secondary: #1d1d1f;
+  --secondary-foreground: #f5f5f7;
+  --muted: #1d1d1f;
+  --muted-foreground: #86868b;
+  --accent: #1d1d1f;
+  --accent-foreground: #f5f5f7;
+  --destructive: #ff453a;
+  --destructive-foreground: #fff;
+  --border: #424245;
+  --input: #424245;
+  --ring: #2997ff;
+  --link: #2997ff;
+  --surface: #101012;
+  --surface-foreground: #f5f5f7;
+  --nav: #000000b8;
+  --hairline: #ffffff1f;
+}
+
+@theme inline {
+  /*
+   * SF Pro is only present on Apple hardware. On Windows this lands on Segoe UI Variable
+   * Display, which is the correct native face there -- so the same stack is right for both.
+   */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue",
+    "Segoe UI Variable Display", "Segoe UI", Roboto, Inter, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-link: var(--link);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-nav: var(--nav);
+  --color-hairline: var(--hairline);
+
+  --color-battery-good: var(--battery-good);
+  --color-battery-low: var(--battery-low);
+  --color-battery-critical: var(--battery-critical);
+
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+  --radius-4xl: 2rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    /* Apple sets type slightly tight; without this the UI reads noticeably wider. */
+    letter-spacing: -0.02em;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /*
+   * The widget window is transparent and frameless. Its route paints its own translucent
+   * panel, so the page behind it must not paint a background at all.
+   */
+  html:has(body > div > .widget-root),
+  html:has(body > div > .widget-root) body {
+    background: transparent;
+  }
+
+  /* Nothing in a desktop window should be selectable or draggable like web content. */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  /* Native-looking focus rings, on keyboard navigation only. */
+  :focus-visible {
+    @apply outline-ring outline-2 outline-offset-2;
+  }
+}
+
+@utility apple-glass {
+  /* The frosted panel treatment from winpods.app's nav bar. */
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}

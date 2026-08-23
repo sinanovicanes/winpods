@@ -1,5 +1,7 @@
-mod advertisement_received_data;
-mod advertisement_watcher;
+//! Watching BLE advertisements.
 
-pub use advertisement_received_data::*;
-pub use advertisement_watcher::*;
+mod data;
+mod watcher;
+
+pub use data::Advertisement;
+pub use watcher::AdvertisementWatcher;

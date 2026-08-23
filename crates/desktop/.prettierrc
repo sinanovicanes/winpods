@@ -1,0 +1,7 @@
+{
+  "printWidth": 90,
+  "arrowParens": "avoid",
+  "trailingComma": "none",
+  "plugins": ["prettier-plugin-svelte"],
+  "overrides": [{ "files": "*.svelte", "options": { "parser": "svelte" } }]
+}

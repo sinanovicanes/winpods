@@ -1,0 +1,6 @@
+# Everyone (and CI) builds winpods with the current stable toolchain.
+# `rust-version` in Cargo.toml records the minimum we support; this records what we ship with.
+[toolchain]
+channel = "stable"
+components = ["clippy", "rustfmt"]
+targets = ["x86_64-pc-windows-msvc"]

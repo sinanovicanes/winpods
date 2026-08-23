@@ -1,8 +1,13 @@
 name: "Setup Rust"
+description: "Installs the toolchain pinned by rust-toolchain.toml and restores the cargo cache."
 runs:
   using: "composite"
   steps:
+    # No `toolchain:` input: rust-toolchain.toml pins the channel, components and target, so the
+    # action installs exactly what the repository asks for.
     - uses: dtolnay/rust-toolchain@stable
-      id: setup-rust
+      id: toolchain
 
     - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: winpods

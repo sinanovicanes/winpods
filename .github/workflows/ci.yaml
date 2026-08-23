@@ -1,34 +1,63 @@
 name: CI
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
+# A new push supersedes an in-flight run for the same ref.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
-  clippy:
-    name: Clippy
+  rust:
+    name: Rust
+    # winpods targets Windows only, and the `windows` crate does not build anywhere else.
     runs-on: windows-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-rust
 
-      - name: Setup Rust
-        uses: ./.github/actions/setup-rust
+      - name: Check formatting
+        run: cargo fmt --all --check
 
-      - name: Run Clippy
-        uses: ./.github/actions/ci/clippy
+      - name: Clippy
+        # Warnings are denied here rather than in the manifest so a local build stays workable
+        # while CI holds the line.
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
-  test:
-    name: Test
-    runs-on: windows-latest
+      - name: Test
+        run: cargo test --workspace --all-targets
+
+  frontend:
+    name: Frontend
+    # Nothing here is Windows specific, and ubuntu runners are faster and cheaper.
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-frontend
 
-      - name: Setup Rust
-        uses: ./.github/actions/setup-rust
+      - name: Check formatting
+        working-directory: crates/desktop
+        run: bun run format:check
 
-      - name: Run Tests
-        uses: ./.github/actions/ci/test
+      - name: Typecheck
+        working-directory: crates/desktop
+        run: bun run check
+
+      - name: Build
+        working-directory: crates/desktop
+        run: bun run build
+
+      - name: Verify both window entry points were prerendered
+        working-directory: crates/desktop
+        # The two Tauri windows load `/` and `/widget/` as plain files. If a route stops being
+        # prerenderable the build still succeeds but a window opens blank, so assert it here.
+        run: |
+          test -f build/index.html || { echo "::error::build/index.html missing"; exit 1; }
+          test -f build/widget/index.html || { echo "::error::build/widget/index.html missing"; exit 1; }

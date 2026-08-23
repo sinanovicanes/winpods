@@ -1,40 +1,29 @@
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import { fileURLToPath, URL } from "node:url";
+import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
-// https://vitejs.dev/config/
-export default defineConfig(async () => ({
-  plugins: [vue(), tailwindcss()],
+export default defineConfig({
+  plugins: [tailwindcss(), sveltekit()],
 
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url))
-    }
-  },
-
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent vite from obscuring rust errors
+  // Keep vite from clearing the terminal, otherwise it wipes out cargo's errors.
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
+
   server: {
+    // Tauri expects a fixed port and should fail loudly rather than silently move.
     port: 1420,
     strictPort: true,
     host: host || false,
-    hmr: host
-      ? {
-          protocol: "ws",
-          host,
-          port: 1421
-        }
-      : undefined,
+    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
     watch: {
-      // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"]
     }
+  },
+
+  // Tauri's webview is a known, modern target, so there is no reason to down-level.
+  build: {
+    target: "esnext",
+    sourcemap: !!process.env.TAURI_ENV_DEBUG
   }
-}));
+});

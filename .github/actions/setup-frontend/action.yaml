@@ -1,0 +1,13 @@
+name: "Setup frontend"
+description: "Installs bun and the desktop app's node dependencies."
+runs:
+  using: "composite"
+  steps:
+    - uses: oven-sh/setup-bun@v2
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: crates/desktop
+      # `--frozen-lockfile` makes an out-of-date bun.lock a CI failure rather than a silent
+      # dependency drift between local and CI builds.
+      run: bun install --frozen-lockfile

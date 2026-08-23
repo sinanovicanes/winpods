@@ -1,12 +1,23 @@
 [package]
-name = "bluetooth"
-version = "0.1.0"
-edition = "2024"
+name = "winpods-bluetooth"
+description = "Windows bluetooth access and Apple Continuity protocol decoding for winpods."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
-utils = { path = "../utils" }
-windows.workspace = true
-windows-collections.workspace = true
-serde.workspace = true
-serde_json.workspace = true
-tracing.workspace = true
+winpods-apple-cp = { workspace = true }
+winpods-core = { workspace = true }
+serde = { workspace = true }
+anyhow = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+windows = { workspace = true }
+windows-collections = { workspace = true }
+windows-future = { workspace = true }

@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window",
-  "windows": ["main"],
-  "permissions": ["core:default", "opener:default", "process:default"]
+  "description": "Baseline permissions both windows need: invoking commands and listening for backend events.",
+  "windows": ["main", "widget"],
+  "permissions": ["core:default"]
 }

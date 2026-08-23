@@ -1,11 +1,30 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
     "crates/desktop/src-tauri",
+    "crates/apple-cp",
+    "crates/core",
     "crates/bluetooth",
     "crates/media",
-    "crates/utils",
 ]
+
+[workspace.package]
+version = "0.2.0"
+authors = ["sinanovicanes"]
+edition = "2024"
+rust-version = "1.85"
+license = "MIT"
+repository = "https://github.com/sinanovicanes/winpods"
+
+[workspace.lints.rust]
+# `deny` rather than `forbid`: the COM apartment setup in winpods-bluetooth needs one
+# narrowly scoped `unsafe` block, and `forbid` cannot be locally overridden.
+unsafe_code = "deny"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+todo = "warn"
+unwrap_used = "warn"
 
 [profile.release]
 codegen-units = 1 # Allows LLVM to perform better optimization.
@@ -15,22 +34,29 @@ panic = "abort"   # Higher performance by disabling panic handlers.
 strip = true      # Ensures debug symbols are removed.
 
 [workspace.dependencies]
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-tracing = { version = "0.1.41", features = ["log"] }
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-windows = { version = "0.61.1", features = [
+winpods-apple-cp = { path = "crates/apple-cp" }
+winpods-core = { path = "crates/core" }
+winpods-bluetooth = { path = "crates/bluetooth" }
+winpods-media = { path = "crates/media" }
+
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+anyhow = "1.0.104"
+tokio = { version = "1.53.1", features = ["macros", "rt", "sync", "time"] }
+tracing = { version = "0.1.44", features = ["log"] }
+tracing-appender = "0.2.5"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+
+windows = { version = "0.62.2", features = [
     "Devices_Bluetooth",
     "Devices_Bluetooth_Advertisement",
-    "Devices_Bluetooth_GenericAttributeProfile",
     "Devices_Enumeration",
     "Devices_Radios",
     "Foundation",
-    "UI_Notifications",
-    "Storage_Streams",
-    "ApplicationModel_Background",
-    "Devices",
     "Foundation_Collections",
     "Media_Control",
+    "Storage_Streams",
+    "Win32_System_Com",
 ] }
-windows-collections = { version = "0.2" }
+windows-collections = "0.3.2"
+windows-future = "0.3.2"

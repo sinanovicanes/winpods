@@ -1,7 +1,18 @@
 [package]
-name = "media"
-version = "0.1.0"
-edition = "2024"
+name = "winpods-media"
+description = "Pause and resume Windows media sessions for AirPods ear detection."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
-windows.workspace = true
+anyhow = { workspace = true }
+tracing = { workspace = true }
+windows = { workspace = true }
+windows-future = { workspace = true }

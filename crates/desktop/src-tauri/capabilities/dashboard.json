@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "dashboard",
+  "description": "Dashboard-only permissions. The updater and process plugins back the manual 'update available' button, which is the only place the UI restarts the app.",
+  "windows": ["main"],
+  "permissions": ["updater:default", "process:default"]
+}

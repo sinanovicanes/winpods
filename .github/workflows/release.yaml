@@ -40,21 +40,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          shared-key: release
-
-      - name: Install frontend dependencies
-        run: |
-          cd crates/desktop
-          bun install
+      - name: Setup Rust
+        uses: ./.github/actions/setup-rust
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0

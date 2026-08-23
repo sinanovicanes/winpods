@@ -1,0 +1,5 @@
+.svelte-kit
+build
+src-tauri/target
+src-tauri/gen
+bun.lock
