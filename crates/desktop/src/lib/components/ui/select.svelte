@@ -48,9 +48,9 @@
     value={value === null ? "" : String(value)}
     onchange={handleChange}
     class={cn(
-      "bg-secondary text-secondary-foreground border-border h-9 cursor-pointer appearance-none",
+      "bg-secondary text-secondary-foreground border-border h-9 appearance-none",
       "rounded-lg border py-0 pr-8 pl-3 text-sm font-medium",
-      "transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+      "transition-colors hover:bg-accent disabled:opacity-40"
     )}
   >
     {#if placeholder}

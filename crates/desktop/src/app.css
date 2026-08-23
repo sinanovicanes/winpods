@@ -147,9 +147,42 @@
     cursor: default;
   }
 
+  /*
+   * Interactive elements get a pointer cursor. Centralised here rather than repeated as a
+   * `cursor-pointer` utility on every control.
+   */
+  button:not(:disabled),
+  select:not(:disabled),
+  [role="switch"]:not([aria-disabled="true"]),
+  a[href],
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   /* Native-looking focus rings, on keyboard navigation only. */
   :focus-visible {
     @apply outline-ring outline-2 outline-offset-2;
+  }
+
+  /*
+   * Every transition in the app is decorative, so honour the OS preference outright rather than
+   * trying to pick which ones are "essential".
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

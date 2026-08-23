@@ -36,6 +36,12 @@ Other conventions worth knowing:
   noticeably wider.
 - `apple-glass` is the frosted treatment (`backdrop-filter: saturate(180%) blur(20px)`), used by
   the dashboard title bar and the widget panel.
+- `cursor: pointer` on interactive elements is set once in `app.css`, not repeated as a utility.
+
+**Watch out: `secondary`, `muted`, `accent` and `surface` are all `#f5f5f7` in light mode.** A
+`bg-secondary` element sitting on the page background is therefore invisible. For something that
+has to read against the surface, use `bg-card` with `border-hairline`, or a translucent tint like
+`bg-foreground/[0.07]`.
 
 ## Theme
 
@@ -56,8 +62,19 @@ by hand rather than pulled from the registry:
 | `select.svelte` | Wraps the **native** `<select>` on purpose — it gets the OS dropdown |
 | `spinner.svelte` | Used by `Button`'s `loading` state |
 
-`src/lib/components/` holds the domain components: `battery-indicator`, `device-artwork`,
-`status-message`. All three take an `onDark` or equivalent so they work on the widget's dark panel.
+`src/lib/components/` holds the domain components:
+
+| Component | Used by | Notes |
+| --- | --- | --- |
+| `battery-card.svelte` | dashboard | Label, large percentage, bar, in-ear/charging glyphs |
+| `battery-stat.svelte` | widget | The compact form: short label, percentage, thin bar |
+| `battery-bar.svelte` | both | Shared track; `onDark` for the widget panel |
+| `device-artwork.svelte` | both | `variant="hero"` for the dashboard, `"bud"` for the widget |
+| `empty-state.svelte` | both | Icon disc, title, description, optional numbered `steps` and actions |
+
+Battery colouring is centralised in `src/lib/battery.ts` (`batteryTone`, `TONE_FILL`, `TONE_TEXT`,
+`TONE_TEXT_ON_DARK`) so a threshold is defined once. A charging battery always reads as healthy,
+and `null` — no reading at all — is a distinct tone from 0%.
 
 Use `cn()` from `$lib/utils` to merge classes; it lets a caller's utility override a component
 default.
@@ -70,11 +87,28 @@ default.
    (the interface), `tauri.ts` and `mock.ts`. The interface makes forgetting the mock a type error.
 4. `bun run check`, then look at it with `bun run dev`.
 
+## Motion
+
+Transitions are decorative and deliberately small: battery bars ease their width over 700ms, cards
+fade or fly in by 8px when a device connects, and the charging bolt pulses. `app.css` honours
+`prefers-reduced-motion: reduce` globally, so nothing needs to opt out individually.
+
 ## Sizing
 
 The dashboard window is 860×640 and non-resizable; the widget is 300×125, frameless and
-transparent. Both are fixed in `tauri.conf.json`, so layouts can assume those dimensions — but keep
-the dashboard's content in a `max-w-2xl` column so it stays centred and readable.
+transparent. Both are fixed in `tauri.conf.json`, so layouts can assume those dimensions.
+
+That fixed height is a real constraint: after the title bar and footer there are about **504px** of
+usable content height. The dashboard centres its content vertically, and centred content that
+overflows gets **clipped at both ends rather than scrolling**, so a screen that grows past 504px
+silently loses its bottom row. Both the device screen and the settings screen are tuned to fit.
+Check it after any layout change:
+
+```js
+// in the devtools console
+const m = document.querySelector("main");
+m.scrollHeight > m.clientHeight; // must be false
+```
 
 Note when screenshotting the widget with headless Chrome: Chrome enforces a minimum window size, so
 `--window-size=300,125` silently renders larger and crops. Override the viewport through the

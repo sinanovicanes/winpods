@@ -1,12 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import Settings from "@lucide/svelte/icons/settings";
-  import LayoutDashboard from "@lucide/svelte/icons/layout-dashboard";
+  import { fade } from "svelte/transition";
 
   import DashboardPage from "$lib/views/dashboard-page.svelte";
   import SettingsPage from "$lib/views/settings-page.svelte";
   import DevPanel from "$lib/views/dev-panel.svelte";
-  import { StatusMessage } from "$lib/components";
+  import { EmptyState } from "$lib/components";
   import { Button } from "$lib/components/ui";
   import { backend } from "$lib/ipc";
   import { bluetooth, updater } from "$lib/stores";
@@ -14,9 +13,9 @@
 
   type Tab = "dashboard" | "settings";
 
-  const TABS: { id: Tab; label: string; icon: typeof Settings }[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "settings", label: "Settings", icon: Settings }
+  const TABS: { id: Tab; label: string }[] = [
+    { id: "dashboard", label: "Device" },
+    { id: "settings", label: "Settings" }
   ];
 
   let tab = $state<Tab>("dashboard");
@@ -31,35 +30,49 @@
 </svelte:head>
 
 <div class="bg-surface flex h-screen flex-col overflow-hidden">
-  <!-- Translucent title bar, mirroring the website's frosted nav. -->
+  <!--
+    Frosted title bar with a macOS-style segmented control, centred so it reads as a window
+    chrome affordance rather than web navigation.
+  -->
   <header
-    class="bg-nav apple-glass border-hairline flex h-12 shrink-0 items-center gap-1 border-b px-3"
+    class="bg-nav apple-glass border-hairline relative flex h-12 shrink-0 items-center
+           justify-center border-b"
   >
-    {#each TABS as item (item.id)}
-      <button
-        onclick={() => (tab = item.id)}
-        aria-current={tab === item.id ? "page" : undefined}
-        class={cn(
-          "flex h-8 items-center gap-2 rounded-lg px-3 text-[13px] font-medium transition-colors",
-          tab === item.id
-            ? "bg-card text-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        <item.icon class="size-4" aria-hidden="true" />
-        {item.label}
-      </button>
-    {/each}
+    <div class="bg-secondary inline-flex gap-0.5 rounded-[9px] p-[3px]">
+      {#each TABS as item (item.id)}
+        <button
+          onclick={() => (tab = item.id)}
+          aria-current={tab === item.id ? "page" : undefined}
+          class={cn(
+            "rounded-md px-4 py-1 text-[13px] font-medium transition-all duration-200",
+            tab === item.id
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {item.label}
+        </button>
+      {/each}
+    </div>
   </header>
 
-  <main class="flex-1 overflow-y-auto p-6">
+  <main class="flex-1 overflow-y-auto px-8 py-6">
     {#if !bluetooth.isOn}
-      <StatusMessage
-        icon="bluetooth-off"
-        title="Bluetooth is off"
-        message="Turn bluetooth on in Windows settings to see your device."
-        class="min-h-96"
-      />
+      <div
+        class="flex min-h-full items-center justify-center"
+        in:fade={{ duration: 200 }}
+      >
+        <EmptyState
+          icon="bluetooth-off"
+          title="Bluetooth is off"
+          description="winpods needs bluetooth to read battery levels from your device."
+          steps={[
+            "Open Windows Settings, then Bluetooth & devices.",
+            "Turn Bluetooth on.",
+            "winpods picks your device up automatically."
+          ]}
+        />
+      </div>
     {:else if tab === "dashboard"}
       <DashboardPage />
     {:else}
@@ -71,7 +84,7 @@
     class="border-hairline text-muted-foreground flex h-10 shrink-0 items-center
            justify-between border-t px-6 text-xs"
   >
-    <span class="tabular-nums">v{updater.currentVersion}</span>
+    <span class="tabular-nums">Version {updater.currentVersion}</span>
 
     {#if updater.updateAvailable}
       <Button
@@ -79,7 +92,7 @@
         loading={updater.installing}
         onclick={() => void updater.install()}
       >
-        {updater.installing ? "Updating" : `Update to ${updater.latestVersion}`}
+        {updater.installing ? "Updating…" : `Update to ${updater.latestVersion}`}
       </Button>
     {/if}
   </footer>

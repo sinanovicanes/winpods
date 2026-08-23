@@ -39,11 +39,7 @@
   ]);
 </script>
 
-<div class="mx-auto flex max-w-2xl flex-col gap-6">
-  <div>
-    <h1 class="text-xl font-semibold tracking-tight">Settings</h1>
-  </div>
-
+<div class="mx-auto flex max-w-2xl flex-col gap-5">
   <section class="flex flex-col gap-2">
     <h2 class="text-muted-foreground px-1 text-xs font-medium uppercase tracking-widest">
       General
@@ -74,7 +70,7 @@
         <div class="min-w-0">
           <p class="text-[13px] font-medium">Low battery</p>
           <p class="text-muted-foreground mt-0.5 text-xs">
-            Notify once when either bud reaches this level.
+            Notify once when the battery reaches this level.
           </p>
         </div>
         <Select

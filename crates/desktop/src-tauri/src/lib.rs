@@ -40,7 +40,6 @@ mod views;
 
 use state::AppState;
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Register the COM apartment before anything touches WinRT. Doing it here, on the main
     // thread and before any task exists, keeps it off the hot paths.
@@ -48,10 +47,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_positioner::init())
-        .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            None,
-        ))
+        .plugin(tauri_plugin_autostart::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_process::init())
@@ -75,14 +71,9 @@ pub fn run() {
                 .path()
                 .app_config_dir()
                 .map(|dir| dir.join("settings.json"))?;
-
             let state = AppState::new(settings_path)?;
 
-            // The windows in `tauri.conf.json` are created before this hook runs, so their
-            // webviews can invoke commands while setup is still going. Managing the state before
-            // anything is awaited keeps those early calls from failing with "state not managed".
             app.manage(Arc::clone(&state));
-
             features::start_all(app.handle(), &state);
             tray::init(app, &state)?;
 
@@ -94,8 +85,7 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            // Closing a window hides it instead: the app lives in the tray, and recreating the
-            // webviews on every reopen would lose their state and cost a reload.
+            // Prevents window from closing
             if let WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
 

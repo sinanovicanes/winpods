@@ -5,7 +5,7 @@
     base: [
       "inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-medium",
       "whitespace-nowrap transition-colors select-none",
-      "disabled:pointer-events-none disabled:opacity-40",
+      "disabled:opacity-40",
       "[&_svg]:pointer-events-none [&_svg]:shrink-0"
     ],
     variants: {

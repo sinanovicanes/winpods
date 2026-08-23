@@ -25,8 +25,8 @@
   {disabled}
   onclick={() => onchange?.(!checked)}
   class={cn(
-    "relative inline-flex h-[31px] w-[51px] shrink-0 cursor-pointer items-center rounded-full",
-    "transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40",
+    "relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full",
+    "transition-colors duration-200 disabled:opacity-40",
     checked ? "bg-battery-good" : "bg-border",
     className
   )}
