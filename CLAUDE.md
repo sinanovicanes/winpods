@@ -167,6 +167,19 @@ and the site read as one product. The tokens live in `crates/desktop/src/app.css
 Tailwind classes (`bg-card`, `text-muted-foreground`, `border-hairline`) and never hardcode a hex
 value. See [docs/ui.md](docs/ui.md).
 
+### Device names come from the device, not the interface
+
+`BluetoothDevice::GetDeviceSelectorFromConnectionStatus` enumerates device *interfaces*, and one
+pair of AirPods exposes several. An interface is named after the service it exposes, so its `Name`
+is a generic `"Bluetooth"` or the bare address -- never "Anes's AirPods Pro". The friendly name only
+exists on the device, reached through `BluetoothDevice::DeviceInformation().Name()`; note that
+`BluetoothDevice::Name` is *not* the same string and carries the interface name.
+
+That is why `device::connected_devices` opens each device rather than reading the enumeration result:
+the round trip buys the only name worth showing. It costs one open per device, so the interfaces are
+grouped by address first and only one per device is opened, and the vendor and product ids are
+merged across them -- Windows does not report the ids on every interface.
+
 ### Batteries are `Option`, never 0-as-missing
 
 A bud in a closed case reports **no level**, which is different from reporting 0%. Absent readings

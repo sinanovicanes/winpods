@@ -9,7 +9,7 @@ use tokio::{
     task::JoinHandle,
 };
 use winpods_apple_cp::{ProximityPairingMessage, VENDOR_ID};
-use winpods_bluetooth::{Advertisement, ConnectionState, Device, DeviceEvent};
+use winpods_bluetooth::{Advertisement, ConnectionState, Device, DeviceEvent, display_name};
 use winpods_core::{DeviceInfo, DeviceProperties};
 
 use crate::events::AppEvent;
@@ -51,11 +51,13 @@ impl DeviceService {
     ///
     /// Replaces any previous selection, cancelling the task that watched it.
     pub async fn select(self: &Arc<Self>, device: Device) -> Result<DeviceInfo> {
+        let address = device
+            .address()
+            .context("device has no bluetooth address")?;
+
         let info = DeviceInfo {
-            address: device
-                .address()
-                .context("device has no bluetooth address")?,
-            name: device.name().unwrap_or_else(|_| "Unknown".to_string()),
+            address,
+            name: display_name(device.name().ok(), address),
             connection_state: device.connection_state(),
             model: device.model().await,
         };
@@ -224,16 +226,19 @@ impl DeviceService {
     }
 
     async fn on_name_changed(&self, name: String) {
-        tracing::info!("Device name changed: {name}");
-
         let mut selection = self.selection.write().await;
 
-        if let Some(info) = &mut selection.info {
-            info.name = name.clone();
-        }
+        let Some(info) = &mut selection.info else {
+            return;
+        };
 
+        // Resolved here rather than at the source so the event and the snapshot cannot disagree
+        // about what the device is called.
+        let name = display_name(Some(name), info.address);
+        info.name = name.clone();
         drop(selection);
 
+        tracing::info!("Device name changed: {name}");
         let _ = self.events.send(AppEvent::DeviceNameChanged(name));
     }
 }

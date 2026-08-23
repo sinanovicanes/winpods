@@ -28,5 +28,7 @@ mod properties;
 
 pub use adapter::{AdapterState, AdapterWatcher};
 pub use advertisement::{Advertisement, AdvertisementWatcher};
-pub use device::{Device, DeviceEvent, DeviceIdentity, DiscoveredDevice};
+pub use device::{
+    Device, DeviceEvent, DeviceIdentity, DiscoveredDevice, display_name, format_address,
+};
 pub use winpods_core::ConnectionState;

@@ -28,6 +28,38 @@ pub(crate) const PROPERTY_PRODUCT_ID: &str = "System.DeviceInterface.Bluetooth.P
 /// Enough for the connection and name changes of a single device.
 const EVENT_CAPACITY: usize = 16;
 
+pub(crate) fn friendly_name(device: &BluetoothDevice) -> Result<String> {
+    let name = device
+        .DeviceInformation()
+        .context("device has no device information")?
+        .Name()
+        .context("device information has no name")?
+        .to_string();
+
+    Ok(name)
+}
+
+/// The name to show for a device, falling back to its address.
+///
+/// A blank entry in the picker would be unselectable, so an unnamed device is listed by address --
+/// as a last resort only, since a device listed that way is the bug this used to have.
+pub fn display_name(name: Option<String>, address: u64) -> String {
+    match name {
+        Some(name) if !name.trim().is_empty() => name,
+        _ => format_address(address),
+    }
+}
+
+/// Formats a bluetooth address the way Windows presents it, `"f0:04:e1:c3:d4:e5"`.
+pub fn format_address(address: u64) -> String {
+    // Addresses are 48 bit, so the two leading bytes of the `u64` are always padding.
+    address.to_be_bytes()[2..]
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<Vec<_>>()
+        .join(":")
+}
+
 /// Maps the WinRT connection status onto the shared [`ConnectionState`].
 fn connection_state(status: BluetoothConnectionStatus) -> ConnectionState {
     if status == BluetoothConnectionStatus::Connected {
@@ -143,8 +175,8 @@ impl Device {
                         return Ok(());
                     };
 
-                    if let Ok(name) = device.Name() {
-                        let _ = handler_events.send(DeviceEvent::NameChanged(name.to_string()));
+                    if let Ok(name) = friendly_name(device) {
+                        let _ = handler_events.send(DeviceEvent::NameChanged(name));
                     }
 
                     Ok(())
@@ -175,7 +207,7 @@ impl Device {
     }
 
     pub fn name(&self) -> Result<String> {
-        Ok(self.0.device.Name()?.to_string())
+        friendly_name(&self.0.device)
     }
 
     pub fn connection_state(&self) -> ConnectionState {
@@ -250,5 +282,32 @@ impl std::fmt::Debug for Device {
             .field("name", &self.name().ok())
             .field("connection_state", &self.connection_state())
             .finish_non_exhaustive()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{display_name, format_address};
+
+    #[test]
+    fn prefers_the_friendly_name() {
+        assert_eq!(
+            display_name(Some("Anes's AirPods Pro".into()), 0xf004e1c3d4e5),
+            "Anes's AirPods Pro"
+        );
+    }
+
+    #[test]
+    fn falls_back_to_the_address_when_unnamed() {
+        assert_eq!(display_name(None, 0xf004e1c3d4e5), "f0:04:e1:c3:d4:e5");
+        assert_eq!(
+            display_name(Some("   ".into()), 0xf004e1c3d4e5),
+            "f0:04:e1:c3:d4:e5"
+        );
+    }
+
+    #[test]
+    fn formats_addresses_with_leading_zeroes() {
+        assert_eq!(format_address(0x0004e1c3d4e5), "00:04:e1:c3:d4:e5");
     }
 }
