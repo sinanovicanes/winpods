@@ -67,7 +67,7 @@ by hand rather than pulled from the registry:
 | Component | Used by | Notes |
 | --- | --- | --- |
 | `battery-card.svelte` | dashboard | Label, large percentage, bar, in-ear/charging glyphs |
-| `battery-stat.svelte` | widget | The compact form: short label, percentage, thin bar |
+| `battery-stat.svelte` | widget | The compact form: percentage and a thin bar, no caption |
 | `battery-bar.svelte` | both | Shared track; `onDark` for the widget panel |
 | `device-artwork.svelte` | both | `variant="hero"` for the dashboard, `"bud"` for the widget |
 | `empty-state.svelte` | both | Icon disc, title, description, optional numbered `steps` and actions |
@@ -98,11 +98,12 @@ fade or fly in by 8px when a device connects, and the charging bolt pulses. `app
 The dashboard window is 860×640 and non-resizable; the widget is 300×125, frameless and
 transparent. Both are fixed in `tauri.conf.json`, so layouts can assume those dimensions.
 
-That fixed height is a real constraint: after the title bar and footer there are about **504px** of
-usable content height. The dashboard centres its content vertically, and centred content that
-overflows gets **clipped at both ends rather than scrolling**, so a screen that grows past 504px
-silently loses its bottom row. Both the device screen and the settings screen are tuned to fit.
-Check it after any layout change:
+That fixed height is a real constraint for the **device screen**: after the title bar and footer
+there are about **504px** of usable content height, and that screen centres its content vertically.
+Centred content that overflows gets **clipped at both ends rather than scrolling**, so a screen that
+grows past 504px silently loses its bottom row. The settings screen is not centred, so it scrolls
+normally and may grow past the window -- it already does by about 60px. Check it after any layout
+change:
 
 ```js
 // in the devtools console

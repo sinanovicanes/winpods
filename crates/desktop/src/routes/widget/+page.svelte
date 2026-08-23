@@ -8,7 +8,7 @@
   import { BatteryStat, DeviceArtwork, EmptyState } from "$lib/components";
   import { backend } from "$lib/ipc";
   import { artworkFor } from "$lib/models";
-  import { bluetooth, devices } from "$lib/stores";
+  import { bluetooth, devices, settings } from "$lib/stores";
   import { cn } from "$lib/utils";
   import type { BatteryReading } from "$lib/battery";
 
@@ -19,22 +19,30 @@
   const pending = $derived(devices.properties === null);
 
   /**
+   * Whether the buds report as one figure.
+   *
+   * Over-ear models have no choice — they are one unit with one battery — so the setting only
+   * decides it for an actual pair.
+   */
+  const grouped = $derived(artwork.singleUnit || settings.current.groupedBattery);
+
+  /**
    * Readings for the buds group.
    *
-   * The widget shows each bud separately rather than v0.1's single combined number — at a glance
-   * "L 90 / R 20" is the useful information, and one averaged figure hides a bud about to die.
+   * Grouped is the default, matching how macOS reports a pair: one number, the lower of the two, so
+   * the widget stays glanceable. Turning it off shows each bud, which is what tells you *which* one
+   * is about to die.
    */
   const budReadings = $derived.by<BatteryReading[]>(() => {
     const props = devices.properties;
 
-    if (artwork.singleUnit) {
+    if (grouped) {
       return [
         {
           label: "Battery",
-          short: "Battery",
-          battery: props
-            ? { level: devices.overallLevel ?? 0, charging: devices.isCharging }
-            : null
+          battery: devices.overallBattery,
+          // Both, to match the reading itself: one bud out is not "in ear" for the pair.
+          inEar: Boolean(props?.leftInEar && props?.rightInEar)
         }
       ];
     }
@@ -42,13 +50,11 @@
     return [
       {
         label: "Left",
-        short: "L",
         battery: props?.leftBattery ?? null,
         inEar: props?.leftInEar
       },
       {
         label: "Right",
-        short: "R",
         battery: props?.rightBattery ?? null,
         inEar: props?.rightInEar
       }
@@ -148,11 +154,11 @@
         <div class="flex items-start gap-1.5">
           {#each budReadings as reading (reading.label)}
             <BatteryStat
-              label={reading.short}
+              label={reading.label}
               battery={reading.battery}
               inEar={reading.inEar ?? false}
               {pending}
-              class={artwork.singleUnit ? "w-16" : "w-12"}
+              class={grouped ? "w-16" : "w-12"}
             />
           {/each}
         </div>

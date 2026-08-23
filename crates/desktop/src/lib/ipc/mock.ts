@@ -45,7 +45,8 @@ class MockBackend implements Backend {
     autoStart: true,
     autoUpdate: true,
     earDetection: true,
-    lowBatteryThreshold: 20
+    lowBatteryThreshold: 20,
+    groupedBattery: true
   };
   #alwaysOnTop = false;
   #update: UpdateStatus = {

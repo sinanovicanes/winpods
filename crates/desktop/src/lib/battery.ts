@@ -43,8 +43,6 @@ export const TONE_TEXT_ON_DARK: Record<BatteryTone, string> = {
 /** A battery reading paired with the side it belongs to, as the UI renders it. */
 export interface BatteryReading {
   label: string;
-  /** Short form for tight spaces, e.g. the widget. */
-  short: string;
   battery: Battery | null;
   inEar?: boolean;
 }

@@ -1,6 +1,7 @@
 import { backend, Events } from "$lib/ipc";
 import type {
   AvailableDevice,
+  Battery,
   BluetoothAddress,
   ConnectionState,
   DeviceInfo,
@@ -41,6 +42,18 @@ class DeviceStore {
     if (left && right) return left.charging && right.charging;
     return (left ?? right)?.charging ?? false;
   });
+
+  /**
+   * The device as a single battery, the lower of the two buds.
+   *
+   * `null` when neither bud reported, which is not the same as 0%: a bud in a closed case reports
+   * no level at all. Mirrors `DeviceProperties::overall_battery` in `winpods-core`.
+   */
+  readonly overallBattery = $derived.by<Battery | null>(() =>
+    this.overallLevel === null
+      ? null
+      : { level: this.overallLevel, charging: this.isCharging }
+  );
 
   #started = false;
 

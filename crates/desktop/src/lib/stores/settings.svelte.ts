@@ -5,7 +5,8 @@ const DEFAULTS: Settings = {
   autoStart: true,
   autoUpdate: true,
   earDetection: true,
-  lowBatteryThreshold: 20
+  lowBatteryThreshold: 20,
+  groupedBattery: true
 };
 
 /**

@@ -84,6 +84,8 @@ export interface Settings {
   earDetection: boolean;
   /** Notify at or below this percentage. 0 turns the notification off. */
   lowBatteryThreshold: number;
+  /** Show one combined level on the widget instead of one per bud. */
+  groupedBattery: boolean;
 }
 
 /** A partial settings change. Only the named fields are applied. */

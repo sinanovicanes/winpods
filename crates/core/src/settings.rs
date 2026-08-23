@@ -26,6 +26,8 @@ pub struct Settings {
     pub ear_detection: bool,
     /// Notify at or below this percentage. [`LOW_BATTERY_DISABLED`] turns it off.
     pub low_battery_threshold: u8,
+    /// Show one combined level on the widget instead of one per bud.
+    pub grouped_battery: bool,
 }
 
 impl Default for Settings {
@@ -35,6 +37,7 @@ impl Default for Settings {
             auto_update: true,
             ear_detection: true,
             low_battery_threshold: 20,
+            grouped_battery: true,
         }
     }
 }
@@ -80,6 +83,9 @@ impl Settings {
         if let Some(value) = patch.low_battery_threshold {
             self.low_battery_threshold = value;
         }
+        if let Some(value) = patch.grouped_battery {
+            self.grouped_battery = value;
+        }
 
         self.normalize();
         *self != before
@@ -98,6 +104,7 @@ pub struct SettingsPatch {
     pub auto_update: Option<bool>,
     pub ear_detection: Option<bool>,
     pub low_battery_threshold: Option<u8>,
+    pub grouped_battery: Option<bool>,
 }
 
 /// Reads and writes [`Settings`] as a JSON file.
@@ -199,6 +206,10 @@ mod tests {
         assert!(settings.auto_update);
         assert!(settings.ear_detection);
         assert_eq!(settings.low_battery_threshold, 20);
+        assert!(
+            settings.grouped_battery,
+            "the widget shows one combined level unless asked otherwise"
+        );
     }
 
     #[test]
@@ -242,6 +253,7 @@ mod tests {
             auto_update: false,
             ear_detection: false,
             low_battery_threshold: 40,
+            grouped_battery: false,
         };
 
         store.save(&settings).expect("save");
@@ -344,6 +356,18 @@ mod tests {
         };
         assert!(!settings.low_battery_notification_enabled());
         assert!(Settings::default().low_battery_notification_enabled());
+    }
+
+    #[test]
+    fn grouping_can_be_turned_off_by_patch() {
+        let mut settings = Settings::default();
+
+        assert!(settings.apply(SettingsPatch {
+            grouped_battery: Some(false),
+            ..SettingsPatch::default()
+        }));
+        assert!(!settings.grouped_battery);
+        assert!(settings.ear_detection, "untouched fields are left alone");
     }
 
     #[test]

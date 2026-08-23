@@ -8,7 +8,12 @@
   import type { Battery } from "$lib/ipc";
 
   interface Props {
-    /** Short label — the widget has no room for more than a letter or two. */
+    /**
+     * Names the reading for screen readers only.
+     *
+     * The widget draws no caption: a bare "L" under a percentage cost a line of vertical space to
+     * repeat what the artwork beside it already says, and left is simply the one on the left.
+     */
     label: string;
     battery: Battery | null;
     inEar?: boolean;
@@ -30,6 +35,8 @@
 </script>
 
 <div class={cn("flex w-14 flex-col items-center gap-1", className)}>
+  <span class="sr-only">{label}</span>
+
   {#if pending}
     <div class="h-4 w-9 animate-pulse rounded bg-white/20"></div>
     <div class="h-1.5 w-full animate-pulse rounded-full bg-white/15"></div>
@@ -55,8 +62,4 @@
 
     <BatteryBar {level} {charging} onDark />
   {/if}
-
-  <span class="text-[10px] font-medium tracking-wider text-white/45 uppercase"
-    >{label}</span
-  >
 </div>

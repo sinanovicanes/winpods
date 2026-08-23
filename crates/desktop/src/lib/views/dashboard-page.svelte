@@ -24,27 +24,17 @@
     const props = devices.properties;
 
     if (artwork.singleUnit) {
-      return [
-        {
-          label: "Battery",
-          short: "Battery",
-          battery: props
-            ? { level: devices.overallLevel ?? 0, charging: devices.isCharging }
-            : null
-        }
-      ];
+      return [{ label: "Battery", battery: devices.overallBattery }];
     }
 
     const readings: BatteryReading[] = [
       {
         label: "Left",
-        short: "L",
         battery: props?.leftBattery ?? null,
         inEar: props?.leftInEar
       },
       {
         label: "Right",
-        short: "R",
         battery: props?.rightBattery ?? null,
         inEar: props?.rightInEar
       }
@@ -53,7 +43,6 @@
     if (artwork.case) {
       readings.push({
         label: "Case",
-        short: "Case",
         battery: props?.caseBattery ?? null
       });
     }

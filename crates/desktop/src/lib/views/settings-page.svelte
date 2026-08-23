@@ -87,7 +87,7 @@
     <h2 class="text-muted-foreground px-1 text-xs font-medium uppercase tracking-widest">
       Appearance
     </h2>
-    <Card flush>
+    <Card flush class="divide-hairline divide-y">
       <div class="flex items-center justify-between gap-6 p-4">
         <div class="min-w-0">
           <p class="text-[13px] font-medium">Theme</p>
@@ -98,6 +98,20 @@
           value={theme.preference}
           options={THEMES}
           onchange={value => theme.set(value)}
+        />
+      </div>
+      <div class="flex items-center justify-between gap-6 p-4">
+        <div class="min-w-0">
+          <p class="text-[13px] font-medium">Group battery level</p>
+          <p class="text-muted-foreground mt-0.5 text-xs">
+            Show one level on the widget, the lower of the two buds, instead of each bud
+            separately.
+          </p>
+        </div>
+        <Switch
+          label="Group battery level"
+          checked={settings.current.groupedBattery}
+          onchange={value => void settings.update({ groupedBattery: value })}
         />
       </div>
     </Card>
