@@ -215,9 +215,15 @@ class MockBackend implements Backend {
     },
 
     setBattery: (level: number) => {
+      const props = this.#properties;
+      if (!props) return;
+
       this.#patchProperties({
-        leftBattery: { level, charging: false },
-        rightBattery: { level, charging: false }
+        leftBattery: props.leftBattery && { level, charging: props.leftBattery.charging },
+        rightBattery: props.rightBattery && {
+          level,
+          charging: props.rightBattery.charging
+        }
       });
     },
 
@@ -258,17 +264,19 @@ class MockBackend implements Backend {
 }
 
 function freshProperties(device: AvailableDevice | DeviceInfo): DeviceProperties {
-  const hasCase = device.model !== "AirPodsMax" && device.model !== "AirPodsMaxUsbC";
+  const overEar = device.model === "AirPodsMax" || device.model === "AirPodsMaxUsbC";
 
   return {
     rssi: -52,
     address: device.address,
     model: device.model,
     leftBattery: { level: 90, charging: false },
-    rightBattery: { level: 80, charging: false },
-    caseBattery: hasCase ? { level: 50, charging: false } : null,
+    // Over-ear models are one unit: they report a single battery and no case, so the second
+    // reading is absent rather than duplicated.
+    rightBattery: overEar ? null : { level: 80, charging: false },
+    caseBattery: overEar ? null : { level: 50, charging: false },
     leftInEar: true,
-    rightInEar: true
+    rightInEar: !overEar
   };
 }
 

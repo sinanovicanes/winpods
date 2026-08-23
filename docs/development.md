@@ -16,7 +16,7 @@ bun run tauri dev      # the whole app — Windows only
 bun run dev            # the UI alone, any OS
 ```
 
-`bun run dev` serves the real UI against the mock backend and prints to http://localhost:1420. The
+`bun run dev` serves the real UI against the mock backend and prints to http://localhost:3000. The
 dashboard is `/`, the widget is `/widget/`.
 
 ## Working without Windows
@@ -78,6 +78,15 @@ Windows machine for that.
 | Any frontend code | `bun run check` then `bun run build` |
 | UI appearance | `bun run dev` and look at it |
 | Anything, before pushing | `cargo fmt --all` and `bun run format` |
+
+## The dev port
+
+Three places must agree, or `bun run tauri dev` opens a blank window because Tauri loads a URL
+nothing is serving:
+
+- `crates/desktop/vite.config.ts` — `DEV_PORT`, the source of truth
+- `crates/desktop/src-tauri/tauri.conf.json` — `build.devUrl`
+- the `dev` script must **not** pass `--port`, so it cannot override the config
 
 ## Type checking
 

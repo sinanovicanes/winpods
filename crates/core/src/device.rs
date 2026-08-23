@@ -77,6 +77,17 @@ impl DeviceProperties {
         }
     }
 
+    /// The device's battery as a single reading.
+    ///
+    /// Meaningful for over-ear models, which are one unit with one battery rather than a pair;
+    /// see [`AppleDeviceModel::is_single_unit`]. For a pair this reports the lower of the two.
+    pub fn overall_battery(&self) -> Option<Battery> {
+        Some(Battery {
+            level: self.overall_level()?,
+            charging: self.is_charging(),
+        })
+    }
+
     /// Whether the device as a whole counts as charging.
     ///
     /// Both buds have to be charging when both report, so a single bud in the case does not make

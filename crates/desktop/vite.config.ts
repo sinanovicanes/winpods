@@ -4,6 +4,9 @@ import { defineConfig } from "vite";
 
 const host = process.env.TAURI_DEV_HOST;
 
+/** Must match `devUrl` in src-tauri/tauri.conf.json. */
+const DEV_PORT = 3000;
+
 export default defineConfig({
   plugins: [tailwindcss(), sveltekit()],
 
@@ -11,11 +14,12 @@ export default defineConfig({
   clearScreen: false,
 
   server: {
-    // Tauri expects a fixed port and should fail loudly rather than silently move.
-    port: 1420,
+    // Tauri loads this exact URL, so the port is fixed and vite must fail loudly rather than
+    // silently move to another one. Keep it in step with `devUrl` in tauri.conf.json.
+    port: DEV_PORT,
     strictPort: true,
     host: host || false,
-    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    hmr: host ? { protocol: "ws", host, port: DEV_PORT + 1 } : undefined,
     watch: {
       ignored: ["**/src-tauri/**"]
     }

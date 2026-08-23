@@ -53,16 +53,26 @@ fn render(app_name: &str, device_name: &str, properties: Option<&DevicePropertie
         return tooltip;
     };
 
-    if let Some(level) = battery_line("Left", properties.left_battery, properties.left_in_ear) {
-        let _ = writeln!(tooltip, "{level}");
-    }
+    // Over-ear models are one unit with one battery, so a left/right split would invent a
+    // distinction the device does not have.
+    if properties.model.is_single_unit() {
+        if let Some(level) = battery_line("Battery", properties.overall_battery(), false) {
+            let _ = writeln!(tooltip, "{level}");
+        }
+    } else {
+        if let Some(level) = battery_line("Left", properties.left_battery, properties.left_in_ear) {
+            let _ = writeln!(tooltip, "{level}");
+        }
 
-    if let Some(level) = battery_line("Right", properties.right_battery, properties.right_in_ear) {
-        let _ = writeln!(tooltip, "{level}");
-    }
+        if let Some(level) =
+            battery_line("Right", properties.right_battery, properties.right_in_ear)
+        {
+            let _ = writeln!(tooltip, "{level}");
+        }
 
-    if let Some(level) = battery_line("Case", properties.case_battery, false) {
-        let _ = writeln!(tooltip, "{level}");
+        if let Some(level) = battery_line("Case", properties.case_battery, false) {
+            let _ = writeln!(tooltip, "{level}");
+        }
     }
 
     let _ = write!(tooltip, "{device_name}");
@@ -130,6 +140,26 @@ mod tests {
     fn falls_back_to_the_device_name_without_readings() {
         let tooltip = render("winpods", "My AirPods", None);
         assert_eq!(tooltip, "winpods\nMy AirPods");
+    }
+
+    #[test]
+    fn single_unit_models_report_one_battery() {
+        let props = DeviceProperties {
+            model: AppleDeviceModel::AirPodsMaxUsbC,
+            left_battery: Some(Battery::new(60, false)),
+            right_battery: Some(Battery::new(60, false)),
+            case_battery: None,
+            ..properties()
+        };
+
+        let tooltip = render("winpods", "My AirPods Max", Some(&props));
+        assert!(tooltip.contains("Battery: 60%"), "got {tooltip:?}");
+        assert!(
+            !tooltip.contains("Left"),
+            "AirPods Max have no left/right split"
+        );
+        assert!(!tooltip.contains("Right"));
+        assert!(!tooltip.contains("Case"));
     }
 
     #[test]

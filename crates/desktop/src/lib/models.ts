@@ -20,6 +20,13 @@ export interface ModelArtwork {
   case?: string;
   /** Whether the bud image should be mirrored to make a pair. */
   pair: boolean;
+  /**
+   * Whether the device is one unit with one battery rather than two independent buds.
+   *
+   * Over-ear models are. Reporting a left/right split for them invents a distinction the
+   * hardware does not have. Mirrors `AppleDeviceModel::is_single_unit` in `winpods-apple-cp`.
+   */
+  singleUnit: boolean;
 }
 
 const inEar = (
@@ -32,14 +39,16 @@ const inEar = (
   hero,
   bud,
   case: caseImage,
-  pair: true
+  pair: true,
+  singleUnit: false
 });
 
 const overEar = (name: string): ModelArtwork => ({
   name,
   hero: airpodsMaxHero,
   bud: airpodsMaxBud,
-  pair: false
+  pair: false,
+  singleUnit: true
 });
 
 /**

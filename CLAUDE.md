@@ -40,7 +40,7 @@ Run frontend commands from `crates/desktop`, Rust commands from the repository r
 | Task | Command |
 | --- | --- |
 | Run the app (needs Windows) | `bun run tauri dev` |
-| Run only the UI (any OS) | `bun run dev` → http://localhost:1420 |
+| Run only the UI (any OS) | `bun run dev` → http://localhost:3000 |
 | Typecheck the frontend | `bun run check` |
 | Format the frontend | `bun run format` |
 | Build the frontend | `bun run build` |
@@ -162,6 +162,15 @@ value. See [docs/ui.md](docs/ui.md).
 A bud in a closed case reports **no level**, which is different from reporting 0%. Absent readings
 are `Option<Battery>` / `Battery | null` end to end. The previous version used 0 as a sentinel, so a
 genuinely empty bud was indistinguishable from a missing one.
+
+### Over-ear models are one unit, not a pair
+
+AirPods Max have a single battery and no case, but the payload still populates the case nibble and
+both battery nibbles. `AppleDeviceModel::has_case` and `AppleDeviceModel::is_single_unit` gate this;
+the dashboard shows one "Battery" row, the tray tooltip one line, and the case is dropped. The
+frontend mirror is `singleUnit` on `ModelArtwork` in `src/lib/models.ts`. When adding a model, set
+both correctly — showing "Left 60% / Right 60%" for a single-unit device invents a distinction the
+hardware does not have.
 
 ### Do not reintroduce the type-erased event dispatcher
 

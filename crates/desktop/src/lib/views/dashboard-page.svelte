@@ -12,17 +12,34 @@
     devices.available.map(device => ({ value: device.address, label: device.name }))
   );
 
-  // Left and right always show a row, so an absent reading renders as a dash rather than
-  // silently disappearing. The case row is hidden entirely for models that have none.
-  const rows = $derived([
-    { label: "Left", battery: devices.properties?.leftBattery ?? null, always: true },
-    { label: "Right", battery: devices.properties?.rightBattery ?? null, always: true },
-    {
-      label: "Case",
-      battery: devices.properties?.caseBattery ?? null,
-      always: artwork.case !== undefined
+  /**
+   * Battery rows to show.
+   *
+   * Over-ear models are one unit with one battery, so they get a single row -- a left/right
+   * split would invent a distinction the hardware does not have. Paired models always show both
+   * buds (an absent reading renders as a dash) and a case row only if they have a case.
+   */
+  const rows = $derived.by(() => {
+    const props = devices.properties;
+
+    if (artwork.singleUnit) {
+      const battery = props
+        ? { level: devices.overallLevel, charging: devices.isCharging }
+        : null;
+
+      return [{ label: "Battery", battery, show: true }];
     }
-  ]);
+
+    return [
+      { label: "Left", battery: props?.leftBattery ?? null, show: true },
+      { label: "Right", battery: props?.rightBattery ?? null, show: true },
+      {
+        label: "Case",
+        battery: props?.caseBattery ?? null,
+        show: artwork.case !== undefined
+      }
+    ];
+  });
 </script>
 
 {#if devices.loading}
@@ -48,9 +65,9 @@
 
           <dl class="flex flex-col gap-2.5">
             {#each rows as row (row.label)}
-              {#if row.always}
+              {#if row.show}
                 <div class="flex items-center gap-4">
-                  <dt class="text-muted-foreground w-12 text-[13px]">{row.label}</dt>
+                  <dt class="text-muted-foreground w-16 text-[13px]">{row.label}</dt>
                   <dd>
                     {#if devices.properties}
                       <BatteryIndicator
@@ -81,7 +98,9 @@
       <div class="min-w-0">
         <p class="text-[13px] font-medium">Automatic ear detection</p>
         <p class="text-muted-foreground mt-0.5 text-xs">
-          Pauses audio when you take a bud out and resumes when you put it back in.
+          {artwork.singleUnit
+            ? "Pauses audio when you take them off and resumes when you put them back on."
+            : "Pauses audio when you take a bud out and resumes when you put it back in."}
         </p>
       </div>
       <Switch
