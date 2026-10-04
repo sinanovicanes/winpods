@@ -37,6 +37,8 @@ impl DeviceManagerState {
         });
 
         self.device = Some(device.clone());
+        // Readings belong to the previous device; keep none rather than showing its batteries.
+        self.device_properties = None;
         self.dispatcher.dispatch(DeviceSelectedEvent(device));
     }
 
