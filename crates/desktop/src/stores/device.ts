@@ -53,7 +53,11 @@ export const useDevice = defineStore("device-connection", () => {
     }
   });
 
-  listen<Device>(Events.DeviceSelected, event => (device.value = event.payload));
+  listen<Device>(Events.DeviceSelected, event => {
+    device.value = event.payload;
+    // The backend may switch straight from one device to another; readings never carry over.
+    deviceProperties.value = null;
+  });
   listen<Device>(Events.DeviceSelectionCleared, _ => (device.value = null));
   listen<string>(Events.DeviceNameUpdated, event => {
     if (!device.value) return;

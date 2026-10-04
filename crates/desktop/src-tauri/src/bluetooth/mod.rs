@@ -7,7 +7,7 @@ use bluetooth::{
 use tauri::{App, Emitter, Manager};
 
 use crate::{
-    device_manager::{DeviceManagerState, DeviceProperties},
+    device_manager::{self, DeviceManagerState, DeviceProperties},
     events,
 };
 
@@ -86,7 +86,11 @@ pub fn init(app: &mut App) {
         };
 
         if !device.is_connected() {
-            // tracing::info!("Device is not connected, ignoring advertisement");
+            // A proximity pairing advertisement means AirPods are around while the selected device
+            // is gone, which is what switching to another pair looks like. Release the lock first:
+            // looking for a connected device is a WinRT round trip.
+            drop(device_manager);
+            device_manager::switch_from_disconnected_device(&app_handle);
             return;
         }
 
